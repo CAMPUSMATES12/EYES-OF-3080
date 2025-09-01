@@ -1,0 +1,1006 @@
+ <!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>EYES OF 3080</title>
+<style>
+  :root{
+    --uni-green:#0a5a2b;
+    --uni-green-2:#155e36;
+    --text:#0e0e0e;
+    --muted:#5f6b5f;
+    --surface:#ffffff;
+    --surface-2:#f5f7f5;
+    --radius:14px;
+    --shadow:0 6px 24px rgba(0,0,0,.06), 0 2px 6px rgba(0,0,0,.05);
+  }
+  body.dark{
+    --surface:#1e1e1e;
+    --surface-2:#2a2a2a;
+    --text:#f0f0f0;
+    --muted:#cccccc;
+    background:#121212;
+    color:var(--text);
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0}
+  body{
+    font-family: system-ui,-apple-system,Segoe UI,Roboto,Inter,Arial,sans-serif;
+    color:var(--text);
+    background:#fff;
+    line-height:1.6;
+    transition: background .3s, color .3s;
+  }
+
+  /* ======= TOP STRIP ======= */
+  .topbar{
+    background:var(--uni-green);
+    color:#fff;
+    padding:18px 16px;
+  }
+  .topbar .wrap{
+    max-width:1100px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;
+  }
+  .brand{display:flex;align-items:center;gap:14px;}
+  .brand img{width:56px;height:56px;border-radius:50%;object-fit:cover;display:block;background:#fff;}
+  .brand h1{margin:0;font-size:28px;font-weight:800;letter-spacing:.3px;}
+
+  .mode-toggle{
+    cursor:pointer;
+    padding:10px 16px;
+    border-radius:10px;
+    background:#fff;
+    color:var(--uni-green);
+    font-weight:600;
+    border:none;
+  }
+
+  .hamburger {
+  display:none;
+  flex-direction:column;
+  gap:5px;
+  cursor:pointer;
+}
+.hamburger span {
+  width:25px;
+  height:3px;
+  background:var(--text);
+  border-radius:3px;
+}
+@media (max-width:600px) {
+  .hamburger { display:flex; }
+  .menu { display:none; flex-direction:column; gap:12px; width:100%; margin-top:10px; }
+  .menu.active { display:flex; }
+}
+
+  .search{width:260px;min-width:220px;position:relative;}
+  .search input{width:100%;padding:12px 38px 12px 14px;border-radius:12px;border:1px solid #e0e7e2;
+    background:var(--surface);font-size:15px;outline:none;color:var(--text);}
+  .search .icon{position:absolute;right:10px;top:50%;transform:translateY(-50%);
+    width:20px;height:20px;pointer-events:none;opacity:.7;fill:var(--muted);}
+
+  /* ======= PAGE WRAP ======= */
+  main{max-width:1100px;margin:0 auto;padding:20px 16px 80px;}
+  h2.section{font-size:28px;margin:18px 0;}
+
+  /* ======= SLIDER ======= */
+  .slider{position:relative;border-radius:16px;overflow:hidden;box-shadow:var(--shadow);}
+  .slides{display:flex;transition:transform 0.5s ease-in-out;}
+  .slide{min-width:100%;position:relative;}
+  .slide img{width:100%;height:280px;object-fit:cover;}
+  .overlay{position:absolute;bottom:18px;left:18px;right:18px;color:#fff;font-weight:800;font-size:30px;
+    line-height:1.2;text-shadow:0 3px 10px rgba(0,0,0,.35);}
+  .arrow{
+    position:absolute;top:50%;transform:translateY(-50%);
+    background:rgba(0,0,0,0.5);color:#fff;border:none;
+    font-size:24px;padding:10px;border-radius:50%;cursor:pointer;
+  }
+  .arrow.left{left:10px;}
+  .arrow.right{right:10px;}
+
+  /* ======= CARDS ======= */
+  .grid{display:grid;gap:22px;margin-top:14px;grid-template-columns:repeat(2,minmax(0,1fr));}
+  @media (max-width:820px){.grid{grid-template-columns:1fr}.search{width:100%;min-width:0}.navrow .wrap{flex-wrap:wrap}}
+
+  .card{background:var(--surface);border:1px solid #e7ece8;border-radius:16px;padding:18px;box-shadow:var(--shadow);}
+  body.dark .card{border-color:#333;}
+  .card h3{margin:0 0 8px;font-size:20px;}
+  .card p{margin:0 0 18px;color:var(--muted);}
+  .btn{display:inline-block;padding:10px 16px;border-radius:10px;background:var(--uni-green-2);color:#fff;text-decoration:none;font-weight:600;cursor:pointer;border:none;}
+  .hr{margin-top:16px;border-top:1px solid #eef1ee;}
+  body.dark .hr{border-color:#333;}
+
+  /* ======= FULL PAGE MODAL ======= */
+  .modal {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.75);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 9999;
+  }
+  .modal-content {
+    background: var(--surface);
+    color: var(--text);
+    max-width: 800px;
+    width: 90%;
+    max-height: 90vh;
+    overflow-y: auto;
+    border-radius: 14px;
+    padding: 24px;
+    box-shadow: var(--shadow);
+    position: relative;
+  }
+  .modal-content h1 {
+    margin-top: 0;
+    font-size: 26px;
+  }
+  .modal-content p {
+    font-size: 18px;
+    margin-bottom: 14px;
+  }
+  .modal-content a {
+    color: #0066cc;
+    font-weight: bold;
+    text-decoration: underline;
+  }
+  .modal-content .highlight {
+    display: block;
+    font-weight: bold;
+    text-transform: uppercase;
+    margin-top: 20px;
+    margin-bottom: 10px;
+    color: var(--uni-green-2);
+  }
+  .modal-close {
+    position: absolute;
+    top: 14px;
+    right: 14px;
+    background: var(--uni-green-2);
+    color: #fff;
+    border: none;
+    padding: 8px 14px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: bold;
+  }
+
+
+
+</style>
+</head>
+<body>
+
+  <!-- GREEN HEADER -->
+<div class="topbar">
+  <div class="wrap">
+    <div class="brand">
+      <img id="logo" src="https://i.postimg.cc/mD4BWXCk/6a8f3e57-3d27-47f5-9b5e-22a7070fc442.jpg" alt="UNIOSUN Logo" />
+      <h1>EYES OF 3080</h1>
+    </div>
+
+    <!-- Hamburger button inside header -->
+    <div class="hamburger" onclick="toggleMenu()">
+      <span></span>
+      <span></span>
+      <span></span>
+    </div>
+
+    <button class="mode-toggle" onclick="toggleDarkMode()">🌙</button>
+  </div>
+</div>
+
+<!-- NAVIGATION MENU -->
+<nav>
+  <ul class="menu" id="menu">
+    <li><a onclick="showSection('home')">Home</a></li>
+    <li><a onclick="showSection('campus-gist')">Campus Gist</a></li>
+    <li><a onclick="showSection('academic-updates')">Academic Updates</a></li>
+    <li><a onclick="showSection('gaming')">Gaming</a></li>
+    <li><a onclick="showSection('pdfs')">PDFs</a></li>
+    <li><a onclick="showSection('marketplace')">Marketplace🛍️</a></li>
+  </ul>
+</nav>
+
+<!-- SEARCH BAR -->
+<div class="search">
+  <input type="search" id="searchInput" placeholder="Search news..." aria-label="Search" onkeyup="searchNews()" />
+  <svg class="icon" viewBox="0 0 24 24">
+    <path d="M10.5 3a7.5 7.5 0 105.02 13.2l4.64 4.64-1.41 1.41-4.64-4.64A7.5 7.5 0 0010.5 3zm0 2a5.5 5.5 0 110 11 5.5 5.5 0 010-11z"/>
+  </svg>
+</div>
+
+  <!-- CONTENT -->
+  <main>
+    <!-- HOME -->
+    <section id="home" class="page-section">
+      <h2 class="section">Latest News</h2>
+
+       <!-- Slider -->
+      <section class="slider" id="slider">
+        <div class="slides">
+          <div class="slide">
+            <img src="https://i.postimg.cc/bJyYnmxx/6a8f3e57-3d27-47f5-9b5e-22a7070fc442.jpg" alt="Campus" />
+            <div class="overlay">🎉 Welcome to EYES OF 3080! Stay updated with campus news</div>
+          </div>
+          <div class="slide">
+            <img src="https://i.postimg.cc/02ftv5N2/970-C5-E86-5-AA7-4-C9-E-B843-A2-C018-EE6-C9-F.png" alt="Library" />
+            <div class="overlay"> HAPPY NEW MONTH</div>
+          </div>
+        </div>
+        <button class="arrow left" onclick="prevSlide()">&#10094;</button>
+        <button class="arrow right" onclick="nextSlide()">&#10095;</button>
+      </section>
+
+      <h2 class="section" style="margin-top:26px;">More News</h2>
+    <section class="grid" id="newsGrid">
+
+
+  
+  <!-- First News -->
+  <article class="card">
+    <h3>2025/2026 ADMISSION EXERCISE: NOTICE OF INTER UNIVERSITY TRANSFER</h3>
+    <p class="text" data-full="This is to inform all the prospective applicants intending to transfer their studentship to Osun State University that the University has commenced the sales of Inter University Transfer Form for the 2025/2026 Academic Session.">
+      This is to inform all the prospective applicants intending to transfer…
+    </p>
+    <button class="btn" onclick="toggleReadMore(this)">Read More</button>
+    <div class="hr"></div>
+  </article>
+
+  <!-- Second News -->
+  <article class="card">
+    <h3>2025/2026 ADMISSIONS EXERCISE: NOTICE OF POST-UTME SCREENING</h3>
+    <p class="text" data-full="Notice is hereby given that the 2025 Unified Tertiary Matriculation Examination (UTME) screening exercise will hold for candidates who chose Osun State University as their first choice or those willing to change their institution and make UNIOSUN their first choice, who have a minimum score of 160 marks. However, candidates who scored less than 200 marks would not be considered for admission into Nursing, Medicine, Law, and Common and Islamic Law.">
+      Notice is hereby given that the 2025 UTME screening exercise will hold for candidates…
+    </p>
+    <button class="btn" onclick="toggleReadMore(this)">Read More</button>
+    <div class="hr"></div>
+  </article>
+
+
+<article class="card">
+  <h3>Know Your Category as an Aspirant</h3>
+  <p class="text" data-full="
+    <p>1️⃣ <b>Postgraduate Aspirants</b> – Graduates intending to further their studies (Masters).</p>
+    <p>2️⃣ <b>Inter-University Transfer Aspirants</b> – Students in another university seeking transfer to UNIOSUN.</p>
+    <p>3️⃣ <b>UTME Undergraduates</b> – JAMB candidates (100L entry).</p>
+    <p>4️⃣ <b>Direct Entry (DE) Undergraduates</b> – OND/NCE/IJMB/JUPEB holders (200L entry).</p>
+    <p>5️⃣ <b>Part-Time Aspirants</b> – Same degree as full-time but spread over 5 years, lectures on Fridays & Saturdays.</p>
+    <p>6️⃣ <b>JUPEB/IJMB Aspirants</b> – A-level programme that qualifies you for DE admission.</p>
+    <p>7️⃣ <b>Pre-Degree Aspirants</b> – University-run programme giving an edge for 100L admission.</p>
+    <p><b>Moral Lesson:</b> Not all aspirants are on the same level – everyone has a different path and purpose.</p>
+    <p>👉 For official info, always check: 
+      <a href='https://www.uniosun.edu.ng' target='_blank'>www.uniosun.edu.ng</a>
+    </p>
+  ">
+    A quick breakdown of the different categories of UNIOSUN aspirants…
+  </p>
+  <button class="btn" onclick="toggleReadMore(this)">Read More</button>
+  <div class="hr"></div>
+</article>
+
+</section>
+    </section>
+  </main>
+
+  <!-- FULL PAGE MODAL -->
+  <div class="modal" id="modal">
+    <div class="modal-content">
+      <button class="modal-close" onclick="closeModal()">✖</button>
+      <h1 id="modalTitle"></h1>
+      <div id="modalText"></div>
+    </div>
+  </div>
+
+
+<!-- CAMPUS GIST -->
+<section id="campus-gist" class="page-section" style="display:none;">
+  <h2 class="section">🏫 Campus Gist</h2>
+  <section class="grid">
+    
+    <!-- Example Gist -->
+    <article class="card">
+      <h3>TIPS</h3>
+      <p class="text" data-full="
+        <p>1️⃣ Don’t forget your power bank – light situation and charging points on campus can be stressful. Without it, you may face a lot of challenges.</p>
+        <p>2️⃣ Make sure you have a registered SIM card (preferably Glo or MTN). Network is very important for staying updated, doing online registrations, and communicating with your people.</p>
+        <p>👉 These small things may look minor, but they make a big difference once you resume on campus.</p>
+      ">
+        Here are two important tips for freshers to survive campus life…
+      </p>
+      <button class="btn" onclick="toggleReadMore(this)">Read More</button>
+    </article>
+
+<!-- Gist 2 -->
+    <article class="card">
+      <h3>HOSTEL LIFE</h3>
+      <p class="text" data-full="
+        <p>🏠 Hostel life can be fun but also challenging. Be ready to share space, tolerate different characters, and learn how to manage your privacy.</p>
+        <p>✨ Tip: Always lock your locker/wardrobe, and avoid leaving valuables lying around.</p>
+        <p>👉 Hostel life teaches you patience, tolerance, and friendship that lasts a lifetime.</p>
+      ">
+        Hostel life is one of the best and most challenging parts of university life…
+      </p>
+      <button class="btn" onclick="toggleReadMore(this)">Read More</button>
+    </article>
+
+    
+    <article class="card">
+      <h3>CLASS ATTENDANCE</h3>
+      <p class="text" data-full="
+        <p>📚 Attendance is taken seriously at UNIOSUN. Missing classes can affect your Continuous Assessment (CA) and sometimes even exam eligibility.</p>
+        <p>✔️ Try to attend lectures regularly – lecturers notice students who are consistent.</p>
+        <p>👉 Beyond marks, classes help you understand topics better than just reading slides.</p>
+      ">
+        Many freshers underestimate the importance of attending classes consistently…
+      </p>
+      <button class="btn" onclick="toggleReadMore(this)">Read More</button>
+</airticle>
+
+  </section>
+</section>
+
+<!-- ACADEMICS -->
+<section id="academic-updates" class="page-section" style="display:none;">
+  <h2 class="section">📚 Academic Updates</h2>
+  <section class="grid">
+    
+    <!-- Card 1 -->
+    <article class="card">
+      <h3>2025/2026 ADMISSIONS EXERCISE: NOTICE OF POST-UTME SCREENING</h3>
+      <p class="text" data-full="Notice is hereby given that the 2025 Unified Tertiary Matriculation Examination (UTME) screening exercise will hold for candidates who chose Osun State University as their first choice or those willing to change their institution and make UNIOSUN their first choice, who have a minimum score of 160 marks. However, candidates who scored less than 200 marks would not be considered for admission into Nursing, Medicine, Law, and Common and Islamic Law.">
+        Notice is hereby given that the 2025 UTME screening exercise will hold for candidates…
+      </p>
+      <button class="btn" onclick="toggleReadMore(this)">Read More</button>
+      <div class="hr"></div>
+    </article>
+
+    <!-- Card 2 -->
+    <article class="card">
+      <h3>2024/2025 UNIOSUN Admission Guide</h3>
+      <p class="text" data-full="Your screening score determines admission. JAMB only decides if you’re eligible to apply. UNIOSUN general cut-off is 160, but for Medicine, Nursing, Law, Islamic Studies you need at least 200 to register. After that, it’s all about your screening % and how competitive your course is. Meeting a cut-off doesn’t guarantee admission. 
+
+Key Points:
+- Portal blocks registration if JAMB is below cut-off.
+- Higher screening % beats higher JAMB with lower screening.
+- Course competition and departmental quotas affect chances.
+- Example: 73% screening with 200 JAMB can beat 60% screening with 250 JAMB.">
+        Your <strong>screening score</strong> determines admission. JAMB only decides if you’re
+        eligible to apply. UNIOSUN general cut-off is <strong>160</strong>, but for
+        <strong>Medicine, Nursing, Law, Islamic Studies</strong> you need at least <strong>200</strong>…
+      </p>
+      <button class="btn" onclick="toggleReadMore(this)">Read More</button>
+      <div class="hr"></div>
+    </article>
+
+    <!-- Card 3 (Screening Marks Images Example) -->
+    <article class="card" style="text-align:center;">
+      <h3>2024/2025 UNIOSUN SCREENING MARKS</h3>
+      <p class="text" data-full="<img src='https://i.postimg.cc/htJ1Mydj/3d992b4e-6fca-4d17-b1b6-3f439523b28a.jpg' style='width:100%;border-radius:8px;'>
+      <img src='https://i.postimg.cc/SKFCdy4T/3c2ed135-70cd-4843-9a30-882d05f2ee27.jpg' style='width:100%;border-radius:8px;'>
+      <img src='https://i.postimg.cc/k5mR8fNL/acc40ea0-7508-43eb-b059-3b477c660f2e.jpg' style='width:100%;border-radius:8px;'>
+      <img src='https://i.postimg.cc/h4C8B1DB/921b02db-0b65-44a0-9d23-5f3027c104f6.jpg' style='width:100%;border-radius:8px;'>">
+      </p>
+      <button class="btn" onclick="toggleReadMore(this)">Read More</button>
+      <div class="hr"></div>
+    </article>
+
+  </section>
+</section>
+
+
+
+<!-- GAMING -->
+<section id="gaming" class="page-section" style="display:none;">
+  <h2 class="section">🎮 Gaming Zone</h2>
+  <section class="grid">
+    
+    <!-- eFootball -->
+    <article class="card" style="text-align:center;">
+      <img src="https://i.postimg.cc/76cqGwmz/IMG-8968.png" 
+           alt="eFootball Logo" style="max-width:120px; margin-bottom:10px;">
+      <h3>eFootball</h3>
+      <p>Share your Konami ID / Username to connect with fellow players.</p>
+      <form onsubmit="addGamertag(event, 'efootball')" style="display:flex;gap:10px;flex-wrap:wrap;">
+        <input type="text" id="efootballInput" placeholder="Enter your username" required 
+          style="flex:1;padding:10px;border-radius:8px;border:1px solid #ccc;" />
+        <button class="btn" type="submit">Share</button>
+      </form>
+      <ul id="efootballList" style="margin-top:12px;padding-left:20px;"></ul>
+    </article>
+
+    <!-- Free Fire -->
+    <article class="card" style="text-align:center;">
+      <img src="https://i.postimg.cc/JzdZhBj4/IMG-8966.jpg" 
+           alt="Free Fire Logo" style="max-width:120px; margin-bottom:10px;">
+      <h3>Free Fire</h3>
+      <p>Drop your Free Fire ID or nickname.</p>
+      <form onsubmit="addGamertag(event, 'freefire')" style="display:flex;gap:10px;flex-wrap:wrap;">
+        <input type="text" id="freefireInput" placeholder="Enter your Free Fire ID" required 
+          style="flex:1;padding:10px;border-radius:8px;border:1px solid #ccc;" />
+        <button class="btn" type="submit">Share</button>
+      </form>
+      <ul id="freefireList" style="margin-top:12px;padding-left:20px;"></ul>
+    </article>
+
+    <!-- CODM -->
+    <article class="card" style="text-align:center;">
+      <img src="https://i.postimg.cc/23NmGTp8/IMG-8967.png" 
+           alt="COD Mobile Logo" style="max-width:120px; margin-bottom:10px;">
+      <h3>Call of Duty Mobile</h3>
+      <p>Share your Call of Duty Mobile username to team up.</p>
+      <form onsubmit="addGamertag(event, 'codm')" style="display:flex;gap:10px;flex-wrap:wrap;">
+        <input type="text" id="codmInput" placeholder="Enter your CODM username" required 
+          style="flex:1;padding:10px;border-radius:8px;border:1px solid #ccc;" />
+        <button class="btn" type="submit">Share</button>
+      </form>
+      <ul id="codmList" style="margin-top:12px;padding-left:20px;"></ul>
+    </article>
+
+  </section>
+</section>
+
+<!-- Marketplace -->
+<section id="marketplace" class="page-section">
+  <h2 class="section">🛍️ UNIOSUN Marketplace</h2>
+  <p>Shop campus essentials, merch & e-books right here on <b>Eyes of 3080</b>.</p>
+
+  <!-- PRODUCT GRID -->
+  <div class="product-grid">
+    <div class="product-card">
+      <img src="https://i.postimg.cc/hP4MhyS1/6a8f3e57-3d27-47f5-9b5e-22a7070fc442.jpg" alt="Campus T-shirt">
+      <h3>Campus T-shirt</h3>
+      <p class="price">₦3,500</p>
+      <p class="desc">Premium cotton T-shirt with UNIOSUN print.</p>
+      <button onclick="addToCart('Campus T-shirt', 3500, 'https://i.postimg.cc/BnQy9cF4/tshirt.jpg')">🛒 Add to Cart</button>
+    </div>
+  </div> <!-- ✅ removed extra divs -->
+</section>
+
+<!-- 🛒 CART DRAWER -->
+<div id="cart-drawer">
+  <h3>Your Cart</h3>
+  <div id="cart-items"></div>
+  <p class="total">Total: ₦<span id="cart-total">0</span></p>
+  <button class="checkout" onclick="checkoutWhatsApp()">✅ Checkout via WhatsApp</button>
+  <button class="close-cart" onclick="toggleCart()">✖ Close</button>
+</div>
+
+<!-- 🛒 CART ICON -->
+<div id="cart-icon" class="cart-icon" onclick="toggleCart()">
+  🛒 <span id="cart-count">0</span>
+</div>
+
+<style>
+/* ===================== MARKETPLACE LAYOUT ===================== */
+#marketplace {
+  margin-top: 40px;
+  padding: 20px;
+}
+
+.product-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+  gap: 20px;
+}
+
+.product-card {
+  background: #fff;
+  border-radius: 12px;
+  padding: 15px;
+  text-align: center;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.product-card:hover { 
+  transform: translateY(-6px); 
+  box-shadow: 0 6px 15px rgba(0,0,0,0.15);
+}
+
+.product-card img {
+  max-width: 100%;
+  border-radius: 8px;
+  margin-bottom: 10px;
+}
+
+.product-card h3 { 
+  margin: 8px 0; 
+  font-size: 18px; 
+}
+
+.price { 
+  font-weight: bold; 
+  color: #0a5a2b; 
+  font-size: 16px; 
+}
+
+.desc { 
+  font-size: 13px; 
+  color: #666; 
+}
+
+.product-card button {
+  margin-top: 10px;
+  background: #0a5a2b;
+  color: white;
+  border: none;
+  padding: 10px 14px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 14px;
+  transition: background 0.3s;
+}
+
+.product-card button:hover { 
+  background: #155e36; 
+}
+
+/* ===================== CART DRAWER ===================== */
+#cart-drawer {
+  position: fixed;
+  top: 0; 
+  right: -350px;
+  width: 320px;
+  height: 100%;
+  background: #fff;
+  box-shadow: -3px 0 10px rgba(0,0,0,0.3);
+  padding: 20px;
+  transition: right 0.3s ease;
+  z-index: 1000;
+  display: flex;
+  flex-direction: column;
+}
+
+#cart-drawer.open { 
+  right: 0; 
+}
+
+#cart-items { 
+  flex: 1; 
+  overflow-y: auto; 
+  margin: 10px 0; 
+}
+
+.cart-item { 
+  display: flex; 
+  align-items: center; 
+  justify-content: space-between; 
+  margin-bottom: 12px; 
+}
+
+.cart-item img { 
+  width: 45px; 
+  height: 45px; 
+  margin-right: 10px; 
+  border-radius: 5px; 
+}
+
+.cart-item span { 
+  flex: 1; 
+  font-size: 14px; 
+}
+
+.cart-item .qty { 
+  display: flex; 
+  align-items: center; 
+}
+
+.cart-item button { 
+  background: #ddd; 
+  border: none; 
+  padding: 4px 8px; 
+  margin: 0 3px; 
+  cursor: pointer; 
+  border-radius: 4px; 
+}
+
+.cart-item button:hover { 
+  background: #bbb; 
+}
+
+.total { 
+  font-weight: bold; 
+  margin-top: 10px; 
+  font-size: 16px; 
+}
+
+.checkout, .close-cart {
+  margin-top: 12px;
+  padding: 12px;
+  border: none;
+  background: #0a5a2b;
+  color: #fff;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 15px;
+}
+
+.checkout:hover { 
+  background: #155e36; 
+}
+
+.close-cart { 
+  background: #888; 
+}
+
+.close-cart:hover { 
+  background: #555; 
+}
+
+/* ===================== FLOATING CART ICON ===================== */
+.cart-icon {
+  position: fixed;
+  top: 15px; 
+  right: 20px;
+  background: #0a5a2b;
+  color: #fff;
+  padding: 8px 12px;
+  border-radius: 25px;
+  cursor: pointer;
+  font-size: 16px;
+  z-index: 1100;
+  display: none; /* hidden by default */
+}
+
+.cart-icon span {
+  background: red;
+  color: #fff;
+  font-size: 12px;
+  padding: 2px 6px;
+  border-radius: 50%;
+  margin-left: 5px;
+}
+</style>
+
+
+<!-- PDF RESOURCES SECTION -->
+<section id="pdfs" class="page-section" style="display:none;">
+  <h2 class="section">📑 PDF Resources</h2>
+  <p>Download past questions, guides, and handouts.</p>
+
+  <div class="pdf-grid">
+    <!-- Example PDF Card -->
+    <article class="pdf-card">
+      <h3>100L GST Past Questions</h3>
+      <a href="files/GST100_Past_Questions.pdf" target="_blank" class="pdf-btn">📥 Download</a>
+    </article>
+
+    <article class="pdf-card">
+      <h3>UNIOSUN Admission Guide 2025</h3>
+      <a href="files/Admission_Guide.pdf" target="_blank" class="pdf-btn">📥 Download</a>
+    </article>
+
+    <article class="pdf-card">
+      <h3>JUPEB Physics Notes</h3>
+      <a href="files/JUPEB_Physics.pdf" target="_blank" class="pdf-btn">📥 Download</a>
+    </article>
+  </div>
+</section>
+
+<style>
+/* PDF Grid */
+.pdf-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 18px;
+  margin-top: 20px;
+}
+.pdf-card {
+  background: var(--surface);
+  border-radius: 10px;
+  padding: 20px;
+  text-align: center;
+  box-shadow: var(--shadow);
+}
+.pdf-card h3 {
+  font-size: 16px;
+  margin-bottom: 12px;
+  color: var(--uni-green);
+}
+.pdf-btn {
+  display: inline-block;
+  padding: 10px 16px;
+  background: var(--uni-green);
+  color: #fff;
+  border-radius: 8px;
+  text-decoration: none;
+  font-weight: bold;
+}
+.pdf-btn:hover {
+  background: var(--uni-green-2);
+}
+</style>
+
+<!-- CONTACT -->
+<section id="contact" class="page-section" style="display:none;">
+  <h2 class="section">📞 Contact Us</h2>
+  <form class="card" style="display:flex;flex-direction:column;gap:12px;max-width:500px;">
+    <input type="text" placeholder="Your Name" required style="padding:12px;border-radius:10px;border:1px solid #ccc;" />
+    <input type="email" placeholder="Your Email" required style="padding:12px;border-radius:10px;border:1px solid #ccc;" />
+    <textarea placeholder="Message" rows="4" required style="padding:12px;border-radius:10px;border:1px solid #ccc;"></textarea>
+    <button type="submit" class="btn">Send Message</button>
+  </form>
+
+  <!-- WhatsApp Button -->
+  <div style="margin-top:20px;">
+    <a href="https://wa.me/2349043855915" target="_blank" class="btn" 
+       style="background:#25D366;display:inline-flex;align-items:center;gap:10px;">
+       <img src="https://upload.wikimedia.org/wikipedia/commons/6/6b/WhatsApp.svg" 
+            alt="WhatsApp" style="width:22px;height:22px;" />
+       Chat on WhatsApp
+    </a>
+  </div>
+</section>
+
+
+<!-- FOOTER -->
+<footer style="background:var(--uni-green); color:#fff; padding:30px 16px; margin-top:50px;">
+  <div style="max-width:1100px; margin:0 auto; display:flex; flex-wrap:wrap; justify-content:space-between; gap:20px;">
+    
+    <!-- Left: About -->
+    <div style="flex:1; min-width:220px;">
+      <h3 style="margin-top:0;">EYES OF 3080</h3>
+      <p style="margin:0;">Your trusted source for campus news, academic updates, and student life at Osun State University.</p>
+    </div>
+    
+    <!-- Middle: Quick Links -->
+    <div style="flex:1; min-width:180px;">
+      <h3 style="margin-top:0;">Quick Links</h3>
+      <ul style="list-style:none; padding:0; margin:0; line-height:1.8;">
+        <li><a href="#" onclick="showSection('home')" style="color:#fff; text-decoration:none;">Home</a></li>
+        <li><a href="#" onclick="showSection('campus-gist')" style="color:#fff; text-decoration:none;">Campus Gist</a></li>
+        <li><a href="#" onclick="showSection('academic-updates')" style="color:#fff; text-decoration:none;">Academic Updates</a></li>
+        <li><a href="#" onclick="showSection('gaming')" style="color:#fff; text-decoration:none;">Gaming Zone</a></li>
+        <li><a href="#" onclick="showSection('contact')" style="color:#fff; text-decoration:none;">Contact</a></li>
+        <li><a href="#" onclick="showSection('about-us')" style="color:#fff; text-decoration:none;">About Us</a></li>
+      </ul>
+    </div>
+    
+    <!-- Right: Contact -->
+    <div style="flex:1; min-width:220px;">
+      <h3 style="margin-top:0;">Contact</h3>
+      <p>Email: <a href="mailto:youremail@example.com" style="color:#fff;">eyesof3080@gmail.com</a></p>
+      <p>WhatsApp: <a href="https://wa.me/2348162833687?text=Hello%20I%20want%20to%20promote%20my%20business%20on%20your%20website" target="_blank" style="color:#fff;">+2348162833687</a></p>
+    </div>
+  </div>
+  
+  <!-- About Us Section -->
+  <div id="about-us" style="max-width:900px; margin:30px auto 0; text-align:center;">
+    <h3>About Us</h3>
+    <p style="line-height:1.6;">
+      EYES OF 3080,We keep students connected, share real updates, and inspire one another to grow in UNIOSUN.
+    </p>
+  </div>
+
+  <hr style="border-color:rgba(255,255,255,0.2); margin:20px 0;">
+  <p style="text-align:center; margin:0;">© 2025 EYES OF 3080. All rights reserved.</p>
+</footer>
+
+<script>
+
+// ===== CART FUNCTIONALITY =====
+let cart = [];
+
+// Add item to cart
+function addToCart(name, price, img) {
+  const existing = cart.find(item => item.name === name);
+  if (existing) {
+    existing.qty++;
+  } else {
+    cart.push({name, price, img, qty: 1});
+  }
+  updateCart();
+}
+
+// Update cart drawer and icon
+function updateCart() {
+  const cartItems = document.getElementById("cart-items");
+  const cartTotalEl = document.getElementById("cart-total");
+  const cartCountEl = document.getElementById("cart-count");
+
+  if (!cartItems || !cartTotalEl || !cartCountEl) return;
+
+  let total = 0;
+  let count = 0;
+  cartItems.innerHTML = "";
+
+  cart.forEach((item, index) => {
+    total += item.price * item.qty;
+    count += item.qty;
+    cartItems.innerHTML += `
+      <div class="cart-item">
+        <img src="${item.img}" alt="${item.name}">
+        <span>${item.name} - ₦${item.price}</span>
+        <div class="qty">
+          <button onclick="changeQty(${index}, -1)">-</button>
+          <span>${item.qty}</span>
+          <button onclick="changeQty(${index}, 1)">+</button>
+        </div>
+      </div>
+    `;
+  });
+
+  cartTotalEl.innerText = total;
+
+  if (count > 0) {
+    cartCountEl.innerText = count;
+    cartCountEl.style.display = "inline-block";
+  } else {
+    cartCountEl.style.display = "none";
+  }
+}
+
+// Change quantity of an item
+function changeQty(index, delta) {
+  cart[index].qty += delta;
+  if (cart[index].qty <= 0) cart.splice(index, 1);
+  updateCart();
+}
+
+// Toggle cart drawer
+function toggleCart() {
+  const drawer = document.getElementById("cart-drawer");
+  if (drawer) drawer.classList.toggle("open");
+}
+
+// Checkout via WhatsApp
+function checkoutWhatsApp() {
+  if (cart.length === 0) return alert("Cart is empty!");
+
+  let message = "🛍️ My Order:\n";
+  let total = 0;
+  cart.forEach(item => {
+    message += `${item.name} x${item.qty} = ₦${item.price * item.qty}\n`;
+    total += item.price * item.qty;
+  });
+  message += `Total: ₦${total}`;
+
+  // Replace YOURNUMBER with your WhatsApp number
+  window.open(`https://wa.me/YOURNUMBER?text=${encodeURIComponent(message)}`, "_blank");
+}
+
+// ===== SHOW CART ONLY IN MARKETPLACE =====
+document.addEventListener("DOMContentLoaded", function () {
+  const cartIcon = document.getElementById("cart-icon");
+
+  function showSection(id) {
+    document.querySelectorAll(".page-section").forEach(sec => sec.style.display = "none");
+    const section = document.getElementById(id);
+    if (section) section.style.display = "block";
+
+    // Only show cart in Marketplace section
+    if (cartIcon) {
+      cartIcon.style.display = (id === "marketplace") ? "block" : "none";
+    }
+
+    // Close cart drawer whenever switching sections
+    const cartDrawer = document.getElementById("cart-drawer");
+    if (cartDrawer) cartDrawer.classList.remove("open");
+
+    window.scrollTo(0, 0);
+  }
+
+  window.showSection = showSection;
+
+  // Initial load: show home section
+  showSection("home");
+});
+
+// ===== DARK MODE & MENU =====
+function toggleDarkMode(){
+  document.body.classList.toggle("dark");
+}
+
+function toggleMenu() {
+  document.getElementById("menu").classList.toggle("active");
+}
+
+// auto-close menu when a link is clicked
+document.querySelectorAll("#menu a").forEach(link => {
+  link.addEventListener("click", () => {
+    document.getElementById("menu").classList.remove("active");
+  });
+});
+
+// ===== Read More (Modal Full Page) =====
+function toggleReadMore(btn){
+  const titleEl = btn.parentElement.querySelector("h3");
+  const textEl = btn.parentElement.querySelector(".text");
+  if(!titleEl || !textEl) return;
+
+  const title = titleEl.textContent;
+  const full = textEl.getAttribute("data-full") || "";
+  const modal = document.getElementById("modal");
+  if(!modal) return;
+
+  document.getElementById("modalTitle").textContent = title;
+  document.getElementById("modalText").innerHTML = full;
+  modal.style.display = "flex";
+}
+
+function closeModal(){
+  const modal = document.getElementById("modal");
+  if(modal) modal.style.display = "none";
+}
+
+// ===== Slider =====
+let currentSlide = 0;
+function showSlide(index){
+  const slides = document.querySelector(".slides");
+  const total = document.querySelectorAll(".slide").length;
+  if(!slides || total === 0) return;
+
+  if(index < 0) index = total - 1;
+  if(index >= total) index = 0;
+  currentSlide = index;
+  slides.style.transform = `translateX(-${index * 100}%)`;
+}
+
+function nextSlide(){ showSlide(currentSlide + 1); }
+function prevSlide(){ showSlide(currentSlide - 1); }
+setInterval(nextSlide, 5000);
+
+// ===== Gamers Connections =====
+const gamers = {
+  efootball: [],
+  freefire: [],
+  codm: []
+};
+
+function addGamertag(event, game){
+  event.preventDefault();
+  const input = document.getElementById(game + "Input");
+  const list = document.getElementById(game + "List");
+  if(!input || !list) return;
+
+  const username = input.value.trim();
+  if (!username) return;
+
+  gamers[game].push(username);
+
+  const li = document.createElement("li");
+  const span = document.createElement("span");
+  span.textContent = username;
+  span.style.cursor = "pointer";
+  span.style.textDecoration = "underline";
+  span.style.color = "#007bff";
+
+  span.onclick = () => {
+    if (game === "codm") {
+      navigator.clipboard.writeText(username);
+      alert(`${username}'s ID has been copied! Attempting to open CODM...`);
+      window.open(`codm://joinroom?code=ROOM_CODE_HERE`, "_blank");
+    } else {
+      const connect = confirm(`Do you want to connect with ${username} on ${game.toUpperCase()}?\nClick OK to copy their ID.`);
+      if(connect){
+        navigator.clipboard.writeText(username);
+        alert(`${username}'s ID has been copied! Open the game to add them.`);
+      }
+    }
+  };
+
+  li.appendChild(span);
+  list.appendChild(li);
+  input.value = "";
+}
+
+// ===== Search =====
+function searchNews(){
+  const qInput = document.getElementById("searchInput");
+  const newsGrid = document.getElementById("newsGrid");
+  if(!qInput || !newsGrid) return;
+
+  const q = qInput.value.toLowerCase();
+  newsGrid.querySelectorAll(".card").forEach(card => {
+    const text = card.textContent.toLowerCase();
+    card.style.display = text.includes(q) ? "block" : "none";
+  });
+}
+
+</script>
+</body>
+</html>
+

@@ -661,27 +661,40 @@ Key Points:
   <h2 class="section">📑 PDF Resources</h2>
   <p>Download past questions, guides, and handouts.</p>
 
-  <div class="pdf-grid">
-    <!-- Example PDF Card -->
-    <article class="pdf-card">
-      <h3>100L GST Past Questions</h3>
-      <a href="files/GST100_Past_Questions.pdf" target="_blank" class="pdf-btn">📥 Download</a>
-    </article>
+  <!-- Step 1: Choose Level -->
+  <label for="levelSelect"><b>Choose your level:</b></label>
+  <select id="levelSelect" class="styled-select">
+    <option value="">-- Select Level --</option>
+    <option value="100">100 Level</option>
+    <option value="200">200 Level</option>
+    <option value="300">300 Level</option>
+    <option value="400">400 Level</option>
+  </select>
 
-    <article class="pdf-card">
-      <h3>UNIOSUN Admission Guide 2025</h3>
-      <a href="files/Admission_Guide.pdf" target="_blank" class="pdf-btn">📥 Download</a>
-    </article>
+  <!-- Step 2: Upload Contribution -->
+  <div id="uploadSection" style="display:none; margin-top:20px;">
+    <p>📤 Please upload a past question (PDF) for your level to gain access:</p>
+    <input type="file" id="pdfUpload" accept="application/pdf" class="styled-file">
+    <button id="submitUpload" class="styled-btn">🚀 Submit</button>
+  </div>
 
-    <article class="pdf-card">
-      <h3>JUPEB Physics Notes</h3>
-      <a href="files/JUPEB_Physics.pdf" target="_blank" class="pdf-btn">📥 Download</a>
-    </article>
+  <!-- Step 3: PDF Grids -->
+  <div id="pdfGrid100" class="pdf-grid" style="display:none; margin-top:25px;">
+    <h3>📘 100 Level Resources</h3>
+  </div>
+  <div id="pdfGrid200" class="pdf-grid" style="display:none; margin-top:25px;">
+    <h3>📗 200 Level Resources</h3>
+  </div>
+  <div id="pdfGrid300" class="pdf-grid" style="display:none; margin-top:25px;">
+    <h3>📕 300 Level Resources</h3>
+  </div>
+  <div id="pdfGrid400" class="pdf-grid" style="display:none; margin-top:25px;">
+    <h3>📙 400 Level Resources</h3>
   </div>
 </section>
 
 <style>
-/* PDF Grid */
+/* Responsive grid */
 .pdf-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
@@ -695,24 +708,78 @@ Key Points:
   text-align: center;
   box-shadow: var(--shadow);
 }
-.pdf-card h3 {
-  font-size: 16px;
+.pdf-card h4 {
+  font-size: 15px;
   margin-bottom: 12px;
   color: var(--uni-green);
+  word-break: break-word;
 }
+
+/* Styled Dropdown */
+.styled-select {
+  padding: 10px 14px;
+  border: 2px solid var(--uni-green);
+  border-radius: 8px;
+  font-size: 15px;
+  font-weight: bold;
+  background: #f9fff9;
+  color: var(--uni-green);
+  outline: none;
+  cursor: pointer;
+  margin-top: 10px;
+  transition: 0.3s;
+  width: 100%;
+  max-width: 300px;
+}
+.styled-select:hover {
+  background: #e6f7e6;
+}
+
+/* Styled File Input */
+.styled-file {
+  margin-top: 10px;
+  padding: 8px;
+  border: 2px dashed var(--uni-green-2);
+  border-radius: 8px;
+  background: #fdfdfd;
+  cursor: pointer;
+  transition: 0.3s;
+  width: 100%;
+  max-width: 320px;
+}
+.styled-file:hover {
+  border-color: var(--uni-green);
+  background: #f5fff5;
+}
+
+/* Gradient Buttons (Submit + Download) */
+.styled-btn,
 .pdf-btn {
   display: inline-block;
-  padding: 10px 16px;
-  background: var(--uni-green);
+  margin-top: 12px;
+  padding: 10px 20px;
+  background: linear-gradient(135deg, var(--uni-green), var(--uni-green-2));
   color: #fff;
+  border: none;
   border-radius: 8px;
-  text-decoration: none;
   font-weight: bold;
+  font-size: 15px;
+  cursor: pointer;
+  text-decoration: none;
+  transition: transform 0.2s, box-shadow 0.2s;
+  width: auto;
+  min-width: 120px;
+  text-align: center;
 }
+.styled-btn:hover,
 .pdf-btn:hover {
-  background: var(--uni-green-2);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 10px rgba(0,0,0,0.2);
 }
 </style>
+
+
+
 
 <!-- CONTACT -->
 <section id="contact" class="page-section" style="display:none;">
@@ -779,7 +846,89 @@ Key Points:
   <p style="text-align:center; margin:0;">© 2025 EYES OF 3080. All rights reserved.</p>
 </footer>
 
+
+<!-- Supabase Client -->
+<script src="https://unpkg.com/@supabase/supabase-js"></script>
 <script>
+const { createClient } = window.supabase;
+const client = createClient(
+  "https://vtpsruejncfykiazrfsx.supabase.co",
+  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZ0cHNydWVqbmNmeWtpYXpyZnN4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTY3NDA5NzQsImV4cCI6MjA3MjMxNjk3NH0.UV55gbsSAgnyolxJhIYTaJUpvoJFsJn0_-LMNwhwAK0"
+);
+
+const bucket = "pdfs";
+
+// Show upload section when a level is chosen
+document.getElementById("levelSelect").addEventListener("change", function () {
+  if (this.value) {
+    document.getElementById("uploadSection").style.display = "block";
+  } else {
+    document.getElementById("uploadSection").style.display = "none";
+    hideAllGrids();
+  }
+});
+
+// Handle PDF upload
+document.getElementById("submitUpload").addEventListener("click", async () => {
+  const fileInput = document.getElementById("pdfUpload");
+  const level = document.getElementById("levelSelect").value;
+
+  if (!level) {
+    alert("⚠️ Please choose your level first.");
+    return;
+  }
+  if (fileInput.files.length === 0) {
+    alert("⚠️ Please select a PDF file to upload.");
+    return;
+  }
+
+  const file = fileInput.files[0];
+  const filePath = `${level}/${Date.now()}_${file.name}`;
+
+  const { error } = await client.storage.from(bucket).upload(filePath, file);
+
+  if (error) {
+    alert("❌ Upload failed: " + error.message);
+    return;
+  }
+
+  alert("✅ Upload successful! Your resources are now unlocked.");
+  loadPdfs(level);
+});
+
+// Load PDFs for a specific level
+async function loadPdfs(level) {
+  hideAllGrids();
+
+  const { data, error } = await client.storage.from(bucket).list(level + "/");
+  if (error) {
+    console.error(error);
+    alert("❌ Could not load resources.");
+    return;
+  }
+
+  const grid = document.getElementById("pdfGrid" + level);
+  grid.style.display = "grid";
+  grid.innerHTML = `<h3>📘 ${level} Level Resources</h3>`; // reset grid
+
+  for (const file of data) {
+    const { data: publicUrl } = client.storage.from(bucket).getPublicUrl(level + "/" + file.name);
+
+    grid.innerHTML += `
+      <article class="pdf-card">
+        <h4>${file.name}</h4>
+        <a href="${publicUrl.publicUrl}" target="_blank" class="pdf-btn">📥 Download</a>
+      </article>
+    `;
+  }
+}
+
+// Hide all level grids
+function hideAllGrids() {
+  document.querySelectorAll("[id^='pdfGrid']").forEach(div => {
+    div.style.display = "none";
+  });
+}
 
 // ===== CART FUNCTIONALITY =====
 let cart = [];

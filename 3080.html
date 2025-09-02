@@ -1149,14 +1149,15 @@ function nextSlide(){ showSlide(currentSlide + 1); }
 function prevSlide(){ showSlide(currentSlide - 1); }
 setInterval(nextSlide, 5000);
 
-// ===== Gamers Connections =====
-const gamers = {
-  efootball: [],
-  freefire: [],
-  codm: []
-};
+<!-- Supabase Client -->
+<script src="https://unpkg.com/@supabase/supabase-js"></script>
+<script>
+const SUPABASE_URL = "https://vtpsruejncfykiazrfsx.supabase.co";
+const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZ0cHNydWVqbmNmeWtpYXpyZnN4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTY3NDA5NzQsImV4cCI6MjA3MjMxNjk3NH0.UV55gbsSAgnyolxJhIYTaJUpvoJFsJn0_-LMNwhwAK0"; // replace with your anon key
+const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-function addGamertag(event, game){
+// ===== Gamers Connections =====
+async function addGamertag(event, game) {
   event.preventDefault();
   const input = document.getElementById(game + "Input");
   const list = document.getElementById(game + "List");
@@ -1165,8 +1166,23 @@ function addGamertag(event, game){
   const username = input.value.trim();
   if (!username) return;
 
-  gamers[game].push(username);
+  // Save to Supabase
+  const { data, error } = await supabase
+    .from("gamers")
+    .insert([{ game, username }]);
 
+  if (error) {
+    console.error("❌ Error saving gamertag:", error.message);
+    alert("Error saving gamertag!");
+    return;
+  }
+
+  // Show on UI immediately
+  renderGamertag(username, game, list);
+  input.value = "";
+}
+
+function renderGamertag(username, game, list){
   const li = document.createElement("li");
   const span = document.createElement("span");
   span.textContent = username;
@@ -1190,8 +1206,29 @@ function addGamertag(event, game){
 
   li.appendChild(span);
   list.appendChild(li);
-  input.value = "";
 }
+
+// ===== Load existing gamertags =====
+async function loadGamertags() {
+  const { data, error } = await supabase
+    .from("gamers")
+    .select("*")
+    .order("created_at", { ascending: false });
+
+  if (error) {
+    console.error("❌ Error loading gamertags:", error.message);
+    return;
+  }
+
+  data.forEach(gamer => {
+    const list = document.getElementById(gamer.game + "List");
+    if (list) {
+      renderGamertag(gamer.username, gamer.game, list);
+    }
+  });
+}
+
+document.addEventListener("DOMContentLoaded", loadGamertags);
 
 // ===== Search =====
 function searchNews(){

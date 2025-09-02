@@ -673,11 +673,11 @@ Key Points:
 
 
 <!-- PDF RESOURCES SECTION -->
-<section id="pdfs" class="page-section" style="display:none;">
+<section id="pdfs" class="page-section" style="display:none; padding:20px;">
   <h2 class="section">📑 PDF Resources</h2>
   <p>Download past questions, guides, and handouts.</p>
 
-  <!-- Step 1: Choose Level -->
+  <!-- Level Selection -->
   <label for="levelSelect"><b>Choose your level:</b></label>
   <select id="levelSelect" class="styled-select">
     <option value="">-- Select Level --</option>
@@ -687,28 +687,34 @@ Key Points:
     <option value="400">400 Level</option>
   </select>
 
-  <!-- Step 2: Upload Contribution -->
-  <div id="uploadSection" style="display:none; margin-top:20px;">
-    <p>📤 Please upload a past question (PDF) for your level to gain access:</p>
-    <input type="file" id="pdfUpload" accept="application/pdf" class="styled-file">
-    <button id="submitUpload" class="styled-btn">🚀 Submit</button>
+  <!-- PDF Grids -->
+  <div id="pdfGrid100" class="pdf-grid" style="display:none; margin-top:20px;">
+    <h3>📘 100 Level Resources</h3>
+    <div class="pdf-card">
+      <h4>BIO 102 - Jimoh</h4>
+      <a class="pdf-btn" href="https://vtpsruejncfykiazrfsx.supabase.co/storage/v1/object/public/pdf-resources/100%20level%202025_BIO%20102_JIMOH.pptx" target="_blank" download>📄 Download</a>
+    </div>
+    <!-- Add more PDFs here -->
   </div>
 
-  <!-- Step 3: PDF Grids -->
-  <div id="pdfGrid100" class="pdf-grid" style="display:none; margin-top:25px;">
-    <h3>📘 100 Level Resources</h3>
-  </div>
-  <div id="pdfGrid200" class="pdf-grid" style="display:none; margin-top:25px;">
+  <div id="pdfGrid200" class="pdf-grid" style="display:none; margin-top:20px;">
     <h3>📗 200 Level Resources</h3>
+    <div class="pdf-card">
+      <h4>MAT 201 - Sample</h4>
+      <a class="pdf-btn" href="https://your-link-here.com/mat201.pdf" target="_blank" download>📄 Download</a>
+    </div>
   </div>
-  <div id="pdfGrid300" class="pdf-grid" style="display:none; margin-top:25px;">
+
+  <div id="pdfGrid300" class="pdf-grid" style="display:none; margin-top:20px;">
     <h3>📕 300 Level Resources</h3>
   </div>
-  <div id="pdfGrid400" class="pdf-grid" style="display:none; margin-top:25px;">
+
+  <div id="pdfGrid400" class="pdf-grid" style="display:none; margin-top:20px;">
     <h3>📙 400 Level Resources</h3>
   </div>
 </section>
 
+<!-- CSS -->
 <style>
 /* Responsive grid */
 .pdf-grid {

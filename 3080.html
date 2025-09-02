@@ -1154,6 +1154,37 @@ async function loadGamertags() {
 document.addEventListener("DOMContentLoaded", loadGamertags);
 
 /* ============================
+   PDF RESOURCES LOADER
+============================ */
+async function loadPDFs() {
+  const { data, error } = await supabase
+    .from("pdfs")
+    .select("*")
+    .order("created_at", { ascending: false });
+
+  if (error) {
+    console.error("❌ Error loading PDFs:", error.message);
+    return;
+  }
+
+  data.forEach(pdf => {
+    const grid = document.getElementById("pdfGrid" + pdf.level);
+    if (grid) {
+      const card = document.createElement("div");
+      card.className = "pdf-card";
+      card.innerHTML = `
+        <h4>${pdf.title || "Untitled PDF"}</h4>
+        <a class="pdf-btn" href="${pdf.file_url}" target="_blank">📄 Download</a>
+      `;
+      grid.appendChild(card);
+      grid.style.display = "grid"; // make sure grid is visible
+    }
+  });
+}
+
+document.addEventListener("DOMContentLoaded", loadPDFs);
+
+/* ============================
    SEARCH
 ============================ */
 function searchNews(){

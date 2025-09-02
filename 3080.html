@@ -1154,15 +1154,15 @@ async function loadGamertags() {
 document.addEventListener("DOMContentLoaded", loadGamertags);
 
 /* ============================
-   PDF RESOURCES
+   PDF & PPTX RESOURCES
 ============================ */
-async function loadPDFsByLevel(level) {
+async function loadResourcesByLevel(level) {
   if (!level) return;
 
   // Hide all grids first
   document.querySelectorAll(".pdf-grid").forEach(grid => grid.style.display = "none");
 
-  // Fetch PDFs for the selected level from Supabase
+  // Fetch resources for the selected level from Supabase
   const { data, error } = await supabase
     .from("pdfs")
     .select("*")
@@ -1170,7 +1170,7 @@ async function loadPDFsByLevel(level) {
     .order("created_at", { ascending: false });
 
   if (error) {
-    console.error("❌ Error loading PDFs:", error.message);
+    console.error("❌ Error loading resources:", error.message);
     return;
   }
 
@@ -1178,16 +1178,23 @@ async function loadPDFsByLevel(level) {
   const grid = document.getElementById("pdfGrid" + level);
   if (!grid) return;
 
-  // Clear previous PDFs
+  // Clear previous resources but keep title
   grid.innerHTML = `<h3>${level} Level Resources</h3>`;
 
-  // Add PDFs to the grid
-  data.forEach(pdf => {
+  // Add each resource
+  data.forEach(file => {
     const card = document.createElement("div");
     card.className = "pdf-card";
+
+    // Detect file type for icon or label
+    let icon = "📄";
+    const fileType = file.file_url.split(".").pop().toLowerCase();
+    if (fileType === "pptx") icon = "📊";
+    else if (fileType === "docx") icon = "📝";
+
     card.innerHTML = `
-      <h4>${pdf.title || "Untitled PDF"}</h4>
-      <a class="pdf-btn" href="${pdf.file_url}" target="_blank">📄 Download</a>
+      <h4>${file.title || "Untitled Resource"}</h4>
+      <a class="pdf-btn" href="${file.file_url}" target="_blank">${icon} Download</a>
     `;
     grid.appendChild(card);
   });
@@ -1196,10 +1203,10 @@ async function loadPDFsByLevel(level) {
   grid.style.display = "grid";
 }
 
-// Listen for dropdown changes
+// Listen for level selection
 document.getElementById("levelSelect").addEventListener("change", function() {
   const level = this.value;
-  loadPDFsByLevel(level);
+  loadResourcesByLevel(level);
 });
 
 /* ============================

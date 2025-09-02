@@ -1,53 +1,213 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Welcome - EYES OF 3080</title>
-  <style>
-    body {
-      margin: 0;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      height: 100vh;
-      background: linear-gradient(135deg, #0a5a2b, #155e36);
-      color: white;
-      font-family: Arial, sans-serif;
-      text-align: center;
-    }
-    .welcome {
-      animation: fadeIn 2s ease-in-out;
-    }
-    .welcome img {
-      width: 150px;  /* Adjust size */
-      height: auto;
-      border-radius: 50%; /* Makes it circular */
-      margin-bottom: 20px;
-      box-shadow: 0 0 15px rgba(255,255,255,0.4);
-    }
-    @keyframes fadeIn {
-      from { opacity: 0; transform: scale(0.9); }
-      to { opacity: 1; transform: scale(1); }
-    }
-  </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Welcome - EYES OF 3080</title>
+<style>
+  /* Reset & base */
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body, html {
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    font-family: 'Poppins', sans-serif;
+    background: #0a5a2b;
+    color: #fff;
+    position: relative;
+    cursor: none; /* optional for “hacker vibe” */
+  }
+
+  /* Canvas for particles */
+  canvas {
+    position: absolute;
+    top:0; left:0;
+    width:100%;
+    height:100%;
+    z-index:0;
+  }
+
+  /* Welcome container */
+  .welcome {
+    position: relative;
+    z-index: 1;
+    text-align: center;
+    max-width: 450px;
+    padding: 50px 30px;
+    border-radius: 25px;
+    background: rgba(0,0,0,0.3);
+    backdrop-filter: blur(10px);
+    box-shadow: 0 0 60px rgba(0,255,0,0.5);
+    animation: fadeInScale 2s ease forwards;
+  }
+
+  @keyframes fadeInScale {
+    0% { opacity:0; transform:scale(0.8); }
+    100% { opacity:1; transform:scale(1); }
+  }
+
+  /* Logo */
+  .welcome img {
+    width:180px;
+    height:180px;
+    border-radius:50%;
+    border:4px solid rgba(0,255,0,0.3);
+    box-shadow: 0 0 25px rgba(0,255,0,0.6);
+    margin-bottom: 20px;
+    animation: logoPulse 2s infinite alternate, floatLogo 4s ease-in-out infinite alternate;
+  }
+
+  @keyframes logoPulse {
+    0% { transform: scale(1); box-shadow: 0 0 25px rgba(0,255,0,0.6); }
+    100% { transform: scale(1.05); box-shadow: 0 0 50px rgba(0,255,0,0.9); }
+  }
+  @keyframes floatLogo {
+    0% { transform: translateY(0); }
+    100% { transform: translateY(-10px); }
+  }
+
+  /* Text */
+  h1 {
+    font-size: 2.5rem;
+    margin-bottom: 10px;
+    text-shadow: 0 0 10px rgba(0,255,0,0.7);
+    letter-spacing:2px;
+  }
+  p {
+    font-size:1.1rem;
+    margin-bottom:8px;
+    text-shadow:0 0 5px rgba(0,255,0,0.5);
+    color: #d0ffd0;
+  }
+
+  /* Loading dots */
+  .loading {
+    font-weight:bold;
+    font-size:1rem;
+  }
+  .loading span {
+    display:inline-block;
+    opacity:0;
+    animation: blink 1.4s infinite both;
+  }
+  .loading span:nth-child(1){animation-delay:0s;}
+  .loading span:nth-child(2){animation-delay:0.2s;}
+  .loading span:nth-child(3){animation-delay:0.4s;}
+  @keyframes blink{
+    0%,80%,100%{opacity:0;}
+    40%{opacity:1;}
+  }
+
+  /* Futuristic type effect */
+  .typing {
+    display:inline-block;
+    border-right:2px solid #0f0;
+    white-space: nowrap;
+    overflow: hidden;
+    animation: typing 2s steps(25) 1 forwards, blinkCursor 0.7s infinite;
+  }
+  @keyframes typing {
+    0% { width:0; }
+    100% { width:100%; }
+  }
+  @keyframes blinkCursor {
+    0%,50%,100% { border-color: #0f0; }
+    25%,75% { border-color: transparent; }
+  }
+</style>
 </head>
 <body>
-  <div class="welcome">
-    <!-- Logo -->
-    <img src="https://i.postimg.cc/QddcncV9/6a8f3e57-3d27-47f5-9b5e-22a7070fc442.jpg" alt="EYES OF 3080 Logo">
-    
-    <!-- Title & Text -->
-    <h1>👁️ EYES OF 3080</h1>
-    <p>Welcome to the hub of UNIOSUN gist, news, and marketplace</p>
-    <p>Loading...</p>
-  </div>
 
-  <script>
-    // Redirect to main page after 3 seconds
-    setTimeout(() => {
-      window.location.href = "3080.html"; // replace with your main file name
-    }, 3000);
-  </script>
+<canvas id="particles"></canvas>
+
+<div class="welcome">
+  <img src="https://i.postimg.cc/FHb7K6fk/6a8f3e57-3d27-47f5-9b5e-22a7070fc442.jpg" alt="EYES OF 3080 Logo">
+  <h1 class="typing">👁️ EYES OF 3080</h1>
+  <p>Welcome to the hub of UNIOSUN gist, news, and marketplace</p>
+  <p class="loading">Loading<span>.</span><span>.</span><span>.</span></p>
+</div>
+
+<script>
+  // Redirect after 3 seconds
+  setTimeout(()=>{ window.location.href="3080.html"; },3000);
+
+  // === Connected Particles ===
+  const canvas = document.getElementById('particles');
+  const ctx = canvas.getContext('2d');
+  let w = canvas.width = window.innerWidth;
+  let h = canvas.height = window.innerHeight;
+
+  window.addEventListener('resize', ()=>{ w=canvas.width=window.innerWidth; h=canvas.height=window.innerHeight; });
+
+  const mouse = { x:null, y:null };
+  window.addEventListener('mousemove', e=>{ mouse.x=e.x; mouse.y=e.y; });
+
+  class Particle {
+    constructor(){
+      this.x = Math.random()*w;
+      this.y = Math.random()*h;
+      this.size = Math.random()*2+1;
+      this.speedX = (Math.random()-0.5)*1.5;
+      this.speedY = (Math.random()-0.5)*1.5;
+      this.color = 'rgba(0,255,0,0.7)';
+    }
+    update(){
+      this.x+=this.speedX;
+      this.y+=this.speedY;
+      if(this.x<0||this.x>w) this.speedX*=-1;
+      if(this.y<0||this.y>h) this.speedY*=-1;
+    }
+    draw(){ ctx.beginPath(); ctx.arc(this.x,this.y,this.size,0,Math.PI*2); ctx.fillStyle=this.color; ctx.fill(); }
+  }
+
+  const particles=[];
+  const particleCount=100;
+  for(let i=0;i<particleCount;i++){ particles.push(new Particle()); }
+
+  function connectParticles(){
+    for(let a=0;a<particles.length;a++){
+      for(let b=a;b<particles.length;b++){
+        let dx = particles[a].x - particles[b].x;
+        let dy = particles[a].y - particles[b].y;
+        let dist = Math.sqrt(dx*dx+dy*dy);
+        if(dist<100){
+          ctx.beginPath();
+          ctx.strokeStyle=`rgba(0,255,0,${1-dist/100})`;
+          ctx.lineWidth=1;
+          ctx.moveTo(particles[a].x,particles[a].y);
+          ctx.lineTo(particles[b].x,particles[b].y);
+          ctx.stroke();
+          ctx.closePath();
+        }
+      }
+    }
+  }
+
+  function animate(){
+    ctx.clearRect(0,0,w,h);
+    particles.forEach(p=>{
+      p.update();
+      p.draw();
+      // interact with mouse
+      if(mouse.x && mouse.y){
+        let dx = p.x - mouse.x;
+        let dy = p.y - mouse.y;
+        let dist = Math.sqrt(dx*dx+dy*dy);
+        if(dist<150){
+          ctx.beginPath();
+          ctx.strokeStyle=`rgba(0,255,0,${1-dist/150})`;
+          ctx.moveTo(p.x,p.y);
+          ctx.lineTo(mouse.x,mouse.y);
+          ctx.stroke();
+        }
+      }
+    });
+    connectParticles();
+    requestAnimationFrame(animate);
+  }
+
+  animate();
+</script>
+
 </body>
 </html>

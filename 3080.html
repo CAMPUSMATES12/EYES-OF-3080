@@ -946,7 +946,7 @@ function checkoutWhatsApp() {
   message += `Total: ₦${total}`;
 
   // Replace YOURNUMBER with your WhatsApp number
-  window.open(`https://wa.me/2349043855915?text=${encodeURIComponent(message)}`, "_blank");
+  window.open(`https://wa.me/YOURNUMBER?text=${encodeURIComponent(message)}`, "_blank");
 }
 
 /* ============================
@@ -1126,7 +1126,11 @@ function renderGamertag(username, game, list){
   list.appendChild(li);
 }
 
-// ===== Load existing gamertags =====
+// ===== Load existing gamertags (FIXED) =====
+function normalizeGameName(game) {
+  return game.toLowerCase().replace(/\s/g, ""); // lowercase + remove spaces
+}
+
 async function loadGamertags() {
   const { data, error } = await supabase
     .from("gamers")
@@ -1139,9 +1143,10 @@ async function loadGamertags() {
   }
 
   data.forEach(gamer => {
-    const list = document.getElementById(gamer.Game + "List");
+    const gameId = normalizeGameName(gamer.Game) + "List"; // match your <ul> IDs
+    const list = document.getElementById(gameId);
     if (list) {
-      renderGamertag(gamer.Username, gamer.Game, list);
+      renderGamertag(gamer.Username, normalizeGameName(gamer.Game), list);
     }
   });
 }

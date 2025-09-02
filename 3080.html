@@ -945,6 +945,7 @@ function hideAllGrids() {
     div.style.display = "none";
   });
 }
+</script> <!-- ✅ FIXED: closed the first script properly -->
 
 <!-- Supabase Client -->
 <script src="https://unpkg.com/@supabase/supabase-js"></script>
@@ -1068,7 +1069,9 @@ async function loadProducts() {
   });
 }
 
-// ===== SHOW CART ONLY IN MARKETPLACE =====
+/* ============================
+   SHOW SECTIONS
+============================ */
 document.addEventListener("DOMContentLoaded", function () {
   const cartIcon = document.getElementById("cart-icon");
 
@@ -1080,6 +1083,11 @@ document.addEventListener("DOMContentLoaded", function () {
     // Only show cart in Marketplace section
     if (cartIcon) {
       cartIcon.style.display = (id === "marketplace") ? "block" : "none";
+    }
+
+    // If marketplace is opened, load products
+    if (id === "marketplace") {
+      loadProducts();
     }
 
     // Close cart drawer whenever switching sections
@@ -1148,6 +1156,7 @@ function showSlide(index){
 function nextSlide(){ showSlide(currentSlide + 1); }
 function prevSlide(){ showSlide(currentSlide - 1); }
 setInterval(nextSlide, 5000);
+</script>
 
 <!-- Supabase Client -->
 <script src="https://unpkg.com/@supabase/supabase-js"></script>

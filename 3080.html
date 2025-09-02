@@ -866,16 +866,19 @@ Key Points:
 <!-- Supabase Client -->
 <script src="https://unpkg.com/@supabase/supabase-js"></script>
 <script>
-const { createClient } = window.supabase;
-const client = createClient(
-  "https://vtpsruejncfykiazrfsx.supabase.co",
-  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZ0cHNydWVqbmNmeWtpYXpyZnN4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTY3NDA5NzQsImV4cCI6MjA3MjMxNjk3NH0.UV55gbsSAgnyolxJhIYTaJUpvoJFsJn0_-LMNwhwAK0"
-);
+/* ============================
+   SUPABASE CONFIG
+============================ */
+const SUPABASE_URL = "https://vtpsruejncfykiazrfsx.supabase.co";
+const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZ0cHNydWVqbmNmeWtpYXpyZnN4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTY3NDA5NzQsImV4cCI6MjA3MjMxNjk3NH0.UV55gbsSAgnyolxJhIYTaJUpvoJFsJn0_-LMNwhwAK0"; 
+const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
+/* ============================
+   PDF UPLOAD & LIST
+============================ */
 const bucket = "pdfs";
 
-// Show upload section when a level is chosen
-document.getElementById("levelSelect").addEventListener("change", function () {
+document.getElementById("levelSelect")?.addEventListener("change", function () {
   if (this.value) {
     document.getElementById("uploadSection").style.display = "block";
   } else {
@@ -884,51 +887,35 @@ document.getElementById("levelSelect").addEventListener("change", function () {
   }
 });
 
-// Handle PDF upload
-document.getElementById("submitUpload").addEventListener("click", async () => {
+document.getElementById("submitUpload")?.addEventListener("click", async () => {
   const fileInput = document.getElementById("pdfUpload");
   const level = document.getElementById("levelSelect").value;
 
-  if (!level) {
-    alert("⚠️ Please choose your level first.");
-    return;
-  }
-  if (fileInput.files.length === 0) {
-    alert("⚠️ Please select a PDF file to upload.");
-    return;
-  }
+  if (!level) return alert("⚠️ Please choose your level first.");
+  if (fileInput.files.length === 0) return alert("⚠️ Please select a PDF file to upload.");
 
   const file = fileInput.files[0];
   const filePath = `${level}/${Date.now()}_${file.name}`;
 
-  const { error } = await client.storage.from(bucket).upload(filePath, file);
-
-  if (error) {
-    alert("❌ Upload failed: " + error.message);
-    return;
-  }
+  const { error } = await supabase.storage.from(bucket).upload(filePath, file);
+  if (error) return alert("❌ Upload failed: " + error.message);
 
   alert("✅ Upload successful! Your resources are now unlocked.");
   loadPdfs(level);
 });
 
-// Load PDFs for a specific level
 async function loadPdfs(level) {
   hideAllGrids();
 
-  const { data, error } = await client.storage.from(bucket).list(level + "/");
-  if (error) {
-    console.error(error);
-    alert("❌ Could not load resources.");
-    return;
-  }
+  const { data, error } = await supabase.storage.from(bucket).list(level + "/");
+  if (error) return alert("❌ Could not load resources.");
 
   const grid = document.getElementById("pdfGrid" + level);
   grid.style.display = "grid";
-  grid.innerHTML = `<h3>📘 ${level} Level Resources</h3>`; // reset grid
+  grid.innerHTML = `<h3>📘 ${level} Level Resources</h3>`;
 
   for (const file of data) {
-    const { data: publicUrl } = client.storage.from(bucket).getPublicUrl(level + "/" + file.name);
+    const { data: publicUrl } = supabase.storage.from(bucket).getPublicUrl(level + "/" + file.name);
 
     grid.innerHTML += `
       <article class="pdf-card">
@@ -939,23 +926,17 @@ async function loadPdfs(level) {
   }
 }
 
-// Hide all level grids
 function hideAllGrids() {
   document.querySelectorAll("[id^='pdfGrid']").forEach(div => {
     div.style.display = "none";
   });
 }
-</script> <!-- ✅ FIXED: closed the first script properly -->
 
-<!-- Supabase Client -->
-<script src="https://unpkg.com/@supabase/supabase-js"></script>
-<script>
 /* ============================
    CART FUNCTIONALITY
 ============================ */
 let cart = [];
 
-// Add item to cart
 function addToCart(name, price, img) {
   const existing = cart.find(item => item.name === name);
   if (existing) {
@@ -966,16 +947,13 @@ function addToCart(name, price, img) {
   updateCart();
 }
 
-// Update cart drawer and icon
 function updateCart() {
   const cartItems = document.getElementById("cart-items");
   const cartTotalEl = document.getElementById("cart-total");
   const cartCountEl = document.getElementById("cart-count");
-
   if (!cartItems || !cartTotalEl || !cartCountEl) return;
 
-  let total = 0;
-  let count = 0;
+  let total = 0, count = 0;
   cartItems.innerHTML = "";
 
   cart.forEach((item, index) => {
@@ -995,32 +973,23 @@ function updateCart() {
   });
 
   cartTotalEl.innerText = total;
-
-  if (count > 0) {
-    cartCountEl.innerText = count;
-    cartCountEl.style.display = "inline-block";
-  } else {
-    cartCountEl.style.display = "none";
-  }
+  cartCountEl.innerText = count;
+  cartCountEl.style.display = count > 0 ? "inline-block" : "none";
 }
 
-// Change quantity of an item
 function changeQty(index, delta) {
   cart[index].qty += delta;
   if (cart[index].qty <= 0) cart.splice(index, 1);
   updateCart();
 }
 
-// Toggle cart drawer
 function toggleCart() {
   const drawer = document.getElementById("cart-drawer");
   if (drawer) drawer.classList.toggle("open");
 }
 
-// Checkout via WhatsApp
 function checkoutWhatsApp() {
   if (cart.length === 0) return alert("Cart is empty!");
-
   let message = "🛍️ My Order:\n";
   let total = 0;
   cart.forEach(item => {
@@ -1028,35 +997,20 @@ function checkoutWhatsApp() {
     total += item.price * item.qty;
   });
   message += `Total: ₦${total}`;
-
-  // Replace YOURNUMBER with your WhatsApp number
   window.open(`https://wa.me/YOURNUMBER?text=${encodeURIComponent(message)}`, "_blank");
 }
 
 /* ============================
-   SUPABASE CONFIG
-============================ */
-const SUPABASE_URL = "https://vtpsruejncfykiazrfsx.supabase.co";
-const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZ0cHNydWVqbmNmeWtpYXpyZnN4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTY3NDA5NzQsImV4cCI6MjA3MjMxNjk3NH0.UV55gbsSAgnyolxJhIYTaJUpvoJFsJn0_-LMNwhwAK0";
-
-const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
-
-/* ============================
-   LOAD PRODUCTS FROM SUPABASE
+   MARKETPLACE (LOAD PRODUCTS)
 ============================ */
 async function loadProducts() {
   const { data, error } = await supabase.from("products").select("*");
-
-  if (error) {
-    console.error("❌ Error fetching products:", error.message);
-    return;
-  }
+  if (error) return console.error("❌ Error fetching products:", error.message);
 
   const container = document.getElementById("product-list");
   if (!container) return;
 
   container.innerHTML = "";
-
   data.forEach(product => {
     container.innerHTML += `
       <div class="product-card">
@@ -1070,128 +1024,25 @@ async function loadProducts() {
 }
 
 /* ============================
-   SHOW SECTIONS
+   GAMERS CONNECTIONS
 ============================ */
-document.addEventListener("DOMContentLoaded", function () {
-  const cartIcon = document.getElementById("cart-icon");
-
-  function showSection(id) {
-    document.querySelectorAll(".page-section").forEach(sec => sec.style.display = "none");
-    const section = document.getElementById(id);
-    if (section) section.style.display = "block";
-
-    // Only show cart in Marketplace section
-    if (cartIcon) {
-      cartIcon.style.display = (id === "marketplace") ? "block" : "none";
-    }
-
-    // If marketplace is opened, load products
-    if (id === "marketplace") {
-      loadProducts();
-    }
-
-    // Close cart drawer whenever switching sections
-    const cartDrawer = document.getElementById("cart-drawer");
-    if (cartDrawer) cartDrawer.classList.remove("open");
-
-    window.scrollTo(0, 0);
-  }
-
-  window.showSection = showSection;
-
-  // Initial load: show home section
-  showSection("home");
-});
-
-// ===== DARK MODE & MENU =====
-function toggleDarkMode(){
-  document.body.classList.toggle("dark");
-}
-
-function toggleMenu() {
-  document.getElementById("menu").classList.toggle("active");
-}
-
-// auto-close menu when a link is clicked
-document.querySelectorAll("#menu a").forEach(link => {
-  link.addEventListener("click", () => {
-    document.getElementById("menu").classList.remove("active");
-  });
-});
-
-// ===== Read More (Modal Full Page) =====
-function toggleReadMore(btn){
-  const titleEl = btn.parentElement.querySelector("h3");
-  const textEl = btn.parentElement.querySelector(".text");
-  if(!titleEl || !textEl) return;
-
-  const title = titleEl.textContent;
-  const full = textEl.getAttribute("data-full") || "";
-  const modal = document.getElementById("modal");
-  if(!modal) return;
-
-  document.getElementById("modalTitle").textContent = title;
-  document.getElementById("modalText").innerHTML = full;
-  modal.style.display = "flex";
-}
-
-function closeModal(){
-  const modal = document.getElementById("modal");
-  if(modal) modal.style.display = "none";
-}
-
-// ===== Slider =====
-let currentSlide = 0;
-function showSlide(index){
-  const slides = document.querySelector(".slides");
-  const total = document.querySelectorAll(".slide").length;
-  if(!slides || total === 0) return;
-
-  if(index < 0) index = total - 1;
-  if(index >= total) index = 0;
-  currentSlide = index;
-  slides.style.transform = `translateX(-${index * 100}%)`;
-}
-
-function nextSlide(){ showSlide(currentSlide + 1); }
-function prevSlide(){ showSlide(currentSlide - 1); }
-setInterval(nextSlide, 5000);
-</script>
-
-<!-- Supabase Client -->
-<script src="https://unpkg.com/@supabase/supabase-js"></script>
-<script>
-const SUPABASE_URL = "https://vtpsruejncfykiazrfsx.supabase.co";
-const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZ0cHNydWVqbmNmeWtpYXpyZnN4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTY3NDA5NzQsImV4cCI6MjA3MjMxNjk3NH0.UV55gbsSAgnyolxJhIYTaJUpvoJFsJn0_-LMNwhwAK0"; // replace with your anon key
-const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
-
-// ===== Gamers Connections =====
 async function addGamertag(event, game) {
   event.preventDefault();
   const input = document.getElementById(game + "Input");
   const list = document.getElementById(game + "List");
-  if(!input || !list) return;
+  if (!input || !list) return;
 
   const username = input.value.trim();
   if (!username) return;
 
-  // Save to Supabase
-  const { data, error } = await supabase
-    .from("gamers")
-    .insert([{ game, username }]);
+  const { error } = await supabase.from("gaming ").insert([{ game, username }]);
+  if (error) return alert("❌ Error saving gamertag: " + error.message);
 
-  if (error) {
-    console.error("❌ Error saving gamertag:", error.message);
-    alert("Error saving gamertag!");
-    return;
-  }
-
-  // Show on UI immediately
   renderGamertag(username, game, list);
   input.value = "";
 }
 
-function renderGamertag(username, game, list){
+function renderGamertag(username, game, list) {
   const li = document.createElement("li");
   const span = document.createElement("span");
   span.textContent = username;
@@ -1206,7 +1057,7 @@ function renderGamertag(username, game, list){
       window.open(`codm://joinroom?code=ROOM_CODE_HERE`, "_blank");
     } else {
       const connect = confirm(`Do you want to connect with ${username} on ${game.toUpperCase()}?\nClick OK to copy their ID.`);
-      if(connect){
+      if (connect) {
         navigator.clipboard.writeText(username);
         alert(`${username}'s ID has been copied! Open the game to add them.`);
       }
@@ -1217,33 +1068,77 @@ function renderGamertag(username, game, list){
   list.appendChild(li);
 }
 
-// ===== Load existing gamertags =====
 async function loadGamertags() {
-  const { data, error } = await supabase
-    .from("gamers")
-    .select("*")
-    .order("created_at", { ascending: false });
-
-  if (error) {
-    console.error("❌ Error loading gamertags:", error.message);
-    return;
-  }
+  const { data, error } = await supabase.from("gamers").select("*").order("created_at", { ascending: false });
+  if (error) return console.error("❌ Error loading gamertags:", error.message);
 
   data.forEach(gamer => {
     const list = document.getElementById(gamer.game + "List");
-    if (list) {
-      renderGamertag(gamer.username, gamer.game, list);
-    }
+    if (list) renderGamertag(gamer.username, gamer.game, list);
   });
 }
-
 document.addEventListener("DOMContentLoaded", loadGamertags);
 
-// ===== Search =====
-function searchNews(){
+/* ============================
+   UI CONTROLS
+============================ */
+document.addEventListener("DOMContentLoaded", function () {
+  const cartIcon = document.getElementById("cart-icon");
+
+  window.showSection = function (id) {
+    document.querySelectorAll(".page-section").forEach(sec => sec.style.display = "none");
+    const section = document.getElementById(id);
+    if (section) section.style.display = "block";
+
+    if (cartIcon) cartIcon.style.display = (id === "marketplace") ? "block" : "none";
+    if (id === "marketplace") loadProducts();
+
+    const cartDrawer = document.getElementById("cart-drawer");
+    if (cartDrawer) cartDrawer.classList.remove("open");
+    window.scrollTo(0, 0);
+  };
+
+  showSection("home"); // default
+});
+
+function toggleDarkMode() {
+  document.body.classList.toggle("dark");
+}
+
+function toggleMenu() {
+  document.getElementById("menu").classList.toggle("active");
+}
+document.querySelectorAll("#menu a").forEach(link => {
+  link.addEventListener("click", () => {
+    document.getElementById("menu").classList.remove("active");
+  });
+});
+
+/* ============================
+   SLIDER
+============================ */
+let currentSlide = 0;
+function showSlide(index) {
+  const slides = document.querySelector(".slides");
+  const total = document.querySelectorAll(".slide").length;
+  if (!slides || total === 0) return;
+
+  if (index < 0) index = total - 1;
+  if (index >= total) index = 0;
+  currentSlide = index;
+  slides.style.transform = `translateX(-${index * 100}%)`;
+}
+function nextSlide() { showSlide(currentSlide + 1); }
+function prevSlide() { showSlide(currentSlide - 1); }
+setInterval(nextSlide, 5000);
+
+/* ============================
+   SEARCH
+============================ */
+function searchNews() {
   const qInput = document.getElementById("searchInput");
   const newsGrid = document.getElementById("newsGrid");
-  if(!qInput || !newsGrid) return;
+  if (!qInput || !newsGrid) return;
 
   const q = qInput.value.toLowerCase();
   newsGrid.querySelectorAll(".card").forEach(card => {

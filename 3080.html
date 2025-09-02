@@ -1154,7 +1154,7 @@ async function loadGamertags() {
 document.addEventListener("DOMContentLoaded", loadGamertags);
 
 /* ============================
-   PDF RESOURCES LOADER
+   LOAD PDFs FROM SUPABASE
 ============================ */
 async function loadPDFs() {
   const { data, error } = await supabase
@@ -1168,21 +1168,42 @@ async function loadPDFs() {
   }
 
   data.forEach(pdf => {
-    const grid = document.getElementById("pdfGrid" + pdf.level);
-    if (grid) {
-      const card = document.createElement("div");
-      card.className = "pdf-card";
-      card.innerHTML = `
-        <h4>${pdf.title || "Untitled PDF"}</h4>
-        <a class="pdf-btn" href="${pdf.file_url}" target="_blank">📄 Download</a>
-      `;
-      grid.appendChild(card);
-      grid.style.display = "grid"; // make sure grid is visible
-    }
+    // Match the level grid
+    let gridId = "pdfGrid" + pdf.level; // pdf.level must be "100", "200", etc.
+    const grid = document.getElementById(gridId);
+    if (!grid) return;
+
+    const card = document.createElement("div");
+    card.className = "pdf-card";
+    card.innerHTML = `
+      <h4>${pdf.title || "Untitled PDF"}</h4>
+      <a class="pdf-btn" href="${pdf.file_url}" target="_blank">📄 Download</a>
+    `;
+    grid.appendChild(card);
+    grid.style.display = "grid"; // Show the grid once at least one PDF is loaded
   });
 }
 
-document.addEventListener("DOMContentLoaded", loadPDFs);
+// Call this when the PDF section is shown
+function showPDFSection() {
+  document.querySelectorAll(".pdf-grid").forEach(grid => grid.style.display = "none");
+  loadPDFs();
+  const selectedLevel = document.getElementById("levelSelect").value;
+  if (selectedLevel) {
+    const grid = document.getElementById("pdfGrid" + selectedLevel);
+    if (grid) grid.style.display = "grid";
+  }
+}
+
+// Show upload section when a level is selected
+document.getElementById("levelSelect").addEventListener("change", function() {
+  const uploadSection = document.getElementById("uploadSection");
+  if (this.value) {
+    uploadSection.style.display = "block";
+  } else {
+    uploadSection.style.display = "none";
+  }
+});
 
 /* ============================
    SEARCH

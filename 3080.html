@@ -1154,12 +1154,19 @@ async function loadGamertags() {
 document.addEventListener("DOMContentLoaded", loadGamertags);
 
 /* ============================
-   LOAD PDFs FROM SUPABASE
+   PDF RESOURCES
 ============================ */
-async function loadPDFs() {
+async function loadPDFsByLevel(level) {
+  if (!level) return;
+
+  // Hide all grids first
+  document.querySelectorAll(".pdf-grid").forEach(grid => grid.style.display = "none");
+
+  // Fetch PDFs for the selected level from Supabase
   const { data, error } = await supabase
     .from("pdfs")
     .select("*")
+    .eq("level", level)
     .order("created_at", { ascending: false });
 
   if (error) {
@@ -1167,12 +1174,15 @@ async function loadPDFs() {
     return;
   }
 
-  data.forEach(pdf => {
-    // Match the level grid
-    let gridId = "pdfGrid" + pdf.level; // pdf.level must be "100", "200", etc.
-    const grid = document.getElementById(gridId);
-    if (!grid) return;
+  // Get the grid for this level
+  const grid = document.getElementById("pdfGrid" + level);
+  if (!grid) return;
 
+  // Clear previous PDFs
+  grid.innerHTML = `<h3>${level} Level Resources</h3>`;
+
+  // Add PDFs to the grid
+  data.forEach(pdf => {
     const card = document.createElement("div");
     card.className = "pdf-card";
     card.innerHTML = `
@@ -1180,29 +1190,16 @@ async function loadPDFs() {
       <a class="pdf-btn" href="${pdf.file_url}" target="_blank">📄 Download</a>
     `;
     grid.appendChild(card);
-    grid.style.display = "grid"; // Show the grid once at least one PDF is loaded
   });
+
+  // Show the grid
+  grid.style.display = "grid";
 }
 
-// Call this when the PDF section is shown
-function showPDFSection() {
-  document.querySelectorAll(".pdf-grid").forEach(grid => grid.style.display = "none");
-  loadPDFs();
-  const selectedLevel = document.getElementById("levelSelect").value;
-  if (selectedLevel) {
-    const grid = document.getElementById("pdfGrid" + selectedLevel);
-    if (grid) grid.style.display = "grid";
-  }
-}
-
-// Show upload section when a level is selected
+// Listen for dropdown changes
 document.getElementById("levelSelect").addEventListener("change", function() {
-  const uploadSection = document.getElementById("uploadSection");
-  if (this.value) {
-    uploadSection.style.display = "block";
-  } else {
-    uploadSection.style.display = "none";
-  }
+  const level = this.value;
+  loadPDFsByLevel(level);
 });
 
 /* ============================

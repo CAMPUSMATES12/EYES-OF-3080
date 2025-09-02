@@ -466,19 +466,13 @@ Key Points:
 
 <!-- Marketplace -->
 <section id="marketplace" class="page-section">
-  <h2 class="section">🛍️ UNIOSUN Marketplace</h2>
+  <h2 class="section">🛍️ UNIOSUN MARKETPLACE</h2>
   <p>Shop campus essentials, merch & e-books right here on <b>Eyes of 3080</b>.</p>
 
-  <!-- PRODUCT GRID -->
+  <!-- PRODUCT GRID (dynamic from Supabase) -->
   <div class="product-grid">
-    <div class="product-card">
-      <img src="https://i.postimg.cc/hP4MhyS1/6a8f3e57-3d27-47f5-9b5e-22a7070fc442.jpg" alt="Campus T-shirt">
-      <h3>Campus T-shirt</h3>
-      <p class="price">₦3,500</p>
-      <p class="desc">Premium cotton T-shirt with UNIOSUN print.</p>
-      <button onclick="addToCart('Campus T-shirt', 3500, 'https://i.postimg.cc/BnQy9cF4/tshirt.jpg')">🛒 Add to Cart</button>
-    </div>
-  </div> <!-- ✅ removed extra divs -->
+    <!-- Products will load here automatically -->
+  </div>
 </section>
 
 <!-- 🛒 CART DRAWER -->
@@ -952,7 +946,12 @@ function hideAllGrids() {
   });
 }
 
-// ===== CART FUNCTIONALITY =====
+<!-- Supabase Client -->
+<script src="https://unpkg.com/@supabase/supabase-js"></script>
+<script>
+/* ============================
+   CART FUNCTIONALITY
+============================ */
 let cart = [];
 
 // Add item to cart
@@ -961,7 +960,7 @@ function addToCart(name, price, img) {
   if (existing) {
     existing.qty++;
   } else {
-    cart.push({name, price, img, qty: 1});
+    cart.push({ name, price, img, qty: 1 });
   }
   updateCart();
 }
@@ -1031,6 +1030,42 @@ function checkoutWhatsApp() {
 
   // Replace YOURNUMBER with your WhatsApp number
   window.open(`https://wa.me/YOURNUMBER?text=${encodeURIComponent(message)}`, "_blank");
+}
+
+/* ============================
+   SUPABASE CONFIG
+============================ */
+const SUPABASE_URL = "https://vtpsruejncfykiazrfsx.supabase.co";
+const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZ0cHNydWVqbmNmeWtpYXpyZnN4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTY3NDA5NzQsImV4cCI6MjA3MjMxNjk3NH0.UV55gbsSAgnyolxJhIYTaJUpvoJFsJn0_-LMNwhwAK0";
+
+const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+/* ============================
+   LOAD PRODUCTS FROM SUPABASE
+============================ */
+async function loadProducts() {
+  const { data, error } = await supabase.from("products").select("*");
+
+  if (error) {
+    console.error("❌ Error fetching products:", error.message);
+    return;
+  }
+
+  const container = document.getElementById("product-list");
+  if (!container) return;
+
+  container.innerHTML = "";
+
+  data.forEach(product => {
+    container.innerHTML += `
+      <div class="product-card">
+        <img src="${product.image_url}" alt="${product.name}">
+        <h3>${product.name}</h3>
+        <p>₦${product.price}</p>
+        <button onclick="addToCart('${product.name}', ${product.price}, '${product.image_url}')">Add to Cart</button>
+      </div>
+    `;
+  });
 }
 
 // ===== SHOW CART ONLY IN MARKETPLACE =====

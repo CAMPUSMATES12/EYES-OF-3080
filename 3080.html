@@ -200,6 +200,7 @@
     <li><a onclick="showSection('academic-updates')">Academic Updates</a></li>
     <li><a onclick="showSection('gaming')">Gaming</a></li>
     <li><a onclick="showSection('pdfs')">PDFs</a></li>
+    <li><a onclick="showSection('anonymous')">Anonymous</a></li>
     <li><a onclick="showSection('marketplace')">Marketplace🛍️</a></li>
   </ul>
 </nav>
@@ -462,6 +463,134 @@ Key Points:
     </article>
 
   </section>
+</section>
+
+<!-- ANONYMOUS MESSAGES SECTION -->
+<section id="anonymous" class="page-section" style="display:none; padding:20px; background:#f8fdf9;">
+
+  <style>
+    /* Anonymous Messages Styling (Green Theme) */
+    .anon-form {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      background: #eaf7f0;
+      padding: 15px;
+      border: 1px solid #cde3d5;
+      border-radius: 10px;
+    }
+
+    .anon-form textarea {
+      width: 100%;
+      min-height: 90px;
+      padding: 10px;
+      border-radius: 6px;
+      border: 1px solid #b6d3bf;
+      outline: none;
+      resize: none;
+      font-size: 14px;
+    }
+
+    .anon-form input[type="file"] {
+      background: #fff;
+      color: #333;
+      border-radius: 6px;
+      padding: 6px;
+      border: 1px solid #b6d3bf;
+      font-size: 14px;
+    }
+
+    .anon-form button {
+      padding: 10px;
+      border: none;
+      border-radius: 6px;
+      font-weight: bold;
+      cursor: pointer;
+      transition: background 0.2s ease;
+    }
+
+    .anon-form button[type="button"] {
+      background: #0a5a2b;
+      color: #fff;
+    }
+
+    .anon-form button[type="button"]:hover {
+      background: #087a34;
+    }
+
+    .anon-form button[type="submit"] {
+      background: #155e36;
+      color: #fff;
+    }
+
+    .anon-form button[type="submit"]:hover {
+      background: #0d4a29;
+    }
+
+    .anon-preview {
+      background: #fff;
+      border: 1px solid #cde3d5;
+      color: #111;
+      padding: 10px;
+      border-radius: 6px;
+      display: none;
+    }
+
+    .anon-messages {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      margin-top: 20px;
+    }
+
+    .anon-card {
+      background: #fff;
+      border: 1px solid #cde3d5;
+      padding: 12px;
+      border-radius: 8px;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+      font-size: 14px;
+    }
+
+    .anon-card p {
+      margin: 0;
+      color: #0a5a2b;
+    }
+
+    #loadMoreBtn {
+      margin-top: 15px;
+      padding: 10px;
+      background: #0a5a2b;
+      color: #fff;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: bold;
+    }
+
+    #loadMoreBtn:hover {
+      background: #087a34;
+    }
+  </style>
+
+  <h2 style="color:#0a5a2b; text-align:center; margin-bottom:15px;">💬 Anonymous Messages</h2>
+
+  <!-- FORM -->
+  <form onsubmit="submitAnonymousMessage(event)" class="anon-form">
+    <textarea id="anonText" placeholder="Type your anonymous message..." required></textarea>
+    <input type="file" id="anonFile" accept="image/*,.pdf,.doc,.docx" />
+
+    <!-- PREVIEW AREA -->
+    <div id="anonPreview" class="anon-preview"></div>
+
+    <button type="button" onclick="previewAnonymousMessage()">👀 Preview</button>
+    <button type="submit">🚀 Post Message</button>
+  </form>
+
+  <!-- MESSAGES FEED -->
+  <h3 style="color:#0a5a2b; margin-top:25px;">📰 Recent Messages</h3>
+  <div id="anonMessages" class="anon-messages"></div>
+  <button id="loadMoreBtn" onclick="loadMoreAnonymousMessages()" style="display:none;">⬇️ Load More</button>
 </section>
 
 <!-- Marketplace -->
@@ -1176,36 +1305,45 @@ async function loadProducts() {
 /* ============================
    SHOW SECTIONS
 ============================ */
-document.addEventListener("DOMContentLoaded", function () {
-  const cartIcon = document.getElementById("cart-icon");
+const cartIcon = document.getElementById("cart-icon");
 
-  function showSection(id) {
-    document.querySelectorAll(".page-section").forEach(sec => sec.style.display = "none");
-    const section = document.getElementById(id);
-    if (section) section.style.display = "block";
+function showSection(id) {
+  // hide all sections
+  document.querySelectorAll(".page-section").forEach(sec => sec.style.display = "none");
 
-    // Only show cart in Marketplace section
-    if (cartIcon) {
-      cartIcon.style.display = (id === "marketplace") ? "block" : "none";
-    }
+  // show the requested section
+  const section = document.getElementById(id);
+  if (section) section.style.display = "block";
 
-    // If marketplace is opened, load products
-    if (id === "marketplace") {
-      loadProducts();
-    }
-
-    // Close cart drawer whenever switching sections
-    const cartDrawer = document.getElementById("cart-drawer");
-    if (cartDrawer) cartDrawer.classList.remove("open");
-
-    window.scrollTo(0, 0);
+  // show cart icon only in Marketplace
+  if (cartIcon) {
+    cartIcon.style.display = (id === "marketplace") ? "block" : "none";
   }
 
-  window.showSection = showSection;
+  // load products if marketplace
+  if (id === "marketplace") {
+    loadProducts();
+  }
 
-  // Initial load: show home section
+  // load anonymous messages if anonymous section
+  if (id === "anonymous") {
+    loadAnonymousMessages();
+  }
+
+  // close cart drawer when switching
+  const cartDrawer = document.getElementById("cart-drawer");
+  if (cartDrawer) cartDrawer.classList.remove("open");
+
+  window.scrollTo(0, 0);
+}
+
+window.showSection = showSection;
+
+// initial page load → show home section
+document.addEventListener("DOMContentLoaded", () => {
   showSection("home");
 });
+
 
 // ===== DARK MODE & MENU =====
 function toggleDarkMode(){
@@ -1369,6 +1507,150 @@ function searchNews(){
     card.style.display = text.includes(q) ? "block" : "none";
   });
 }
+
+/* ============================
+   ANONYMOUS MESSAGES
+============================ */
+
+let anonPage = 0;
+const anonPageSize = 5;
+
+/* ✅ Submit new anonymous message */
+async function submitAnonymousMessage(event) {
+  event.preventDefault();
+  const textInput = document.getElementById("anonText");
+  const fileInput = document.getElementById("anonFile");
+  const previewBox = document.getElementById("anonPreview");
+
+  if (!textInput.value.trim()) {
+    alert("⚠️ Please type a message.");
+    return;
+  }
+
+  let fileUrl = null;
+  if (fileInput.files.length > 0) {
+    const file = fileInput.files[0];
+    const { data, error } = await supabase.storage
+      .from("anon_uploads")
+      .upload(Date.now() + "_" + file.name, file);
+
+    if (error) {
+      console.error("❌ File upload failed:", error.message);
+    } else {
+      const { data: publicUrl } = supabase
+        .storage
+        .from("anon_uploads")
+        .getPublicUrl(data.path);
+
+      fileUrl = publicUrl.publicUrl;
+    }
+  }
+
+  const { error } = await supabase.from("anonymous_messages").insert([
+    { message: textInput.value.trim(), file_url: fileUrl }
+  ]);
+
+  if (error) {
+    console.error("❌ Error saving anonymous message:", error.message);
+    alert("❌ Error saving message: " + error.message);
+    return;
+  }
+
+  // Clear inputs
+  textInput.value = "";
+  fileInput.value = "";
+  previewBox.style.display = "none";
+  previewBox.innerHTML = "";
+
+  // Reload messages
+  anonPage = 0;
+  loadAnonymousMessages(true);
+}
+
+/* ✅ Show message preview */
+function previewAnonymousMessage() {
+  const textInput = document.getElementById("anonText");
+  const fileInput = document.getElementById("anonFile");
+  const previewBox = document.getElementById("anonPreview");
+
+  let html = "";
+  if (textInput.value.trim()) {
+    html += `<p>${textInput.value.trim()}</p>`;
+  }
+
+  if (fileInput.files.length > 0) {
+    const file = fileInput.files[0];
+    if (file.type.startsWith("image/")) {
+      html += `<img src="${URL.createObjectURL(file)}" style="max-width:100%; margin-top:8px;">`;
+    } else {
+      html += `<p>📎 ${file.name}</p>`;
+    }
+  }
+
+  previewBox.innerHTML = html || "<p style='color:#777;'>Nothing to preview</p>";
+  previewBox.style.display = "block";
+}
+
+/* ✅ Load messages (with pagination) */
+async function loadAnonymousMessages(reset = false) {
+  const msgList = document.getElementById("anonMessages");
+  const loadMoreBtn = document.getElementById("loadMoreBtn");
+
+  if (reset) {
+    msgList.innerHTML = "";
+    anonPage = 0;
+  }
+
+  const from = anonPage * anonPageSize;
+  const to = from + anonPageSize - 1;
+
+  const { data, error } = await supabase
+    .from("anonymous_messages")
+    .select("*")
+    .order("id", { ascending: false })
+    .range(from, to);
+
+  if (error) {
+    console.error("❌ Error loading anonymous messages:", error.message);
+    return;
+  }
+
+  if (!data || data.length === 0) {
+    if (anonPage === 0) {
+      msgList.innerHTML = "<p style='color:#666;'>No messages yet. Be the first to post! 💬</p>";
+    }
+    loadMoreBtn.style.display = "none";
+    return;
+  }
+
+  data.forEach(msg => {
+    let html = `<div class="anon-card"><p>${msg.message}</p>`;
+    if (msg.file_url) {
+      if (msg.file_url.match(/\.(jpg|jpeg|png|gif)$/i)) {
+        html += `<img src="${msg.file_url}" alt="Attachment" style="max-width:100%; margin-top:8px;">`;
+      } else {
+        html += `<a href="${msg.file_url}" target="_blank">📎 Download File</a>`;
+      }
+    }
+    html += `</div>`;
+    msgList.innerHTML += html;
+  });
+
+  // Show Load More button if more messages exist
+  loadMoreBtn.style.display = (data.length === anonPageSize) ? "block" : "none";
+}
+
+/* ✅ Load more messages */
+function loadMoreAnonymousMessages() {
+  anonPage++;
+  loadAnonymousMessages();
+}
+
+/* ✅ Auto-load messages on page load */
+document.addEventListener("DOMContentLoaded", () => {
+  loadAnonymousMessages(true);
+});
+
 
 </script>
 </body>

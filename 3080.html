@@ -466,114 +466,9 @@ Key Points:
 </section>
 
 <!-- ANONYMOUS MESSAGES SECTION -->
-<section id="anonymous" class="page-section" style="display:none; padding:20px; background:#f8fdf9;">
+<section id="anonymous" class="page-section" style="display:none;">
 
-  <style>
-    /* Anonymous Messages Styling (Green Theme) */
-    .anon-form {
-      display: flex;
-      flex-direction: column;
-      gap: 12px;
-      background: #eaf7f0;
-      padding: 15px;
-      border: 1px solid #cde3d5;
-      border-radius: 10px;
-    }
-
-    .anon-form textarea {
-      width: 100%;
-      min-height: 90px;
-      padding: 10px;
-      border-radius: 6px;
-      border: 1px solid #b6d3bf;
-      outline: none;
-      resize: none;
-      font-size: 14px;
-    }
-
-    .anon-form input[type="file"] {
-      background: #fff;
-      color: #333;
-      border-radius: 6px;
-      padding: 6px;
-      border: 1px solid #b6d3bf;
-      font-size: 14px;
-    }
-
-    .anon-form button {
-      padding: 10px;
-      border: none;
-      border-radius: 6px;
-      font-weight: bold;
-      cursor: pointer;
-      transition: background 0.2s ease;
-    }
-
-    .anon-form button[type="button"] {
-      background: #0a5a2b;
-      color: #fff;
-    }
-
-    .anon-form button[type="button"]:hover {
-      background: #087a34;
-    }
-
-    .anon-form button[type="submit"] {
-      background: #155e36;
-      color: #fff;
-    }
-
-    .anon-form button[type="submit"]:hover {
-      background: #0d4a29;
-    }
-
-    .anon-preview {
-      background: #fff;
-      border: 1px solid #cde3d5;
-      color: #111;
-      padding: 10px;
-      border-radius: 6px;
-      display: none;
-    }
-
-    .anon-messages {
-      display: flex;
-      flex-direction: column;
-      gap: 12px;
-      margin-top: 20px;
-    }
-
-    .anon-card {
-      background: #fff;
-      border: 1px solid #cde3d5;
-      padding: 12px;
-      border-radius: 8px;
-      box-shadow: 0 2px 5px rgba(0,0,0,0.05);
-      font-size: 14px;
-    }
-
-    .anon-card p {
-      margin: 0;
-      color: #0a5a2b;
-    }
-
-    #loadMoreBtn {
-      margin-top: 15px;
-      padding: 10px;
-      background: #0a5a2b;
-      color: #fff;
-      border: none;
-      border-radius: 6px;
-      cursor: pointer;
-      font-weight: bold;
-    }
-
-    #loadMoreBtn:hover {
-      background: #087a34;
-    }
-  </style>
-
-  <h2 style="color:#0a5a2b; text-align:center; margin-bottom:15px;">💬 Anonymous Messages</h2>
+  <h2>💬 Anonymous Messages</h2>
 
   <!-- FORM -->
   <form onsubmit="submitAnonymousMessage(event)" class="anon-form">
@@ -588,10 +483,141 @@ Key Points:
   </form>
 
   <!-- MESSAGES FEED -->
-  <h3 style="color:#0a5a2b; margin-top:25px;">📰 Recent Messages</h3>
+  <h3>📰 Recent Messages</h3>
   <div id="anonMessages" class="anon-messages"></div>
   <button id="loadMoreBtn" onclick="loadMoreAnonymousMessages()" style="display:none;">⬇️ Load More</button>
 </section>
+
+<!-- ============================
+   ANONYMOUS MESSAGES STYLING
+============================ -->
+<style>
+#anonymous {
+  padding: 20px;
+  background: #f9fdf9; /* light background */
+  min-height: 100vh;
+}
+
+/* Section title */
+#anonymous h2, 
+#anonymous h3 {
+  color: #0a5a2b; /* Uni green */
+  text-align: center;
+  margin-bottom: 15px;
+  font-weight: bold;
+}
+
+/* Form container */
+#anonymous form {
+  background: #ffffff;
+  padding: 16px;
+  border-radius: 10px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+  margin-bottom: 20px;
+}
+
+/* Textarea */
+#anonymous textarea {
+  width: 100%;
+  padding: 12px;
+  border: 1px solid #cfd8cf;
+  border-radius: 8px;
+  resize: none;
+  min-height: 80px;
+  font-size: 15px;
+  outline: none;
+}
+
+/* File input */
+#anonymous input[type="file"] {
+  margin-top: 10px;
+  display: block;
+  font-size: 14px;
+}
+
+/* Buttons */
+#anonymous button {
+  background: #0a5a2b;
+  color: #fff;
+  border: none;
+  padding: 10px 18px;
+  border-radius: 6px;
+  margin-top: 12px;
+  cursor: pointer;
+  font-size: 15px;
+  transition: background 0.3s ease;
+}
+
+#anonymous button:hover {
+  background: #155e36;
+}
+
+#anonymous button[type="button"] {
+  background: #ffffff;
+  color: #0a5a2b;
+  border: 1px solid #0a5a2b;
+  margin-right: 8px;
+}
+
+#anonymous button[type="button"]:hover {
+  background: #e9f7ee;
+}
+
+/* Messages list */
+#anonMessages {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+/* Each message card */
+.anon-card {
+  background: #fff;
+  padding: 14px;
+  border-radius: 10px;
+  border-left: 4px solid #0a5a2b;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+  font-size: 15px;
+  line-height: 1.5;
+  word-wrap: break-word;
+}
+
+.anon-card p {
+  margin: 0;
+  color: #111;
+}
+
+/* Image inside messages */
+.anon-card img {
+  margin-top: 10px;
+  border-radius: 6px;
+  max-width: 100%;
+  height: auto;
+}
+
+/* File link */
+.anon-card a {
+  display: inline-block;
+  margin-top: 10px;
+  color: #0a5a2b;
+  text-decoration: none;
+  font-weight: bold;
+}
+
+.anon-card a:hover {
+  text-decoration: underline;
+}
+
+/* Responsive */
+@media (max-width: 600px) {
+  #anonymous h2 {
+    font-size: 1.4rem;
+  }
+  #anonymous textarea {
+    min-height: 70px;
+  }
+}
+</style>
 
 <!-- Marketplace -->
 <section id="marketplace" class="page-section">

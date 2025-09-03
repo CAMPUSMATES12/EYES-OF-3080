@@ -1556,24 +1556,25 @@ async function submitAnonymousMessage(event) {
   let fileUrl = null;
   if (fileInput.files.length > 0) {
     const file = fileInput.files[0];
+    const fileName = Date.now() + "_" + file.name;
     const { data, error } = await supabase.storage
       .from("anon_uploads")
-      .upload(Date.now() + "_" + file.name, file);
+      .upload(fileName, file);
 
     if (error) {
       console.error("❌ File upload failed:", error.message);
     } else {
-      const { data: publicUrl } = supabase
+      const { data: publicUrlData } = supabase
         .storage
         .from("anon_uploads")
-        .getPublicUrl(data.path);
+        .getPublicUrl(fileName);
 
-      fileUrl = publicUrl.publicUrl;
+      fileUrl = publicUrlData.publicUrl;
     }
   }
 
   const { error } = await supabase.from("anonymous_messages").insert([
-    { message: textInput.value.trim(), file_url: fileUrl }
+    { message: textInput.value.trim(), file_url: fileUrl, created_at: new Date().toISOString() }
   ]);
 
   if (error) {
@@ -1658,6 +1659,10 @@ async function loadAnonymousMessages(reset = false) {
         html += `<a href="${msg.file_url}" target="_blank">📎 Download File</a>`;
       }
     }
+    if (msg.created_at) {
+      const date = new Date(msg.created_at);
+      html += `<p style="font-size:12px; color:#666; margin-top:6px;">🕒 ${date.toLocaleString()}</p>`;
+    }
     html += `</div>`;
     msgList.innerHTML += html;
   });
@@ -1676,7 +1681,6 @@ function loadMoreAnonymousMessages() {
 document.addEventListener("DOMContentLoaded", () => {
   loadAnonymousMessages(true);
 });
-
 
 </script>
 </body>

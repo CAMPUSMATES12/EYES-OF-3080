@@ -584,6 +584,19 @@ Key Points:
       <ul id="codmList"></ul>
     </article>
 
+<!-- DLS -->
+    <article class="card" style="text-align:center;">
+      <img src="https://vtpsruejncfykiazrfsx.supabase.co/storage/v1/object/public/PRODUCTS/DLS%20LOGO" 
+           alt="Dream League Soccer Logo" style="max-width:120px; margin-bottom:10px;">
+      <h3>Dream League Soccer</h3>
+      <p>Share your DLS username to connect with friends.</p>
+      <form onsubmit="addGamertag(event, 'dls')" style="display:flex;gap:10px;flex-wrap:wrap;">
+        <input type="text" id="dlsInput" placeholder="Enter your DLS username" required />
+        <button type="submit">Share</button>
+      </form>
+      <ul id="dlsList"></ul>
+    </article>
+
   </section>
 </section>
 
@@ -1750,12 +1763,12 @@ async function addGamertag(event, game) {
   event.preventDefault();
   const input = document.getElementById(game + "Input");
   const list = document.getElementById(game + "List");
-  if(!input || !list) return;
+  if (!input || !list) return;
 
   const username = input.value.trim();
   if (!username) return;
 
-  // Save to Supabase (⚡ using "Game" and "Username" since your table uses capitals)
+  // Save to Supabase
   const { error } = await supabase.from("gamers").insert([
     { "Game": game, "Username": username }
   ]);
@@ -1771,22 +1784,37 @@ async function addGamertag(event, game) {
   input.value = "";
 }
 
-function renderGamertag(username, game, list){
+function renderGamertag(username, game, list) {
   const li = document.createElement("li");
   const span = document.createElement("span");
   span.textContent = username;
+
+  // Styling for username chips
   span.style.cursor = "pointer";
-  span.style.textDecoration = "underline";
-  span.style.color = "#007bff";
+  span.style.background = "var(--uni-green)";
+  span.style.color = "#fff";
+  span.style.padding = "6px 12px";
+  span.style.borderRadius = "6px";
+  span.style.fontSize = "14px";
+  span.style.transition = "background 0.3s ease";
+
+  span.onmouseover = () => {
+    span.style.background = "var(--uni-green-2)";
+  };
+  span.onmouseout = () => {
+    span.style.background = "var(--uni-green)";
+  };
 
   span.onclick = () => {
-    if (game === "codm") {
+    if (game.toLowerCase() === "codm") {
       navigator.clipboard.writeText(username);
       alert(`${username}'s ID has been copied! Attempting to open CODM...`);
       window.open(`codm://joinroom?code=ROOM_CODE_HERE`, "_blank");
     } else {
-      const connect = confirm(`Do you want to connect with ${username} on ${game.toUpperCase()}?\nClick OK to copy their ID.`);
-      if(connect){
+      const connect = confirm(
+        `Do you want to connect with ${username} on ${game.toUpperCase()}?\nClick OK to copy their ID.`
+      );
+      if (connect) {
         navigator.clipboard.writeText(username);
         alert(`${username}'s ID has been copied! Open the game to add them.`);
       }
@@ -1797,11 +1825,12 @@ function renderGamertag(username, game, list){
   list.appendChild(li);
 }
 
-// ===== Load existing gamertags (FIXED) =====
+// ===== Normalize game name =====
 function normalizeGameName(game) {
   return game.toLowerCase().replace(/\s/g, ""); // lowercase + remove spaces
 }
 
+// ===== Load existing gamertags =====
 async function loadGamertags() {
   const { data, error } = await supabase
     .from("gamers")
@@ -1813,11 +1842,11 @@ async function loadGamertags() {
     return;
   }
 
-  data.forEach(gamer => {
-    const gameId = normalizeGameName(gamer.Game) + "List"; // match your <ul> IDs
+  data.forEach((gamer) => {
+    const gameId = normalizeGameName(gamer.Game) + "List"; // e.g. "dlsList"
     const list = document.getElementById(gameId);
     if (list) {
-      renderGamertag(gamer.Username, normalizeGameName(gamer.Game), list);
+      renderGamertag(gamer.Username, gamer.Game, list);
     }
   });
 }

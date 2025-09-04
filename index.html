@@ -6,7 +6,7 @@
 <title>Welcome - EYES OF 3080</title>
 
 <!-- Favicon -->
-<link rel="icon" type="image/png" href="https://vtpsruejncfykiazrfsx.supabase.co/storage/v1/object/public/PRODUCTS/EYES%20OF%203080%20logo">
+<link rel="icon" type="image/png" href="https://vtpsruejncfykiazrfsx.supabase.co/storage/v1/object/public/PRODUCTS/EYES%20OF%203080%20logo.png">
 
 <style>
 /* Reset & base */
@@ -88,7 +88,7 @@ canvas {
 
 <!-- Welcome Screen -->
 <div class="welcome" id="welcomeBox">
-  <img src="https://vtpsruejncfykiazrfsx.supabase.co/storage/v1/object/public/PRODUCTS/EYES%20OF%203080%20logo" alt="EYES OF 3080 Logo">
+  <img src="https://vtpsruejncfykiazrfsx.supabase.co/storage/v1/object/public/PRODUCTS/EYES%20OF%203080%20logo.png" alt="EYES OF 3080 Logo">
   <h1>👁️ EYES OF 3080</h1>
   <p>Welcome to the hub of UNIOSUN gist, news, and marketplace</p>
 </div>
@@ -120,21 +120,16 @@ canvas {
 <script>
 const SUPABASE_URL = "https://vtpsruejncfykiazrfsx.supabase.co";
 const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZ0cHNydWVqbmNmeWtpYXpyZnN4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTY3NDA5NzQsImV4cCI6MjA3MjMxNjk3NH0.UV55gbsSAgnyolxJhIYTaJUpvoJFsJn0_-LMNwhwAK0";
-const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-// ✅ Check session on load
-(async ()=>{
-  const { data: { session } } = await supabase.auth.getSession();
-  if(session){
-    window.location.href="3080.html"; // Already logged in
-  } else {
-    // Show welcome, then auth
-    setTimeout(()=>{
-      document.getElementById("welcomeBox").style.display="none";
-      document.getElementById("authBox").style.display="block";
-    },3000);
-  }
-})();
+const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY, {
+  auth: { persistSession: false } // 🔴 no saved login sessions
+});
+
+// Show auth after welcome
+setTimeout(()=>{
+  document.getElementById("welcomeBox").style.display="none";
+  document.getElementById("authBox").style.display="block";
+},3000);
 
 // Toggle forms
 function showLogin(){
@@ -154,14 +149,14 @@ async function signUp(){
 
   if(!fullName || !email || !password) return alert("Please fill all fields");
 
-  const { error } = await supabase.auth.signUp({
+  const { data, error } = await supabase.auth.signUp({
     email: email,
     password: password,
-    options: { data: { full_name: fullName } }
+    options: { data: { full_name: fullName }, emailRedirectTo: window.location.origin }
   });
 
   if(error){ alert("❌ "+error.message); return; }
-  alert("✅ Sign up successful! Please login.");
+  alert("✅ Sign up successful! Now login.");
   showLogin();
 }
 
@@ -172,13 +167,13 @@ async function login(){
 
   if(!email || !password) return alert("Please enter email and password");
 
-  const { error } = await supabase.auth.signInWithPassword({
+  const { data, error } = await supabase.auth.signInWithPassword({
     email: email,
     password: password
   });
 
   if(error){ alert("❌ "+error.message); return; }
-  window.location.href="3080.html";
+  window.location.href="3080.html"; // redirect after login
 }
 </script>
 

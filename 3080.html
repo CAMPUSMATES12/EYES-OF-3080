@@ -424,9 +424,105 @@ Key Points:
 
 
 
-<!-- GAMING -->
+<!-- 🎮 GAMING ZONE -->
 <section id="gaming" class="page-section" style="display:none;">
   <h2 class="section">🎮 Gaming Zone</h2>
+
+  <style>
+    /* ===== Gaming Zone Styles ===== */
+    #gaming {
+      padding: 20px;
+      background: #f9f9f9;
+      border-radius: 8px;
+    }
+
+    #gaming h2.section {
+      color: var(--uni-green);
+      text-align: center;
+      margin-bottom: 25px;
+    }
+
+    #gaming .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 20px;
+    }
+
+    #gaming .card {
+      background: #fff;
+      border-radius: 10px;
+      padding: 20px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+      transition: transform 0.2s ease;
+    }
+
+    #gaming .card:hover {
+      transform: translateY(-3px);
+    }
+
+    #gaming .card h3 {
+      margin: 10px 0;
+      color: var(--uni-green);
+    }
+
+    #gaming form input {
+      flex: 1;
+      padding: 10px;
+      border-radius: 8px;
+      border: 1px solid #ccc;
+    }
+
+    #gaming form button {
+      padding: 10px 15px;
+      border-radius: 8px;
+      border: none;
+      background: var(--uni-green);
+      color: #fff;
+      cursor: pointer;
+      transition: background 0.3s;
+    }
+
+    #gaming form button:hover {
+      background: var(--uni-green-2);
+    }
+
+    /* Username button style (Option 2) */
+    #gaming ul {
+      margin-top: 12px;
+      padding-left: 0;
+      list-style: none;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    #gaming ul li {
+      display: inline-block;
+    }
+
+    #gaming ul li span {
+      background: var(--uni-green);
+      color: #fff;
+      padding: 6px 12px;
+      border-radius: 6px;
+      font-size: 14px;
+      cursor: pointer;
+      transition: background 0.3s ease;
+      display: inline-block;
+    }
+
+    #gaming ul li span:hover {
+      background: var(--uni-green-2);
+    }
+
+    /* Responsive tweaks */
+    @media (max-width: 600px) {
+      #gaming .grid {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+
   <section class="grid">
     
     <!-- eFootball -->
@@ -436,11 +532,10 @@ Key Points:
       <h3>eFootball</h3>
       <p>Share your Konami ID / Username to connect with fellow players.</p>
       <form onsubmit="addGamertag(event, 'efootball')" style="display:flex;gap:10px;flex-wrap:wrap;">
-        <input type="text" id="efootballInput" placeholder="Enter your username" required 
-          style="flex:1;padding:10px;border-radius:8px;border:1px solid #ccc;" />
-        <button class="btn" type="submit">Share</button>
+        <input type="text" id="efootballInput" placeholder="Enter your username" required />
+        <button type="submit">Share</button>
       </form>
-      <ul id="efootballList" style="margin-top:12px;padding-left:20px;"></ul>
+      <ul id="efootballList"></ul>
     </article>
 
     <!-- Free Fire -->
@@ -450,11 +545,10 @@ Key Points:
       <h3>Free Fire</h3>
       <p>Drop your Free Fire ID or nickname.</p>
       <form onsubmit="addGamertag(event, 'freefire')" style="display:flex;gap:10px;flex-wrap:wrap;">
-        <input type="text" id="freefireInput" placeholder="Enter your Free Fire ID" required 
-          style="flex:1;padding:10px;border-radius:8px;border:1px solid #ccc;" />
-        <button class="btn" type="submit">Share</button>
+        <input type="text" id="freefireInput" placeholder="Enter your Free Fire ID" required />
+        <button type="submit">Share</button>
       </form>
-      <ul id="freefireList" style="margin-top:12px;padding-left:20px;"></ul>
+      <ul id="freefireList"></ul>
     </article>
 
     <!-- CODM -->
@@ -464,11 +558,10 @@ Key Points:
       <h3>Call of Duty Mobile</h3>
       <p>Share your Call of Duty Mobile username to team up.</p>
       <form onsubmit="addGamertag(event, 'codm')" style="display:flex;gap:10px;flex-wrap:wrap;">
-        <input type="text" id="codmInput" placeholder="Enter your CODM username" required 
-          style="flex:1;padding:10px;border-radius:8px;border:1px solid #ccc;" />
-        <button class="btn" type="submit">Share</button>
+        <input type="text" id="codmInput" placeholder="Enter your CODM username" required />
+        <button type="submit">Share</button>
       </form>
-      <ul id="codmList" style="margin-top:12px;padding-left:20px;"></ul>
+      <ul id="codmList"></ul>
     </article>
 
   </section>

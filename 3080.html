@@ -1488,6 +1488,17 @@ Please send it all back
   });
 </script>
 
+<!-- ✅ OneSignal Push Notifications -->
+<script src="https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js" defer></script>
+<script>
+  window.OneSignalDeferred = window.OneSignalDeferred || [];
+  OneSignalDeferred.push(async function(OneSignal) {
+    await OneSignal.init({
+      appId: "b71103e8-b1e6-4d27-af39-6fe37433a74a",
+    });
+  });
+</script>
+
 <!-- ✅ Supabase Client -->
 <script src="https://unpkg.com/@supabase/supabase-js"></script>
 <script>
@@ -1496,6 +1507,7 @@ Please send it all back
 ============================ */
 let cart = [];
 
+// Add item to cart
 function addToCart(name, price, img) {
   const existing = cart.find(item => item.name === name);
   if (existing) {
@@ -1506,6 +1518,7 @@ function addToCart(name, price, img) {
   updateCart();
 }
 
+// Update cart drawer and icon
 function updateCart() {
   const cartItems = document.getElementById("cart-items");
   const cartTotalEl = document.getElementById("cart-total");
@@ -1543,17 +1556,20 @@ function updateCart() {
   }
 }
 
+// Change quantity of an item
 function changeQty(index, delta) {
   cart[index].qty += delta;
   if (cart[index].qty <= 0) cart.splice(index, 1);
   updateCart();
 }
 
+// Toggle cart drawer
 function toggleCart() {
   const drawer = document.getElementById("cart-drawer");
   if (drawer) drawer.classList.toggle("open");
 }
 
+// Checkout via WhatsApp
 function checkoutWhatsApp() {
   if (cart.length === 0) return alert("Cart is empty!");
 
@@ -1564,6 +1580,8 @@ function checkoutWhatsApp() {
     total += item.price * item.qty;
   });
   message += `Total: ₦${total}`;
+
+  // Replace YOURNUMBER with your WhatsApp number
   window.open(`https://wa.me/YOURNUMBER?text=${encodeURIComponent(message)}`, "_blank");
 }
 
@@ -1579,10 +1597,15 @@ const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 ============================ */
 async function loadProducts() {
   const { data, error } = await supabase.from("products").select("*");
-  if (error) { console.error("❌ Error fetching products:", error.message); return; }
+
+  if (error) {
+    console.error("❌ Error fetching products:", error.message);
+    return;
+  }
 
   const container = document.getElementById("product-list");
   if (!container) return;
+
   container.innerHTML = "";
 
   data.forEach(product => {
@@ -1603,61 +1626,93 @@ async function loadProducts() {
 const cartIcon = document.getElementById("cart-icon");
 
 function showSection(id) {
+  // hide all sections
   document.querySelectorAll(".page-section").forEach(sec => sec.style.display = "none");
+
+  // show the requested section
   const section = document.getElementById(id);
   if (section) section.style.display = "block";
 
-  if (cartIcon) cartIcon.style.display = (id === "marketplace") ? "block" : "none";
-  if (id === "marketplace") loadProducts();
-  if (id === "anonymous") loadAnonymousMessages();
+  // show cart icon only in Marketplace
+  if (cartIcon) {
+    cartIcon.style.display = (id === "marketplace") ? "block" : "none";
+  }
 
+  // load products if marketplace
+  if (id === "marketplace") {
+    loadProducts();
+  }
+
+  // load anonymous messages if anonymous section
+  if (id === "anonymous") {
+    loadAnonymousMessages();
+  }
+
+  // close cart drawer when switching
   const cartDrawer = document.getElementById("cart-drawer");
   if (cartDrawer) cartDrawer.classList.remove("open");
+
   window.scrollTo(0, 0);
 }
+
 window.showSection = showSection;
 
-document.addEventListener("DOMContentLoaded", () => { showSection("home"); });
-
-/* ============================
-   DARK MODE & MENU
-============================ */
-function toggleDarkMode(){ document.body.classList.toggle("dark"); }
-function toggleMenu() { document.getElementById("menu").classList.toggle("active"); }
-document.querySelectorAll("#menu a").forEach(link => {
-  link.addEventListener("click", () => { document.getElementById("menu").classList.remove("active"); });
+// initial page load → show home section
+document.addEventListener("DOMContentLoaded", () => {
+  showSection("home");
 });
 
-/* ============================
-   READ MORE MODAL
-============================ */
+
+// ===== DARK MODE & MENU =====
+function toggleDarkMode(){
+  document.body.classList.toggle("dark");
+}
+
+function toggleMenu() {
+  document.getElementById("menu").classList.toggle("active");
+}
+
+// auto-close menu when a link is clicked
+document.querySelectorAll("#menu a").forEach(link => {
+  link.addEventListener("click", () => {
+    document.getElementById("menu").classList.remove("active");
+  });
+});
+
+// ===== Read More (Modal Full Page) =====
 function toggleReadMore(btn){
   const titleEl = btn.parentElement.querySelector("h3");
   const textEl = btn.parentElement.querySelector(".text");
   if(!titleEl || !textEl) return;
+
   const title = titleEl.textContent;
   const full = textEl.getAttribute("data-full") || "";
   const modal = document.getElementById("modal");
   if(!modal) return;
+
   document.getElementById("modalTitle").textContent = title;
   document.getElementById("modalText").innerHTML = full;
   modal.style.display = "flex";
 }
-function closeModal(){ const modal = document.getElementById("modal"); if(modal) modal.style.display = "none"; }
 
-/* ============================
-   SLIDER
-============================ */
+function closeModal(){
+  const modal = document.getElementById("modal");
+  if(modal) modal.style.display = "none";
+}
+
+// ===== Slider =====
 let currentSlide = 0;
 function showSlide(index){
   const slides = document.querySelector(".slides");
   const total = document.querySelectorAll(".slide").length;
   if(!slides || total === 0) return;
+
   if(index < 0) index = total - 1;
   if(index >= total) index = 0;
   currentSlide = index;
   slides.style.transform = `translateX(-${index * 100}%)`;
 }
+
 function nextSlide(){ showSlide(currentSlide + 1); }
 function prevSlide(){ showSlide(currentSlide - 1); }
 setInterval(nextSlide, 5000);
@@ -1670,12 +1725,22 @@ async function addGamertag(event, game) {
   const input = document.getElementById(game + "Input");
   const list = document.getElementById(game + "List");
   if(!input || !list) return;
+
   const username = input.value.trim();
   if (!username) return;
 
-  const { error } = await supabase.from("gamers").insert([{ "Game": game, "Username": username }]);
-  if (error) { console.error("❌ Error saving gamertag:", error.message); alert("❌ Error saving gamertag: " + error.message); return; }
+  // Save to Supabase (⚡ using "Game" and "Username" since your table uses capitals)
+  const { error } = await supabase.from("gamers").insert([
+    { "Game": game, "Username": username }
+  ]);
 
+  if (error) {
+    console.error("❌ Error saving gamertag:", error.message);
+    alert("❌ Error saving gamertag: " + error.message);
+    return;
+  }
+
+  // Show on UI immediately
   renderGamertag(username, game, list);
   input.value = "";
 }
@@ -1695,7 +1760,10 @@ function renderGamertag(username, game, list){
       window.open(`codm://joinroom?code=ROOM_CODE_HERE`, "_blank");
     } else {
       const connect = confirm(`Do you want to connect with ${username} on ${game.toUpperCase()}?\nClick OK to copy their ID.`);
-      if(connect){ navigator.clipboard.writeText(username); alert(`${username}'s ID has been copied! Open the game to add them.`); }
+      if(connect){
+        navigator.clipboard.writeText(username);
+        alert(`${username}'s ID has been copied! Open the game to add them.`);
+      }
     }
   };
 
@@ -1703,39 +1771,40 @@ function renderGamertag(username, game, list){
   list.appendChild(li);
 }
 
-function normalizeGameName(game) { return game.toLowerCase().replace(/\s/g, ""); }
+// ===== Load existing gamertags (FIXED) =====
+function normalizeGameName(game) {
+  return game.toLowerCase().replace(/\s/g, ""); // lowercase + remove spaces
+}
 
 async function loadGamertags() {
-  const { data, error } = await supabase.from("gamers").select("*").order("id", { ascending: false });
-  if (error) { console.error("❌ Error loading gamertags:", error.message); return; }
+  const { data, error } = await supabase
+    .from("gamers")
+    .select("*")
+    .order("id", { ascending: false });
+
+  if (error) {
+    console.error("❌ Error loading gamertags:", error.message);
+    return;
+  }
 
   data.forEach(gamer => {
-    const gameId = normalizeGameName(gamer.Game) + "List";
+    const gameId = normalizeGameName(gamer.Game) + "List"; // match your <ul> IDs
     const list = document.getElementById(gameId);
-    if (list) renderGamertag(gamer.Username, normalizeGameName(gamer.Game), list);
+    if (list) {
+      renderGamertag(gamer.Username, normalizeGameName(gamer.Game), list);
+    }
   });
 }
+
 document.addEventListener("DOMContentLoaded", loadGamertags);
-
-/* ============================
-   PDF DOWNLOADS (UPDATED)
-============================ */
-async function downloadPDF(path, filename) {
-  // Generate a signed URL from Supabase
-  const { data, error } = await supabase.storage.from("pdf-resources").createSignedUrl(path, 60);
-  if (error) { console.error("❌ Error creating signed URL:", error.message); return; }
-
-  const a = document.createElement("a");
-  a.href = data.signedUrl;
-  a.download = filename || path;
-  document.body.appendChild(a);
-  a.click();
-  document.body.removeChild(a);
-}
 
 document.getElementById("levelSelect").addEventListener("change", function() {
   const level = this.value;
+
+  // Hide all grids
   document.querySelectorAll(".pdf-grid").forEach(grid => grid.style.display = "none");
+
+  // Show selected level grid
   if (level) {
     const grid = document.getElementById("pdfGrid" + level);
     if (grid) grid.style.display = "grid";
@@ -1749,6 +1818,7 @@ function searchNews(){
   const qInput = document.getElementById("searchInput");
   const newsGrid = document.getElementById("newsGrid");
   if(!qInput || !newsGrid) return;
+
   const q = qInput.value.toLowerCase();
   newsGrid.querySelectorAll(".card").forEach(card => {
     const text = card.textContent.toLowerCase();
@@ -1759,25 +1829,38 @@ function searchNews(){
 /* ============================
    ANONYMOUS MESSAGES
 ============================ */
+
 let anonPage = 0;
 const anonPageSize = 5;
 
+/* ✅ Submit new anonymous message */
 async function submitAnonymousMessage(event) {
   event.preventDefault();
   const textInput = document.getElementById("anonText");
   const fileInput = document.getElementById("anonFile");
   const previewBox = document.getElementById("anonPreview");
 
-  if (!textInput.value.trim()) { alert("⚠️ Please type a message."); return; }
+  if (!textInput.value.trim()) {
+    alert("⚠️ Please type a message.");
+    return;
+  }
 
   let fileUrl = null;
   if (fileInput.files.length > 0) {
     const file = fileInput.files[0];
     const fileName = Date.now() + "_" + file.name;
-    const { data, error } = await supabase.storage.from("anon_uploads").upload(fileName, file);
-    if (error) { console.error("❌ File upload failed:", error.message); }
-    else {
-      const { data: publicUrlData } = supabase.storage.from("anon_uploads").getPublicUrl(fileName);
+    const { data, error } = await supabase.storage
+      .from("anon_uploads")
+      .upload(fileName, file);
+
+    if (error) {
+      console.error("❌ File upload failed:", error.message);
+    } else {
+      const { data: publicUrlData } = supabase
+        .storage
+        .from("anon_uploads")
+        .getPublicUrl(fileName);
+
       fileUrl = publicUrlData.publicUrl;
     }
   }
@@ -1786,48 +1869,75 @@ async function submitAnonymousMessage(event) {
     { message: textInput.value.trim(), file_url: fileUrl, created_at: new Date().toISOString() }
   ]);
 
-  if (error) { console.error("❌ Error saving anonymous message:", error.message); alert("❌ Error saving message: " + error.message); return; }
+  if (error) {
+    console.error("❌ Error saving anonymous message:", error.message);
+    alert("❌ Error saving message: " + error.message);
+    return;
+  }
 
+  // Clear inputs
   textInput.value = "";
   fileInput.value = "";
   previewBox.style.display = "none";
   previewBox.innerHTML = "";
 
+  // Reload messages
   anonPage = 0;
   loadAnonymousMessages(true);
 }
 
+/* ✅ Show message preview */
 function previewAnonymousMessage() {
   const textInput = document.getElementById("anonText");
   const fileInput = document.getElementById("anonFile");
   const previewBox = document.getElementById("anonPreview");
 
   let html = "";
-  if (textInput.value.trim()) html += `<p>${textInput.value.trim()}</p>`;
+  if (textInput.value.trim()) {
+    html += `<p>${textInput.value.trim()}</p>`;
+  }
+
   if (fileInput.files.length > 0) {
     const file = fileInput.files[0];
-    if (file.type.startsWith("image/")) html += `<img src="${URL.createObjectURL(file)}" style="max-width:100%; margin-top:8px;">`;
-    else html += `<p>📎 ${file.name}</p>`;
+    if (file.type.startsWith("image/")) {
+      html += `<img src="${URL.createObjectURL(file)}" style="max-width:100%; margin-top:8px;">`;
+    } else {
+      html += `<p>📎 ${file.name}</p>`;
+    }
   }
+
   previewBox.innerHTML = html || "<p style='color:#777;'>Nothing to preview</p>";
   previewBox.style.display = "block";
 }
 
+/* ✅ Load messages (with pagination) */
 async function loadAnonymousMessages(reset = false) {
   const msgList = document.getElementById("anonMessages");
   const loadMoreBtn = document.getElementById("loadMoreBtn");
 
-  if (reset) { msgList.innerHTML = ""; anonPage = 0; }
+  if (reset) {
+    msgList.innerHTML = "";
+    anonPage = 0;
+  }
 
   const from = anonPage * anonPageSize;
   const to = from + anonPageSize - 1;
 
-  const { data, error } = await supabase.from("anonymous_messages").select("*").order("id", { ascending: false }).range(from, to);
+  const { data, error } = await supabase
+    .from("anonymous_messages")
+    .select("*")
+    .order("id", { ascending: false })
+    .range(from, to);
 
-  if (error) { console.error("❌ Error loading anonymous messages:", error.message); return; }
+  if (error) {
+    console.error("❌ Error loading anonymous messages:", error.message);
+    return;
+  }
 
   if (!data || data.length === 0) {
-    if (anonPage === 0) msgList.innerHTML = "<p style='color:#666;'>No messages yet. Be the first to post! 💬</p>";
+    if (anonPage === 0) {
+      msgList.innerHTML = "<p style='color:#666;'>No messages yet. Be the first to post! 💬</p>";
+    }
     loadMoreBtn.style.display = "none";
     return;
   }
@@ -1835,8 +1945,11 @@ async function loadAnonymousMessages(reset = false) {
   data.forEach(msg => {
     let html = `<div class="anon-card"><p>${msg.message}</p>`;
     if (msg.file_url) {
-      if (msg.file_url.match(/\.(jpg|jpeg|png|gif)$/i)) html += `<img src="${msg.file_url}" alt="Attachment" style="max-width:100%; margin-top:8px;">`;
-      else html += `<a href="${msg.file_url}" target="_blank">📎 Download File</a>`;
+      if (msg.file_url.match(/\.(jpg|jpeg|png|gif)$/i)) {
+        html += `<img src="${msg.file_url}" alt="Attachment" style="max-width:100%; margin-top:8px;">`;
+      } else {
+        html += `<a href="${msg.file_url}" target="_blank">📎 Download File</a>`;
+      }
     }
     if (msg.created_at) {
       const date = new Date(msg.created_at);
@@ -1846,11 +1959,20 @@ async function loadAnonymousMessages(reset = false) {
     msgList.innerHTML += html;
   });
 
+  // Show Load More button if more messages exist
   loadMoreBtn.style.display = (data.length === anonPageSize) ? "block" : "none";
 }
 
-function loadMoreAnonymousMessages() { anonPage++; loadAnonymousMessages(); }
-document.addEventListener("DOMContentLoaded", () => { loadAnonymousMessages(true); });
+/* ✅ Load more messages */
+function loadMoreAnonymousMessages() {
+  anonPage++;
+  loadAnonymousMessages();
+}
+
+/* ✅ Auto-load messages on page load */
+document.addEventListener("DOMContentLoaded", () => {
+  loadAnonymousMessages(true);
+});
 
 </script>
 </body>

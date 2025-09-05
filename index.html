@@ -41,6 +41,38 @@ body, html {
 h1 { font-size: 2rem; margin-bottom:10px; }
 p { color:#d0ffd0; }
 
+/* Announcement Modal */
+#announcement {
+  display:none;
+  position:absolute; top:50%; left:50%;
+  transform:translate(-50%,-50%);
+  width:90%; max-width:450px;
+  background:#fff; color:#0a5a2b;
+  padding:25px; border-radius:20px;
+  text-align:center;
+  box-shadow:0 0 25px rgba(0,255,0,0.5);
+  z-index:3;
+}
+#announcement img {
+  display:block;
+  margin:0 auto 15px auto;
+  width:100px;
+  height:100px;
+  border-radius:50%;
+  border:3px solid rgba(0,255,0,0.4);
+  box-shadow:0 0 15px rgba(0,255,0,0.6);
+}
+#announcement h2 { font-size:1.5rem; margin-bottom:10px; }
+#announcement p { color:#155e36; margin-bottom:15px; }
+#announcement button {
+  padding:12px 25px;
+  border:none; border-radius:10px;
+  background:#0a5a2b; color:#fff;
+  font-size:16px; cursor:pointer;
+  transition: background 0.3s;
+}
+#announcement button:hover { background:#155e36; }
+
 /* Forms container */
 .auth-container {
   display:none;
@@ -68,7 +100,7 @@ p { color:#d0ffd0; }
   font-size:16px; cursor:pointer;
   transition: background 0.3s;
 }
-.auth-container button:hover { background:#0c7a3d; }
+.auth-container button:hover { background:#155e36; }
 .auth-toggle {
   margin-top:15px; text-align:center; font-size:14px;
 }
@@ -91,6 +123,14 @@ canvas {
   <img src="https://vtpsruejncfykiazrfsx.supabase.co/storage/v1/object/public/PRODUCTS/EYES%20OF%203080%20logo" alt="EYES OF 3080 Logo">
   <h1>👁️ EYES OF 3080</h1>
   <p>Welcome to the hub of UNIOSUN gist, news, and marketplace</p>
+</div>
+
+<!-- Announcement Modal -->
+<div id="announcement">
+  <img src="https://vtpsruejncfykiazrfsx.supabase.co/storage/v1/object/public/PRODUCTS/EYES%20OF%203080%20logo" alt="EYES OF 3080 Logo">
+  <h2>🎉 Milestone Achieved!</h2>
+  <p>Over 200 students are now exploring EYES OF 3080! Thank you for your support—together, we’re making learning smarter and easier..</p>
+  <button onclick="closeAnnouncement()">Close</button>
 </div>
 
 <!-- Auth Forms -->
@@ -120,16 +160,27 @@ canvas {
 <script>
 const SUPABASE_URL = "https://vtpsruejncfykiazrfsx.supabase.co";
 const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZ0cHNydWVqbmNmeWtpYXpyZnN4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTY3NDA5NzQsImV4cCI6MjA3MjMxNjk3NH0.UV55gbsSAgnyolxJhIYTaJUpvoJFsJn0_-LMNwhwAK0";
+const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY, {
-  auth: { persistSession: false } // 🔴 no saved login sessions
-});
+// Check session on load
+(async ()=>{
+  const { data: { session } } = await supabase.auth.getSession();
+  if(session){
+    window.location.href="3080.html"; // Already logged in
+  } else {
+    // Show welcome, then announcement
+    setTimeout(()=>{
+      document.getElementById("welcomeBox").style.display="none";
+      document.getElementById("announcement").style.display="block";
+    },3000);
+  }
+})();
 
-// Show auth after welcome
-setTimeout(()=>{
-  document.getElementById("welcomeBox").style.display="none";
+// Close announcement
+function closeAnnouncement(){
+  document.getElementById("announcement").style.display="none";
   document.getElementById("authBox").style.display="block";
-},3000);
+}
 
 // Toggle forms
 function showLogin(){
@@ -146,17 +197,16 @@ async function signUp(){
   const fullName = document.getElementById("signupName").value.trim();
   const email = document.getElementById("signupEmail").value.trim();
   const password = document.getElementById("signupPassword").value.trim();
-
   if(!fullName || !email || !password) return alert("Please fill all fields");
 
-  const { data, error } = await supabase.auth.signUp({
+  const { error } = await supabase.auth.signUp({
     email: email,
     password: password,
-    options: { data: { full_name: fullName }, emailRedirectTo: window.location.origin }
+    options: { data: { full_name: fullName } }
   });
 
   if(error){ alert("❌ "+error.message); return; }
-  alert("✅ Sign up successful! Now login.");
+  alert("✅ Sign up successful! Please login.");
   showLogin();
 }
 
@@ -164,16 +214,15 @@ async function signUp(){
 async function login(){
   const email = document.getElementById("loginEmail").value.trim();
   const password = document.getElementById("loginPassword").value.trim();
-
   if(!email || !password) return alert("Please enter email and password");
 
-  const { data, error } = await supabase.auth.signInWithPassword({
+  const { error } = await supabase.auth.signInWithPassword({
     email: email,
     password: password
   });
 
   if(error){ alert("❌ "+error.message); return; }
-  window.location.href="3080.html"; // redirect after login
+  window.location.href="3080.html";
 }
 </script>
 

@@ -1819,18 +1819,28 @@ function renderGamertag(username, game, list) {
     span.style.background = "var(--uni-green)";
   };
 
+  // 🎮 Handle click actions per game
   span.onclick = () => {
-    if (game.toLowerCase() === "codm") {
+    const g = game.toLowerCase();
+
+    if (g === "codm") {
       navigator.clipboard.writeText(username);
-      alert(`${username}'s ID has been copied! Attempting to open CODM...`);
+      alert(`${username}'s CODM ID has been copied! Attempting to open CODM...`);
       window.open(`codm://joinroom?code=ROOM_CODE_HERE`, "_blank");
+
+    } else if (g === "bloodstrike") {
+      navigator.clipboard.writeText(username);
+      alert(`${username}'s Blood Strike ID has been copied! Open Blood Strike and paste to connect.`);
+      // If Blood Strike supports deep link → add here:
+      // window.open("bloodstrike://join?code=" + username, "_blank");
+
     } else {
       const connect = confirm(
         `Do you want to connect with ${username} on ${game.toUpperCase()}?\nClick OK to copy their ID.`
       );
       if (connect) {
         navigator.clipboard.writeText(username);
-        alert(`${username}'s ID has been copied! Open the game to add them.`);
+        alert(`${username}'s ID has been copied! Open ${game.toUpperCase()} to add them.`);
       }
     }
   };
@@ -1857,7 +1867,7 @@ async function loadGamertags() {
   }
 
   data.forEach((gamer) => {
-    const gameId = normalizeGameName(gamer.Game) + "List"; // e.g. "dlsList"
+    const gameId = normalizeGameName(gamer.Game) + "List"; // e.g. "bloodstrikeList"
     const list = document.getElementById(gameId);
     if (list) {
       renderGamertag(gamer.Username, gamer.Game, list);

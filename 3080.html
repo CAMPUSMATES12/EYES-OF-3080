@@ -1683,6 +1683,48 @@ Key Points:
 
 <script src="https://unpkg.com/@supabase/supabase-js"></script>
 <script>
+
+KEY);
+
+/* ============================
+   MAINTENANCE MODE CHECK
+============================ */
+async function checkMaintenance() {
+  const { data, error } = await supabase
+    .from("settings")
+    .select("maintenance_mode")
+    .eq("id", 1)
+    .single();
+
+  if (error) {
+    console.error("❌ Maintenance check failed:", error.message);
+    return;
+  }
+
+  if (data && data.maintenance_mode) {
+    document.body.innerHTML = `
+      <div style="
+        display:flex;flex-direction:column;align-items:center;justify-content:center;
+        height:100vh;text-align:center;font-family:sans-serif;
+        background:linear-gradient(135deg, #0a5a2b, #8e44ad);
+        color:white;padding:20px;
+      ">
+        <img src="https://vtpsruejncfykiazrfsx.supabase.co/storage/v1/object/public/PRODUCTS/EYES%20OF%203080%20logo" alt="Eyes of 3080" 
+             style="width:90px;height:auto;margin-bottom:20px;">
+        <h1 style="font-size:2.2rem;">🛠️ We’re Under Maintenance</h1>
+        <p style="font-size:1.2rem;margin-top:10px;max-width:400px;">
+          Eyes of 3080 is currently updating.  
+          Please check back later 💚💜
+        </p>
+      </div>
+    `;
+  }
+}
+
+// Run maintenance check immediately
+document.addEventListener("DOMContentLoaded", checkMaintenance);
+
+
 /* ============================
    CART FUNCTIONALITY
 ============================ */

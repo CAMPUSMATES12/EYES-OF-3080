@@ -1670,21 +1670,9 @@ Key Points:
   });
 </script>
 
-<!-- ✅ OneSignal Push Notifications -->
-<script src="https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js" defer></script>
-<script>
-  window.OneSignalDeferred = window.OneSignalDeferred || [];
-  OneSignalDeferred.push(async function(OneSignal) {
-    await OneSignal.init({
-      appId: "b71103e8-b1e6-4d27-af39-6fe37433a74a",
-    });
-  });
-</script>
-
 <script src="https://unpkg.com/@supabase/supabase-js"></script>
 <script>
 
-KEY);
 
 /* ============================
    MAINTENANCE MODE CHECK
@@ -1821,22 +1809,26 @@ function renderCard(item) {
   const fullText = item.content || "";
   const preview = fullText.length > 100 ? fullText.substring(0, 100) + "…" : fullText;
 
- 
-
-// ✅ Handle media
+  // ✅ Handle media (embed properly, not just links for images/videos)
   let media = "";
-  const url = item.image_url || item.media_url || "";
+  const url = item.file_url || item.image_url || item.media_url || "";
   if (url) {
     if (url.match(/\.(mp4|webm|ogg)$/i)) {
+      // 🎥 Video embed
       media = `
         <video controls style="max-width:100%; margin:10px 0; border-radius:8px;">
           <source src="${url}" type="video/mp4">
           Your browser does not support the video tag.
         </video>`;
     } else if (url.match(/\.(jpg|jpeg|png|gif|webp)$/i)) {
-      media = `<img src="${url}" alt="Post Media" style="max-width:100%; height:auto; margin:10px 0; border-radius:8px;">`;
+      // 🖼️ Image embed
+      media = `<img src="${url}" alt="Post Image" style="max-width:100%; height:auto; margin:10px 0; border-radius:8px;">`;
+    } else if (url.match(/\.pdf$/i)) {
+      // 📄 PDF button only
+      media = `<a href="${url}" target="_blank" class="btn">📄 Download PDF</a>`;
     } else {
-      media = `<a href="${url}" target="_blank">📎 View Attachment</a>`;
+      // For unknown file types, still show as link
+      media = `<a href="${url}" target="_blank">📎 Download File</a>`;
     }
   }
 
@@ -1844,12 +1836,14 @@ function renderCard(item) {
     <div class="card">
       ${item.title ? `<h3>${item.title}</h3>` : ""}
       ${media}
-      <p class="text" data-full="${fullText}" data-preview="${preview}">${preview}</p>
+      <p class="text" 
+         data-full="${fullText}" 
+         data-preview="${preview}" 
+         data-media='${JSON.stringify(media)}'>${preview}</p>
       <button class="btn" onclick="toggleReadMore(this)">Read More</button>
     </div>
   `;
 }
-
 
 /* ============================
    LOAD NEWS/UPDATES FROM SUPABASE

@@ -208,40 +208,17 @@
       <span></span>
     </div>
     
-    <!-- LIVE BUTTON -->
-<button id="liveToggleBtn" onclick="openLive()" 
-  style="background:#0a5a2b; color:#fff; border:none; padding:8px 16px;
-         border-radius:14px; cursor:pointer; font-size:16px; margin-left:10px;">
-  📺 Live
-</button>
 
-<!-- OVERLAY LIVE ZOOM -->
-<div id="liveOverlay" 
-     style="display:none; position:fixed; top:0; left:0; width:100%; height:100%;
-            background:rgba(0,0,0,0.9); z-index:1000; text-align:center;">
-
-  <button onclick="closeLive()" 
-    style="background:#0a5a2b; color:#fff; border:none; padding:10px 20px; 
-           border-radius:8px; cursor:pointer; font-size:16px; position:absolute; 
-           top:20px; right:20px;">
-    ✖ Close
-  </button>
-
-  <div style="display:flex; align-items:center; justify-content:center; height:100%;">
-    <iframe id="liveFrame" 
-      width="90%" height="80%" 
-      src="https://zoom.us/wc/83403104628/join?pwd=392748" 
-      frameborder="0" 
-      allow="camera; microphone; fullscreen; speaker" 
-      allowfullscreen>
-    </iframe>
-  </div>
-</div>
+<button class="notify-toggle" onclick="toggleAnnouncements()" style="position:relative;">
+  📧
+  <span id="notifyDot" style="position:absolute; top:5px; right:5px; background:red; width:10px; height:10px; border-radius:50%; display:inline-block;"></span>
+</button>   
 
 
     <button class="mode-toggle" onclick="toggleDarkMode()">🌙</button>
   </div>
 </div>
+
 
 <!-- NAVIGATION MENU -->
 <nav>
@@ -294,6 +271,49 @@
     Your browser does not support the video tag.
   </video>
 </section>
+
+
+<!-- Announcements Side Panel -->
+<div id="announcementsPanel" style="
+  position: fixed; top: 0; right: -350px; width: 350px; height: 100%;
+  background: #fff; border-left: 3px solid #0a5a2b;
+  box-shadow: -4px 0 20px rgba(0,0,0,0.25);
+  overflow-y: auto; z-index: 9999; font-family: 'Poppins', sans-serif;
+  transition: right 0.3s ease;">
+  
+  <!-- Header with Close Button -->
+  <div style="background:#0a5a2b; color:white; padding:15px; font-weight:bold; display:flex; justify-content:space-between; align-items:center;">
+    📢 Announcements
+    <button onclick="closeAnnouncements()" style="background:red; border:none; color:white; border-radius:4px; cursor:pointer; padding:2px 8px;">✖</button>
+  </div>
+  
+  <div style="padding:15px;">
+    <div style="background:#f1fdf5; border-left:5px solid #0a5a2b; padding:10px; margin-bottom:12px; border-radius:8px;">
+      <h4 style="margin:0; color:#0a5a2b;">ANNOUCMENT</h4>
+      <p style="margin:5px 0 0 0; font-size:14px; color:#333;">
+        Second Cropping is going on Already‼️,If you did change of course Check your UniOsun portal
+      </p>
+    </div>
+
+    <!-- Announcement Card 2 -->
+    <div style="background:#f1fdf5; border-left:5px solid #33cc99; padding:10px; margin-bottom:12px; border-radius:8px;">
+      <h4 style="margin:0; color:#0a5a2b;">🎓 Convocation</h4>
+      <p style="margin:5px 0 0 0; font-size:14px; color:#333;">
+        Congratulations to all graduates convocating today from Osun State University! 👏
+      </p>
+    </div>
+
+    <!-- Announcement Card 3 (New) -->
+    <div style="background:#f1fdf5; border-left:5px solid #ff9900; padding:10px; margin-bottom:12px; border-radius:8px;">
+      <h4 style="margin:0; color:#0a5a2b;">📰 School Event</h4>
+      <p style="margin:5px 0 0 0; font-size:14px; color:#333;">
+        Don’t miss the upcoming school cultural festival this weekend! 🎉 Check the Events section for details.
+      </p>
+    </div>
+
+  </div>
+</div>
+
 
       <h2 class="section" style="margin-top:26px;">More News</h2>
     <section class="grid" id="newsGrid">
@@ -1705,14 +1725,22 @@ Key Points:
 <script>
 
 
-function openLive() {
-  document.getElementById("liveOverlay").style.display = "block";
-}
+function toggleAnnouncements() {
+    const panel = document.getElementById("announcementsPanel");
+    const dot = document.getElementById("notifyDot");
 
-function closeLive() {
-  document.getElementById("liveOverlay").style.display = "none";
-  document.getElementById("liveFrame").src = document.getElementById("liveFrame").src; 
-}
+    if (panel.style.right === "0px") {
+      panel.style.right = "-350px"; // close
+    } else {
+      panel.style.right = "0px"; // open
+      dot.style.display = "none"; // hide red dot
+    }
+  }
+
+  function closeAnnouncements() {
+    const panel = document.getElementById("announcementsPanel");
+    panel.style.right = "-350px"; // close
+  }
 
 
 /* ============================

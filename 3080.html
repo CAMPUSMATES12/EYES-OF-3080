@@ -229,7 +229,8 @@
     <li><a onclick="showSection('gaming')">Gaming</a></li>
     <li><a onclick="showSection('pdfs')">PDFs</a></li>
     <li><a onclick="showSection('anonymous')">Anonymous</a></li>
-    <li><a onclick="showSection('marketplace')">Marketplace🛍️</a></li>
+<li><a onclick="showSection('uniosun-login-help')">UNIOSUN LOGIN HELP</a></li>
+  <li><a onclick="showSection('marketplace')">Marketplace🛍️</a></li>
   </ul>
 </nav>
 
@@ -535,6 +536,75 @@ Please treat this information as a matter of utmost urgency. Type DONE if you ha
 
   </section>
 </section>
+
+
+<!-- UNIOSUN LOGIN HELP -->
+<section id="uniosun-login-help" class="page-section" style="display:none;">
+  <h2 class="section">UNIOSUN Login Help</h2>
+
+  <!-- Copy Portal Link -->
+  <button onclick="copyPortalLink()" style="
+    background:#0a5a2b; color:white; border:none; border-radius:4px;
+    padding:8px 12px; cursor:pointer; margin-bottom:15px;
+  ">Copy UNIOSUN Portal Link</button>
+
+  <section class="grid">
+
+    <!-- Step 1: Open Portal -->
+    <article class="card">
+      <h3>Step 1: Open UNIOSUN Portal</h3>
+      <img src="https://vtpsruejncfykiazrfsx.supabase.co/storage/v1/object/public/PRODUCTS/1e889d95-7d83-47ba-a388-6df150ae6855.jpeg" 
+           alt="UNIOSUN Portal Homepage" 
+           style="width:100%; border-radius:8px; margin-top:10px;" />
+      <p>Go to the official UNIOSUN portal to start the login or password retrieval process,click on returning applicants</p>
+      <div class="hr"></div>
+    </article>
+
+    <!-- Step 2: Click Forgot Password -->
+    <article class="card">
+      <h3>Step 2: Click 'Login or Forgot Password'</h3>
+      <img src="https://vtpsruejncfykiazrfsx.supabase.co/storage/v1/object/public/PRODUCTS/2.jpeg" 
+           alt="LOGIN" 
+           style="width:100%; border-radius:8px; margin-top:10px;" />
+      <p>On the login page, input your details or <b>'forgot password'</b>if you dont remember it</p>
+      <div class="hr"></div>
+    </article>
+
+    <!-- Step 3: Enter Email or Matric Number -->
+    <article class="card">
+      <h3>Step 3: Enter JAMB REG and Email</h3>
+      <img src="https://vtpsruejncfykiazrfsx.supabase.co/storage/v1/object/public/PRODUCTS/db5cf9be-a89e-4484-9a77-fcb82af76829.jpeg" 
+           alt="Email Entry Screen" 
+           style="width:100%; border-radius:8px; margin-top:10px;" />
+      <p>Provide your registered email and jamb registration number to receive the password reset link.</p>
+      <div class="hr"></div>
+    </article>
+
+    <!-- Step 4: Check Email & Reset Password -->
+    <article class="card">
+      <h3>Step 4: Check Email & Reset Password</h3>
+      <img src="https://vtpsruejncfykiazrfsx.supabase.co/storage/v1/object/public/PRODUCTS/e6806e3b-91a4-4553-8616-5766b73380b0.jpeg" 
+           alt="Password Reset Email" 
+           style="width:100%; border-radius:8px; margin-top:10px;" />
+      <p>Check your inbox (and spam folder) for the password reset link sent by UNIOSUN. Follow the link to set a new password.</p>
+      <div class="hr"></div>
+    </article>
+
+    <!-- Step 5: Log In With New Password -->
+    <article class="card">
+      <h3>Step 5: Log In</h3>
+      <img src="https://vtpsruejncfykiazrfsx.supabase.co/storage/v1/object/public/PRODUCTS/2.jpeg"" 
+           alt="Login Successful" 
+           style="width:100%; border-radius:8px; margin-top:10px;" />
+      <p>Return to the portal login page and log in with your new password to access your account.</p>
+      <div class="hr"></div>
+    </article>
+
+  </section>
+</section>
+
+
+
 
 <!-- ACADEMICS -->
 <section id="academic-updates" class="page-section" style="display:none;">
@@ -1721,8 +1791,17 @@ Key Points:
   });
 </script>
 
+
 <script src="https://unpkg.com/@supabase/supabase-js"></script>
 <script>
+
+// Copy UNIOSUN portal link
+function copyPortalLink() {
+  const portalLink = "https://admissions.uniosun.edu.ng/";
+  navigator.clipboard.writeText(portalLink).then(() => {
+    alert("UNIOSUN portal link copied to clipboard!");
+  });
+}
 
 
 function toggleAnnouncements() {

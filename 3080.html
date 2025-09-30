@@ -1742,8 +1742,31 @@ Key Points:
 </section>
 
 
+
+<!-- COUNTER SECTION -->
+<section class="stats-section">
+  <div class="stats-container">
+    <div class="stat-box">
+      <h2 class="counter" data-target="500">0</h2>
+      <p>TOTAL USERS</p>
+    </div>
+    <div class="stat-box">
+      <h2 class="counter" data-target="300">0</h2>
+      <p>ACTIVE USERS</p>
+    </div>
+    <div class="stat-box">
+      <h2 class="counter" data-target="300">0</h2>
+      <p>ONLINE USERS</p>
+    </div>
+    <div class="stat-box">
+      <h2 class="counter" data-target="2">0+</h2>
+      <p>YEARS OF EXPERIENCS</p>
+    </div>
+  </div>
+</section>
+
 <!-- FOOTER -->
-<footer style="background:var(--uni-green); color:#fff; padding:30px 16px; margin-top:50px;">
+<footer style="background:var(--uni-green); color:#fff; padding:30px 16px; margin-top:0;">
   <div style="max-width:1100px; margin:0 auto; display:flex; flex-wrap:wrap; justify-content:space-between; gap:20px;">
     
     <!-- Left: About -->
@@ -1792,6 +1815,43 @@ Key Points:
   <p style="text-align:center; margin:5px 0; font-weight:bold;">
     Join Our WhatsApp Channel: 
     <a href="https://whatsapp.com/channel/0029Vb5GgTd7YSd37MohjE34" target="_blank" style="color:#fff; text-decoration:underline;">Click Here</a>
+  </p>
+</footer>
+
+<!-- Counter Styles -->
+<style>
+  .stats-section {
+    background: var(--uni-green);
+    color: #fff;
+    padding: 50px 20px;
+    text-align: center;
+  }
+  .stats-container {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    max-width: 1000px;
+    margin: auto;
+    gap: 30px;
+  }
+  .stat-box {
+    flex: 1;
+    min-width: 200px;
+  }
+  .stat-box h2 {
+    font-size: 2.5rem;
+    margin: 0;
+    font-weight: bold;
+  }
+  .stat-box p {
+    margin: 10px 0 0;
+    font-size: 1.1rem;
+  }
+</style>
+
+
+
+  
 <!-- ✅ OneSignal Push Notifications -->
 <script src="https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js" defer></script>
 <script>
@@ -1803,9 +1863,28 @@ Key Points:
   });
 </script>
 
-
 <script src="https://unpkg.com/@supabase/supabase-js"></script>
 <script>
+
+  const counters = document.querySelectorAll('.counter');
+  const speed = 200; // smaller = faster
+
+  counters.forEach(counter => {
+    const animate = () => {
+      const value = +counter.getAttribute('data-target');
+      const current = +counter.innerText.replace('+','');
+      const increment = Math.ceil(value / speed);
+
+      if (current < value) {
+        counter.innerText = current + increment;
+        setTimeout(animate, 30);
+      } else {
+        counter.innerText = value + (counter.innerText.includes('+') ? '+' : '');
+      }
+    };
+    animate();
+  });
+
 
 // Copy UNIOSUN portal link
 function copyPortalLink() {
@@ -1814,7 +1893,6 @@ function copyPortalLink() {
     alert("UNIOSUN portal link copied to clipboard!");
   });
 }
-
 
 function toggleAnnouncements() {
     const panel = document.getElementById("announcementsPanel");

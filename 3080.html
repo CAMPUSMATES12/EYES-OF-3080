@@ -136,6 +136,31 @@ html, body {
   line-height: 1.6;
 }
 
+/* General style */
+select.grade-select {
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+
+  background: #f5f8ff url("https://cdn-icons-png.flaticon.com/512/271/271210.png") no-repeat right 12px center;
+  background-size: 14px;
+  border: 2px solid #0077ff;
+  border-radius: 8px;
+  padding: 10px 36px 10px 12px;
+  font-size: 15px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+/* Default */
+select.grade-select { color: #333; }
+
+/* Color mappings */
+select.grade-select.a1, select.grade-select.a { background-color: #d4f8d4; color: #1a7a1a; font-weight: 600; }
+select.grade-select.b2, select.grade-select.b { background-color: #dceeff; color: #0047cc; font-weight: 600; }
+select.grade-select.c3, select.grade-select.c { background-color: #fff3d4; color: #a06000; font-weight: 600; }
+select.grade-select.f9, select.grade-select.f { background-color: #ffe0e0; color: #b00000; font-weight: 600; }
 /* ======= SLIDER ======= */
   .slider{position:relative;border-radius:16px;overflow:hidden;box-shadow:var(--shadow);}
   .slides{display:flex;transition:transform 0.5s ease-in-out;}
@@ -194,9 +219,11 @@ html, body {
     <li><a onclick="showSection('pdfs')">PDFs</a></li>
     <li><a onclick="showSection('anonymous')">Anonymous</a></li>
 <li><a onclick="showSection('uniosun-login-help')">UNIOSUN LOGIN HELP</a></li>
+<li><a onclick="showSection('calculators')">Calculators</a></li>
   <li><a onclick="showSection('marketplace')">Marketplace🛍️</a></li>
   </ul>
 </nav>
+
 
 
       
@@ -236,7 +263,52 @@ html, body {
 </section>
 
 
+<!-- CALCULATORS SECTION -->
+<section id="calculators" class="page-section" style="padding:20px;">
+  <h2>📊 UNIOSUN Calculators</h2>
 
+  <div class="tabs">
+    <button class="btn" onclick="showCalc('cgpaCalc')">GPA / CGPA Calculator</button>
+    <button class="btn" onclick="showCalc('aggCalc')">Aggregate Calculator</button>
+  </div>
+
+  <!-- GPA / CGPA CALCULATOR -->
+  <div id="cgpaCalc" class="calc-box">
+    <h3>🎓 GPA / CGPA Calculator (5.0 Scale)</h3>
+
+    <!-- SEMESTER 1 -->
+    <h4>Semester 1</h4>
+    <div id="semester1"></div>
+    <button class="btn" onclick="addCourse('semester1')">+ Add Course</button>
+
+    <!-- SEMESTER 2 -->
+    <h4>Semester 2</h4>
+    <div id="semester2"></div>
+    <button class="btn" onclick="addCourse('semester2')">+ Add Course</button>
+
+    <br><br>
+    <button class="btn" onclick="calculateCGPA()">Calculate GPA & CGPA</button>
+    <p id="cgpaResult"></p>
+  </div>
+
+  <!-- AGGREGATE CALCULATOR -->
+  <div id="aggCalc" class="calc-box" style="display:none;">
+    <h3>📌 UNIOSUN Aggregate Calculator</h3>
+
+    <!-- JAMB -->
+    <label>Enter JAMB Score (out of 400):</label>
+    <input type="number" id="jambScore" placeholder="e.g. 210" />
+
+    <!-- O'LEVEL -->
+    <h4>Enter 5 O’Level Grades</h4>
+    <div id="olevelGrades"></div>
+    <button class="btn" onclick="addOlevelInputs()">+ Add O’Level Subjects</button>
+
+    <br><br>
+    <button class="btn" onclick="calculateAggregate()">Calculate Screening Score</button>
+    <p id="aggResult"></p>
+  </div>
+</section>
 
 
   
@@ -1690,6 +1762,136 @@ function showSlide(index){
 function nextSlide(){ showSlide(currentSlide + 1); }
 function prevSlide(){ showSlide(currentSlide - 1); }
 setInterval(nextSlide, 5000);
+
+
+/* ============================
+   TAB SWITCHING
+============================ */
+function showCalc(id){
+  document.querySelectorAll(".calc-box").forEach(box => box.style.display = "none");
+  document.getElementById(id).style.display = "block";
+}
+
+/* ============================
+   GPA / CGPA CALCULATOR
+============================ */
+const gradePoints = { "A": 5, "B": 4, "C": 3, "D": 2, "E": 1, "F": 0 };
+
+function addCourse(semesterId) {
+  const container = document.getElementById(semesterId);
+  const div = document.createElement("div");
+  div.className = "course-row";
+  div.innerHTML = `
+    <input type="number" min="1" placeholder="Units" class="units" style="width:70px;">
+    <select class="grade">
+      <option value="">Grade</option>
+      <option value="A">A (70-100)</option>
+      <option value="B">B (60-69)</option>
+      <option value="C">C (50-59)</option>
+      <option value="D">D (45-49)</option>
+      <option value="E">E (40-44)</option>
+      <option value="F">F (0-39)</option>
+    </select>
+  `;
+  container.appendChild(div);
+}
+
+function calculateSemesterGPA(semesterId) {
+  const rows = document.querySelectorAll(`#${semesterId} .course-row`);
+  let totalUnits = 0, totalPoints = 0;
+
+  rows.forEach(row => {
+    const units = parseInt(row.querySelector(".units").value) || 0;
+    const grade = row.querySelector(".grade").value;
+    if (units > 0 && grade) {
+      const gp = gradePoints[grade];
+      totalUnits += units;
+      totalPoints += gp * units;
+    }
+  });
+
+  return { gpa: totalUnits > 0 ? (totalPoints / totalUnits) : 0, totalUnits, totalPoints };
+}
+
+function calculateCGPA() {
+  const sem1 = calculateSemesterGPA("semester1");
+  const sem2 = calculateSemesterGPA("semester2");
+
+  const totalUnits = sem1.totalUnits + sem2.totalUnits;
+  const totalPoints = sem1.totalPoints + sem2.totalPoints;
+
+  const gpa1 = sem1.gpa.toFixed(2);
+  const gpa2 = sem2.gpa.toFixed(2);
+  const cgpa = totalUnits > 0 ? (totalPoints / totalUnits).toFixed(2) : 0;
+
+  let classif = "";
+  if (cgpa >= 4.5) classif = "🎉 First Class";
+  else if (cgpa >= 3.5) classif = "👍 Second Class Upper";
+  else if (cgpa >= 2.4) classif = "👌 Second Class Lower";
+  else if (cgpa >= 1.5) classif = "🙂 Third Class";
+  else if (cgpa >= 1.0) classif = "😅 Pass";
+  else classif = "❌ Fail";
+
+  document.getElementById("cgpaResult").innerHTML = `
+    Semester 1 GPA = <b>${gpa1}</b><br>
+    Semester 2 GPA = <b>${gpa2}</b><br>
+    🏆 Final CGPA = <b>${cgpa}</b><br>
+    Classification: <b>${classif}</b>
+  `;
+}
+
+/* ============================
+   AGGREGATE CALCULATOR
+============================ */
+const olevelPoints = { "A1": 8, "B2": 7, "B3": 6, "C4": 5, "C5": 4, "C6": 3, "D7": 2, "E8": 1, "F9": 0 };
+
+function addOlevelInputs() {
+  const container = document.getElementById("olevelGrades");
+  container.innerHTML = ""; // reset
+  for (let i = 1; i <= 5; i++) {
+    const select = document.createElement("select");
+    select.className = "olevel";
+    select.innerHTML = `
+      <option value="">Subject ${i} Grade</option>
+      <option value="A1">A1</option>
+      <option value="B2">B2</option>
+      <option value="B3">B3</option>
+      <option value="C4">C4</option>
+      <option value="C5">C5</option>
+      <option value="C6">C6</option>
+      <option value="D7">D7</option>
+      <option value="E8">E8</option>
+      <option value="F9">F9</option>
+    `;
+    container.appendChild(select);
+  }
+}
+
+function calculateAggregate() {
+  const jamb = parseInt(document.getElementById("jambScore").value) || 0;
+  const jambPercent = (jamb * 60) / 400;
+
+  let olevelSum = 0;
+  document.querySelectorAll("#olevelGrades .olevel").forEach(sel => {
+    if (sel.value) olevelSum += olevelPoints[sel.value];
+  });
+
+  const total = jambPercent + olevelSum;
+
+  document.getElementById("aggResult").innerHTML = `
+    JAMB % = <b>${jambPercent.toFixed(2)}</b><br>
+    O’Level % = <b>${olevelSum}</b><br>
+    Final Screening Score = <b>${total.toFixed(2)}%</b>
+  `;
+}
+
+// JS: add dynamic class to dropdown based on value
+document.addEventListener("change", function(e) {
+  if(e.target.classList.contains("grade-select")){
+    const grade = e.target.value.toLowerCase();
+    e.target.className = "grade-select " + grade;
+  }
+});
 
 /* ============================
    INIT

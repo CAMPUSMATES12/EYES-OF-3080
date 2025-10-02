@@ -1323,18 +1323,23 @@ function showSection(id){
 function renderCard(post, table){
   return `
     <article class="card">
-      <div class="card-header">
-        <h3>${post.title}</h3>
-        <a href="#" class="share-icon" onclick="openShareMenu('${post.id}', '${table}')">
-          <img src="https://cdn-icons-png.flaticon.com/512/3466/3466003.png" alt="Share" />
-        </a>
+      <div class="card-header" style="display:flex; align-items:center; justify-content:space-between;">
+        <h3 style="flex:1; margin:0; padding-right:10px;">${post.title}</h3>
+        
+        <div class="card-actions" style="display:flex; gap:8px; align-items:center;">
+          <!-- Share Icon -->
+          <img src="https://cdn-icons-png.flaticon.com/512/3466/3466003.png" 
+               alt="Share" 
+               style="width:20px; cursor:pointer;" 
+               onclick="openShareMenu('${post.id}', '${table}')">
+        </div>
       </div>
+
       <p>${post.excerpt || (post.content ? post.content.substring(0,100) : "")}...</p>
       <button class="btn" onclick="openPost('${post.id}', '${table}')">Read More</button>
     </article>
   `;
 }
-
 /* ============================
    LOAD POSTS INTO GRID
 ============================ */
@@ -1427,58 +1432,125 @@ document.getElementById("levelSelect").addEventListener("change", function() {
    OPEN SINGLE POST
 ============================ */
 async function openPost(id, table = "home") {
-  // ✅ Handle both numbers and strings as IDs
-  const safeId = isNaN(Number(id)) ? id : Number(id);
+  try {
+    const safeId = isNaN(Number(id)) ? id : Number(id);
+    const { data: post, error } = await supabase
+      .from(table)
+      .select("*")
+      .eq("id", safeId)
+      .single();
 
-  const { data: post, error } = await supabase
-    .from(table)
-    .select("*")
-    .eq("id", safeId)
-    .single();
+    if (error || !post) {
+      console.error("❌ Error fetching post:", error?.message, "| ID:", safeId, " Table:", table);
+      alert("❌ Could not load post. Please try again.");
+      return;
+    }
 
-  if (error || !post) {
-    console.error("❌ Error fetching post:", error?.message, "| ID:", safeId, " Table:", table);
-    return;
+    document.querySelectorAll(".page-section").forEach(sec => sec.style.display = "none");
+    document.getElementById("postDetail").style.display = "block";
+
+    const titleContainer = document.getElementById("detailTitle");
+    titleContainer.innerHTML = `
+      <span class="post-title-text">${post.title}</span>
+      <img src="https://cdn-icons-png.flaticon.com/512/3466/3466003.png"
+           alt="Share"
+           class="title-share-icon"
+           style="width:20px;cursor:pointer;margin-left:8px;"
+           onclick="openShareMenu('${post.id}', '${table}')">
+      <img src="https://thenounproject.com/icon/printer-1035838/"
+           alt="Print"
+           class="title-print-icon"
+           style="width:16px;cursor:pointer;margin-left:6px;"
+           onclick="printPost('${post.id}', '${table}')">
+    `;
+
+    const createdAt = post.created_at ? new Date(post.created_at).toDateString() : "Unknown date";
+    document.getElementById("detailMeta").innerText = `📅 Posted on ${createdAt}`;
+
+    if (post.image_url) {
+      document.getElementById("detailImage").src = post.image_url;
+      document.getElementById("detailImage").style.display = "block";
+    } else {
+      document.getElementById("detailImage").style.display = "none";
+    }
+
+    let formattedContent = "";
+    if (post.content) {
+      formattedContent = post.content
+        .split(/\n+/)
+        .map(line => `<p>${line.trim()}</p>`)
+        .join("");
+    }
+    document.getElementById("detailContent").innerHTML = formattedContent;
+
+    history.pushState({ postId: safeId, table }, post.title, `?id=${safeId}&t=${table}`);
+  } catch (err) {
+    console.error("❌ Unexpected error opening post:", err);
+    alert("Something went wrong while opening this post.");
   }
+}
 
-  // ✅ Hide all sections and show detail section
-  document.querySelectorAll(".page-section").forEach(sec => sec.style.display = "none");
-  document.getElementById("postDetail").style.display = "block";
+/* ============================
+   PRINT POST
+============================ */
+async function printPost(id, table = "home") {
+  try {
+    const safeId = isNaN(Number(id)) ? id : Number(id);
+    const { data: post, error } = await supabase
+      .from(table)
+      .select("*")
+      .eq("id", safeId)
+      .single();
 
-  // ✅ Title with share icon (flex layout)
-  const titleContainer = document.getElementById("detailTitle");
-  titleContainer.innerHTML = `
-    <span class="post-title-text">${post.title}</span>
-    <img src="https://cdn-icons-png.flaticon.com/512/3466/3466003.png"
-         alt="Share"
-         class="title-share-icon"
-         onclick="openShareMenu('${post.id}', '${table}')">
-  `;
+    if (error || !post) {
+      console.error("❌ Error fetching post for print:", error?.message);
+      alert("❌ Could not load post for printing.");
+      return;
+    }
 
-  // ✅ Meta date (fallback if invalid)
-  const createdAt = post.created_at ? new Date(post.created_at).toDateString() : "Unknown date";
-  document.getElementById("detailMeta").innerText = `📅 Posted on ${createdAt}`;
+    const newWindow = window.open("", "_blank");
 
-  // ✅ Image
-  if (post.image_url) {
-    document.getElementById("detailImage").src = post.image_url;
-    document.getElementById("detailImage").style.display = "block";
-  } else {
-    document.getElementById("detailImage").style.display = "none";
+    newWindow.document.write(`
+      <html>
+        <head>
+          <title>${post.title}</title>
+          <style>
+            body { font-family: Arial,sans-serif; padding:20px; line-height:1.6; color:#222; }
+            header { text-align:center; margin-bottom:20px; border-bottom:2px solid #006400; padding-bottom:10px; }
+            header img { max-width:80px; display:block; margin:0 auto 8px; }
+            h1 { text-align:center; font-size:22px; margin:15px 0; border-top:2px solid #006400; border-bottom:2px solid #006400; padding:10px 0; color:#006400; }
+            p.meta { text-align:center; font-size:13px; color:#666; }
+            .content { margin-top:20px; }
+            footer { margin-top:30px; text-align:center; font-size:12px; color:#555; border-top:1px dashed #aaa; padding-top:10px; }
+          </style>
+        </head>
+        <body>
+          <header>
+            <img src="assets/logo.png" alt="Site Logo" />
+            <h2>EYES OF 3080 NEWS PORTAL</h2>
+          </header>
+
+          <h1>${post.title}</h1>
+          <p class="meta">🕒 Posted on ${post.created_at ? new Date(post.created_at).toDateString() : "Unknown Date"}</p>
+
+          <div class="content">
+            ${post.content ? post.content.split(/\n+/).map(line => `<p>${line.trim()}</p>`).join("") : ""}
+          </div>
+
+          <footer>
+            Powered by <b>Eyes of 3080</b> | Printed copy
+          </footer>
+        </body>
+      </html>
+    `);
+
+    newWindow.document.close();
+    newWindow.focus();
+    newWindow.print();
+  } catch (err) {
+    console.error("❌ Unexpected error printing post:", err);
+    alert("Something went wrong while printing.");
   }
-
-  // ✅ Auto-format content into paragraphs
-  let formattedContent = "";
-  if (post.content) {
-    formattedContent = post.content
-      .split(/\n+/) // break by newlines
-      .map(line => `<p>${line.trim()}</p>`)
-      .join("");
-  }
-  document.getElementById("detailContent").innerHTML = formattedContent;
-
-  // ✅ Update browser history
-  history.pushState({ postId: safeId, table }, post.title, `?id=${safeId}&t=${table}`);
 }
 
 /* ============================
@@ -1506,102 +1578,6 @@ function openShareMenu(id, table){
     alert(shareOptions + "\n(Link copied to clipboard ✅)");
   }
 }
-
-
-/* ============================
-   GAMERS CONNECTIONS
-============================ */
-async function addGamertag(event, game) {
-  event.preventDefault();
-  const input = document.getElementById(game + "Input");
-  const list = document.getElementById(game + "List");
-  if (!input || !list) return;
-
-  const username = input.value.trim();
-  if (!username) return;
-
-  const { error } = await supabase.from("gamers").insert([
-    { "Game": game, "Username": username }
-  ]);
-
-  if (error) {
-    console.error("❌ Error saving gamertag:", error.message);
-    alert("❌ Error saving gamertag: " + error.message);
-    return;
-  }
-
-  renderGamertag(username, game, list);
-  input.value = "";
-}
-
-function renderGamertag(username, game, list) {
-  const li = document.createElement("li");
-  const span = document.createElement("span");
-  span.textContent = username;
-
-  span.style.cursor = "pointer";
-  span.style.background = "var(--uni-green)";
-  span.style.color = "#fff";
-  span.style.padding = "6px 12px";
-  span.style.borderRadius = "6px";
-  span.style.fontSize = "14px";
-  span.style.transition = "background 0.3s ease";
-
-  span.onmouseover = () => { span.style.background = "var(--uni-green-2)"; };
-  span.onmouseout = () => { span.style.background = "var(--uni-green)"; };
-
-  span.onclick = () => {
-    const g = game.toLowerCase();
-
-    if (g === "codm") {
-      navigator.clipboard.writeText(username);
-      alert(`${username}'s CODM ID has been copied! Attempting to open CODM...`);
-      window.open(`codm://joinroom?code=ROOM_CODE_HERE`, "_blank");
-
-    } else if (g === "bloodstrike") {
-      navigator.clipboard.writeText(username);
-      alert(`${username}'s Blood Strike ID has been copied! Open Blood Strike and paste to connect.`);
-
-    } else {
-      const connect = confirm(
-        `Do you want to connect with ${username} on ${game.toUpperCase()}?\nClick OK to copy their ID.`
-      );
-      if (connect) {
-        navigator.clipboard.writeText(username);
-        alert(`${username}'s ID has been copied! Open ${game.toUpperCase()} to add them.`);
-      }
-    }
-  };
-
-  li.appendChild(span);
-  list.appendChild(li);
-}
-
-function normalizeGameName(game) {
-  return game.toLowerCase().replace(/\s/g, "");
-}
-
-async function loadGamertags() {
-  const { data, error } = await supabase
-    .from("gamers")
-    .select("*")
-    .order("id", { ascending: false });
-
-  if (error) {
-    console.error("❌ Error loading gamertags:", error.message);
-    return;
-  }
-
-  data.forEach((gamer) => {
-    const gameId = normalizeGameName(gamer.Game) + "List";
-    const list = document.getElementById(gameId);
-    if (list) {
-      renderGamertag(gamer.Username, gamer.Game, list);
-    }
-  });
-}
-
-document.addEventListener("DOMContentLoaded", loadGamertags);
 
 /* ============================
    BACK
@@ -1757,26 +1733,6 @@ document.addEventListener("DOMContentLoaded", () => {
 });
 
 /* ============================
-   SLIDER
-============================ */
-let currentSlide = 0;
-function showSlide(index){
-  const slides = document.querySelector(".slides");
-  const total = document.querySelectorAll(".slide").length;
-  if(!slides || total === 0) return;
-
-  if(index < 0) index = total - 1;
-  if(index >= total) index = 0;
-  currentSlide = index;
-  slides.style.transform = `translateX(-${index * 100}%)`;
-}
-
-function nextSlide(){ showSlide(currentSlide + 1); }
-function prevSlide(){ showSlide(currentSlide - 1); }
-setInterval(nextSlide, 5000);
-
-
-/* ============================
    TAB SWITCHING
 ============================ */
 function showCalc(id){
@@ -1906,8 +1862,105 @@ document.addEventListener("change", function(e) {
 });
 
 /* ============================
+   GAMERS CONNECTIONS
+============================ */
+async function addGamertag(event, game) {
+  event.preventDefault();
+  const input = document.getElementById(game + "Input");
+  const list = document.getElementById(game + "List");
+  if (!input || !list) return;
+
+  const username = input.value.trim();
+  if (!username) return;
+
+  const { error } = await supabase.from("gamers").insert([
+    { "Game": game, "Username": username }
+  ]);
+
+  if (error) {
+    console.error("❌ Error saving gamertag:", error.message);
+    alert("❌ Error saving gamertag: " + error.message);
+    return;
+  }
+
+  renderGamertag(username, game, list);
+  input.value = "";
+}
+
+function renderGamertag(username, game, list) {
+  const li = document.createElement("li");
+  const span = document.createElement("span");
+  span.textContent = username;
+
+  span.style.cursor = "pointer";
+  span.style.background = "var(--uni-green)";
+  span.style.color = "#fff";
+  span.style.padding = "6px 12px";
+  span.style.borderRadius = "6px";
+  span.style.fontSize = "14px";
+  span.style.transition = "background 0.3s ease";
+
+  span.onmouseover = () => { span.style.background = "var(--uni-green-2)"; };
+  span.onmouseout = () => { span.style.background = "var(--uni-green)"; };
+
+  span.onclick = () => {
+    const g = game.toLowerCase();
+
+    if (g === "codm") {
+      navigator.clipboard.writeText(username);
+      alert(`${username}'s CODM ID has been copied! Attempting to open CODM...`);
+      window.open(`codm://joinroom?code=ROOM_CODE_HERE`, "_blank");
+
+    } else if (g === "bloodstrike") {
+      navigator.clipboard.writeText(username);
+      alert(`${username}'s Blood Strike ID has been copied! Open Blood Strike and paste to connect.`);
+
+    } else {
+      const connect = confirm(
+        `Do you want to connect with ${username} on ${game.toUpperCase()}?\nClick OK to copy their ID.`
+      );
+      if (connect) {
+        navigator.clipboard.writeText(username);
+        alert(`${username}'s ID has been copied! Open ${game.toUpperCase()} to add them.`);
+      }
+    }
+  };
+
+  li.appendChild(span);
+  list.appendChild(li);
+}
+
+function normalizeGameName(game) {
+  return game.toLowerCase().replace(/\s/g, "");
+}
+
+async function loadGamertags() {
+  const { data, error } = await supabase
+    .from("gamers")
+    .select("*")
+    .order("id", { ascending: false });
+
+  if (error) {
+    console.error("❌ Error loading gamertags:", error.message);
+    return;
+  }
+
+  data.forEach((gamer) => {
+    const gameId = normalizeGameName(gamer.Game) + "List";
+    const list = document.getElementById(gameId);
+    if (list) {
+      renderGamertag(gamer.Username, gamer.Game, list);
+    }
+  });
+}
+
+document.addEventListener("DOMContentLoaded", loadGamertags);
+
+/* ============================
    INIT
 ============================ */
+
+
 window.onload = function(){
   const params = new URLSearchParams(window.location.search);
   if(params.has("id") && params.has("t")){
@@ -1928,6 +1981,7 @@ window.onpopstate = function(e){
     goBack(); 
   }
 };
+
 </script>
 </body>
 </html>

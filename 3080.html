@@ -1337,36 +1337,159 @@ function showSection(id){
   window.scrollTo(0,0);
 }
 
-// ============================
-// RENDER CARD WITH CLICKABLE LINKS
-// ============================
-function renderCard(post, table) {
-  // Function to detect URLs and convert to clickable links
-  function linkify(text) {
-    if (!text) return "";
-    const urlPattern = /(https?:\/\/[^\s]+)/g;
-    return text.replace(urlPattern, url => `<a href="${url}" target="_blank" style="color: #006400; text-decoration: underline;">${url}</a>`);
-  }
+ /* ============================
+   RENDER POSTS + FULL POST WITH COMMENTS
+============================ */
 
+// Ensure post-modal container exists
+if (!document.getElementById("post-modal")) {
+  const modalContainer = document.createElement("div");
+  modalContainer.id = "post-modal";
+  modalContainer.style.position = "fixed";
+  modalContainer.style.top = "0";
+  modalContainer.style.left = "0";
+  modalContainer.style.width = "100%";
+  modalContainer.style.height = "100%";
+  modalContainer.style.overflow = "auto";
+  modalContainer.style.background = "rgba(0,0,0,0.5)";
+  modalContainer.style.display = "none"; // hidden initially
+  modalContainer.style.padding = "50px";
+  modalContainer.style.zIndex = "9999";
+
+  document.body.appendChild(modalContainer);
+}
+
+// Render post cards (main list)
+function renderCard(post, table) {
   return `
-    <article class="card">
+    <article class="card" style="border:1px solid #006400; padding:15px; margin-bottom:15px; border-radius:8px;">
       <div class="card-header" style="display:flex; align-items:center; justify-content:space-between;">
-        <h3 style="flex:1; margin:0; padding-right:10px;">${post.title}</h3>
-        
+        <h3 style="flex:1; margin:0; padding-right:10px; color:#006400;">${post.title}</h3>
         <div class="card-actions" style="display:flex; gap:8px; align-items:center;">
-          <!-- Share Icon -->
           <img src="https://cdn-icons-png.flaticon.com/512/3466/3466003.png" 
-               alt="Share" 
-               style="width:20px; cursor:pointer;" 
+               alt="Share" style="width:20px; cursor:pointer;" 
                onclick="openShareMenu('${post.id}', '${table}')">
         </div>
       </div>
 
-      <p>${post.excerpt ? linkify(post.excerpt) : (post.content ? linkify(post.content.substring(0, 100)) : "")}...</p>
-      <button class="btn" onclick="openPost('${post.id}', '${table}')">Read More</button>
+      <p>${post.excerpt || (post.content ? post.content.substring(0, 100) : "")}...</p>
+      <button class="btn" 
+              style="background:#006400; color:white; padding:6px 12px; border:none; border-radius:4px;" 
+              onclick="openPost('${post.id}', '${table}')">
+        Read More
+      </button>
     </article>
   `;
 }
+
+// Open full post with comment section
+async function openPost(id, table = "home") {
+  try {
+    const { data: post, error } = await supabase
+      .from(table)
+      .select("*")
+      .eq("id", id)
+      .single();
+
+    if (error || !post) {
+      alert("❌ Could not load post.");
+      return;
+    }
+
+    const container = document.getElementById("post-modal"); 
+
+    // Show modal
+    container.style.display = "block";
+
+    container.innerHTML = `
+      <div style="background:white; border-radius:8px; max-width:800px; margin:0 auto; padding:20px; position:relative;">
+        <button onclick="closePostModal()" 
+                style="position:absolute; top:10px; right:10px; background:#006400; color:white; border:none; padding:5px 10px; border-radius:4px; cursor:pointer;">
+          Close
+        </button>
+        <h1 style="color:#006400;">${post.title}</h1>
+        <p style="margin-bottom:10px;">${post.content}</p>
+
+        <!-- COMMENTS -->
+        <div id="comments-section-${post.id}" style="margin-top:20px; border-top:1px solid #006400; padding-top:10px;">
+          <h4 style="color:#006400;">Comments</h4>
+          <div id="comments-container-${post.id}"></div>
+
+          <textarea id="comment-input-${post.id}" 
+                    placeholder="Write a comment..." 
+                    style="width:100%; padding:8px; margin-top:5px; border:1px solid #006400; border-radius:5px;"></textarea>
+
+          <button style="background:#006400; color:white; padding:6px 12px; border:none; border-radius:4px; margin-top:5px;" 
+                  onclick="submitComment('${post.id}')">
+            Submit
+          </button>
+        </div>
+      </div>
+    `;
+
+    loadComments(post.id);
+
+  } catch (err) {
+    console.error(err);
+    alert("Something went wrong.");
+  }
+}
+
+// Close modal
+function closePostModal() {
+  const container = document.getElementById("post-modal");
+  container.style.display = "none";
+  container.innerHTML = ""; // clear content
+}
+
+// Load comments for a specific post
+async function loadComments(postId) {
+  const { data: comments, error } = await supabase
+    .from("comments")
+    .select("*")
+    .eq("post_id", postId)
+    .order("created_at", { ascending: true });
+
+  if (error) {
+    console.error(error);
+    return;
+  }
+
+  const container = document.getElementById(`comments-container-${postId}`);
+  container.innerHTML = comments.map(c => `
+    <div style="margin-bottom:8px; padding:6px; border-bottom:1px solid #ccc;">
+      <b style="color:#006400;">${c.username}</b> 
+      <span style="font-size:11px; color:#555;">(${new Date(c.created_at).toLocaleString()})</span>
+      <p style="margin:4px 0;">${c.content}</p>
+    </div>
+  `).join("");
+}
+
+// Submit a comment
+async function submitComment(postId) {
+  const input = document.getElementById(`comment-input-${postId}`);
+  const content = input.value.trim();
+  if (!content) return alert("Comment cannot be empty");
+
+  const user = supabase.auth.user();
+  if (!user) return alert("You must be logged in to comment");
+
+  const { error } = await supabase
+    .from("comments")
+    .insert([
+      { post_id: postId, username: user.email, content }
+    ]);
+
+  if (error) {
+    console.error(error);
+    return alert("Failed to submit comment");
+  }
+
+  input.value = "";
+  loadComments(postId); // reload comments
+}
+
+
 /* ============================
    LOAD POSTS INTO GRID
 ============================ */

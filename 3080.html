@@ -1513,6 +1513,9 @@ async function openPost(id, table = "home") {
 /* ============================
    PRINT POST WITH WATERMARK
 ============================ */
+/* ============================
+   PRINT POST WITH WATERMARK
+============================ */
 async function printPost(id, table = "home") {
   try {
     const safeId = isNaN(Number(id)) ? id : Number(id);
@@ -1528,95 +1531,85 @@ async function printPost(id, table = "home") {
       return;
     }
 
-    // Initialize jsPDF
-    const { jsPDF } = window.jspdf;
-    const doc = new jsPDF({ unit: "pt", format: "a4" });
+    const newWindow = window.open("", "_blank");
 
-    const pageWidth = doc.internal.pageSize.getWidth();
-    const pageHeight = doc.internal.pageSize.getHeight();
-    const margin = 40; // page margin
-    const lineHeight = 20;
-    let cursorY = margin;
+    newWindow.document.write(`
+      <html>
+        <head>
+          <title>${post.title}</title>
+          <style>
+            body { font-family: Arial, sans-serif; padding:20px; line-height:1.6; color:#222; }
 
-    // Logo URL
-    const logoUrl = "https://vtpsruejncfykiazrfsx.supabase.co/storage/v1/object/public/PRODUCTS/EYES%20OF%203080%20logo";
-    
-    // Function to draw watermark and logo on each page
-    async function drawHeaderAndWatermark() {
-      // Draw watermark
-      doc.setTextColor(0, 100, 0, 0.15);
-      doc.setFontSize(60);
-      doc.setFont("helvetica", "bold");
-      doc.text("EYES OF 3080", pageWidth / 2, pageHeight / 2, { align: "center", angle: -30 });
-      doc.setTextColor(0, 0, 0);
-      doc.setFontSize(12);
-      doc.setFont("helvetica", "normal");
+            header { text-align:center; margin-bottom:20px; border-bottom:2px solid #006400; padding-bottom:10px; }
+            header img { max-width:80px; display:block; margin:0 auto 8px; }
+            h1 { text-align:center; font-size:22px; margin:15px 0; border-top:2px solid #006400; border-bottom:2px solid #006400; padding:10px 0; color:#006400; }
+            p.meta { text-align:center; font-size:13px; color:#666; }
+            .content { margin-top:20px; position: relative; z-index:1; }
+            footer { margin-top:30px; text-align:center; font-size:12px; color:#555; border-top:1px dashed #aaa; padding-top:10px; }
 
-      // Draw logo
-      const img = new Image();
-      img.crossOrigin = "anonymous";
-      img.src = logoUrl;
-      await new Promise(resolve => {
-        img.onload = () => {
-          const imgWidth = 80;
-          const imgHeight = 80;
-          doc.addImage(img, 'PNG', (pageWidth - imgWidth) / 2, margin, imgWidth, imgHeight);
-          resolve();
-        };
-        img.onerror = () => {
-          console.warn("Logo failed to load");
-          resolve();
-        };
-      });
-      cursorY = margin + 80 + 10; // move cursor below logo
-    }
+            /* WATERMARK */
+           @media print {
+  /* Add watermark as background to body */
+  body {
+    position: relative;
+  }
 
-    // Draw first page header and watermark
-    await drawHeaderAndWatermark();
+  body::before {
+    content: "EYES OF 3080";
+    position: fixed; /* stays in same spot on every page */
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%) rotate(-30deg);
+    font-size: 36px;
+    color: rgba(0, 100, 0, 0.15);
+    pointer-events: none;
+    text-align: center;
+    width: 100%;
+    z-index: -1;
+    white-space: nowrap;
+  }
 
-    // Add title
-    doc.setFontSize(22);
-    doc.setTextColor(0, 100, 0);
-    doc.setFont("helvetica", "bold");
-    doc.text(post.title, pageWidth / 2, cursorY, { align: "center" });
-    cursorY += 30;
+  /* Make sure content prints correctly */
+  header, .content, footer {
+    position: relative;
+    z-index: 1;
+  }
 
-    // Add meta info
-    doc.setFontSize(12);
-    doc.setTextColor(100);
-    doc.setFont("helvetica", "normal");
-    const createdAt = post.created_at ? new Date(post.created_at).toDateString() : "Unknown Date";
-    doc.text(`🕒 Posted on ${createdAt}`, pageWidth / 2, cursorY, { align: "center" });
-    cursorY += 40;
+  /* Avoid page breaking inside elements if needed */
+  .content p {
+    page-break-inside: avoid;
+  }
+}
+          </style>
+        </head>
+        <body>
+          <header>
+            <img src="https://vtpsruejncfykiazrfsx.supabase.co/storage/v1/object/public/PRODUCTS/EYES%20OF%203080%20logo" alt="Site Logo" />
+            <h2>EYES OF 3080</h2>
+          </header>
 
-    // Add content
-    const text = post.content || "";
-    const lines = doc.splitTextToSize(text, pageWidth - margin * 2);
+          <h1>${post.title}</h1>
+          <p class="meta">🕒 Posted on ${post.created_at ? new Date(post.created_at).toDateString() : "Unknown Date"}</p>
 
-    for (let i = 0; i < lines.length; i++) {
-      if (cursorY + lineHeight > pageHeight - margin) {
-        doc.addPage();
-        cursorY = margin;
-        await drawHeaderAndWatermark();
-        // add space after logo on new page
-        cursorY += 40;
-      }
-      doc.text(lines[i], margin, cursorY);
-      cursorY += lineHeight;
-    }
+          <div class="content">
+            ${post.content ? post.content.split(/\n/).map(line => `<p>${line}</p>`).join('') : ""}
+          </div>
 
-    // Footer on last page
-    if (cursorY + 40 < pageHeight - margin) cursorY += 20;
-    doc.text("Powered by Eyes of 3080 | Printed copy", pageWidth / 2, pageHeight - margin, { align: "center" });
+          <footer>
+            Powered by <b>Eyes of 3080</b> | Printed copy
+          </footer>
+        </body>
+      </html>
+    `);
 
-    // Save / Print
-    doc.save(`${post.title}.pdf`);
+    newWindow.document.close();
+    newWindow.focus();
+    newWindow.print();
   } catch (err) {
     console.error("❌ Unexpected error printing post:", err);
     alert("Something went wrong while printing.");
   }
 }
-
 /* ============================
    SHARE
 ============================ */

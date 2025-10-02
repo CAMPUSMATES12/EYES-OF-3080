@@ -1337,10 +1337,17 @@ function showSection(id){
   window.scrollTo(0,0);
 }
 
-/* ============================
-   RENDER CARDS
-============================ */
-function renderCard(post, table){
+// ============================
+// RENDER CARD WITH CLICKABLE LINKS
+// ============================
+function renderCard(post, table) {
+  // Function to detect URLs and convert to clickable links
+  function linkify(text) {
+    if (!text) return "";
+    const urlPattern = /(https?:\/\/[^\s]+)/g;
+    return text.replace(urlPattern, url => `<a href="${url}" target="_blank" style="color: #006400; text-decoration: underline;">${url}</a>`);
+  }
+
   return `
     <article class="card">
       <div class="card-header" style="display:flex; align-items:center; justify-content:space-between;">
@@ -1355,7 +1362,7 @@ function renderCard(post, table){
         </div>
       </div>
 
-      <p>${post.excerpt || (post.content ? post.content.substring(0,100) : "")}...</p>
+      <p>${post.excerpt ? linkify(post.excerpt) : (post.content ? linkify(post.content.substring(0, 100)) : "")}...</p>
       <button class="btn" onclick="openPost('${post.id}', '${table}')">Read More</button>
     </article>
   `;

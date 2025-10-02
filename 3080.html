@@ -1530,56 +1530,70 @@ async function printPost(id, table = "home") {
 
     const newWindow = window.open("", "_blank");
 
+    // Split content into blocks (simulate pages)
+    const contentBlocks = post.content
+      ? post.content.split(/\n\n/).map(block => block.trim())
+      : [];
+
     newWindow.document.write(`
       <html>
         <head>
           <title>${post.title}</title>
           <style>
-            body { font-family: Arial, sans-serif; padding:20px; line-height:1.6; color:#222; }
-
+            body { font-family: Arial, sans-serif; margin:0; padding:20px; color:#222; }
+            .page { position: relative; page-break-after: always; padding:20px; }
             header { text-align:center; margin-bottom:20px; border-bottom:2px solid #006400; padding-bottom:10px; }
             header img { max-width:80px; display:block; margin:0 auto 8px; }
             h1 { text-align:center; font-size:22px; margin:15px 0; border-top:2px solid #006400; border-bottom:2px solid #006400; padding:10px 0; color:#006400; }
             p.meta { text-align:center; font-size:13px; color:#666; }
-            .content { margin-top:20px; }
+            .content { margin-top:20px; position: relative; z-index: 1; }
             footer { margin-top:30px; text-align:center; font-size:12px; color:#555; border-top:1px dashed #aaa; padding-top:10px; }
-
-            /* ======================
-               PRINT WATERMARK
-            ====================== */
-            @media print {
-              body::after {
-                content: "EYES OF 3080";
-                position: fixed;
-                top: 50%;
-                left: 50%;
-                transform: translate(-50%, -50%) rotate(-30deg);
-                font-size: 36px;
-                color: rgba(0, 100, 0, 0.15);
-                z-index: -1;
-                pointer-events: none;
-                width: 100%;
-                text-align: center;
-              }
+            /* WATERMARK */
+            .watermark {
+              position: absolute;
+              top: 50%;
+              left: 50%;
+              transform: translate(-50%, -50%) rotate(-30deg);
+              font-size: 90px;
+              color: rgba(0,100,0,0.15);
+              pointer-events: none;
+              z-index: 0;
+              white-space: nowrap;
             }
           </style>
         </head>
         <body>
-          <header>
-            <img src="https://vtpsruejncfykiazrfsx.supabase.co/storage/v1/object/public/PRODUCTS/EYES%20OF%203080%20logo" alt="Site Logo" />
-            <h2>EYES OF 3080</h2>
-          </header>
-
-          <h1>${post.title}</h1>
-          <p class="meta">🕒 Posted on ${post.created_at ? new Date(post.created_at).toDateString() : "Unknown Date"}</p>
-
-          <div class="content">
-            ${post.content ? post.content.split(/\n+/).map(line => `<p>${line.trim()}</p>`).join("") : ""}
-          </div>
-
-          <footer>
-            Powered by <b>Eyes of 3080</b> | Printed copy
-          </footer>
+          ${contentBlocks.length > 0 ? contentBlocks.map(block => `
+            <div class="page">
+              <div class="watermark">EYES OF 3080</div>
+              <header>
+                <img src="https://vtpsruejncfykiazrfsx.supabase.co/storage/v1/object/public/PRODUCTS/EYES%20OF%203080%20logo" alt="Site Logo" />
+                <h2>EYES OF 3080</h2>
+              </header>
+              <h1>${post.title}</h1>
+              <p class="meta">🕒 Posted on ${post.created_at ? new Date(post.created_at).toDateString() : "Unknown Date"}</p>
+              <div class="content">
+                ${block.split(/\n/).map(line => `<p>${line}</p>`).join('')}
+              </div>
+              <footer>
+                Powered by <b>Eyes of 3080</b> | Printed copy
+              </footer>
+            </div>
+          `).join('') : `
+            <div class="page">
+              <div class="watermark">EYES OF 3080</div>
+              <header>
+                <img src="https://vtpsruejncfykiazrfsx.supabase.co/storage/v1/object/public/PRODUCTS/EYES%20OF%203080%20logo" alt="Site Logo" />
+                <h2>EYES OF 3080</h2>
+              </header>
+              <h1>${post.title}</h1>
+              <p class="meta">🕒 Posted on ${post.created_at ? new Date(post.created_at).toDateString() : "Unknown Date"}</p>
+              <div class="content"></div>
+              <footer>
+                Powered by <b>Eyes of 3080</b> | Printed copy
+              </footer>
+            </div>
+          `}
         </body>
       </html>
     `);

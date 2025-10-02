@@ -118,6 +118,23 @@ html, body {
 * {
   box-sizing: border-box; /* prevents padding/margin from pushing things out */
 }
+#detailTitle {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 20px;
+  font-weight: bold;
+}
+
+#detailTitle .title-share-icon {
+  width: 22px;
+  height: 22px;
+  cursor: pointer;
+}
+#detailContent p {
+  margin: 12px 0;
+  line-height: 1.6;
+}
 
 /* ======= SLIDER ======= */
   .slider{position:relative;border-radius:16px;overflow:hidden;box-shadow:var(--shadow);}
@@ -1325,8 +1342,9 @@ document.getElementById("levelSelect").addEventListener("change", function() {
 /* ============================
    OPEN SINGLE POST
 ============================ */
-async function openPost(id, table="home"){
-  const safeId = isNaN(id) ? id : Number(id); // works for string or number IDs
+async function openPost(id, table = "home") {
+  // ✅ Handle both numbers and strings as IDs
+  const safeId = isNaN(Number(id)) ? id : Number(id);
 
   const { data: post, error } = await supabase
     .from(table)
@@ -1335,42 +1353,48 @@ async function openPost(id, table="home"){
     .single();
 
   if (error || !post) {
-    console.error("❌ Error fetching post:", error?.message, " | ID:", safeId, " Table:", table);
+    console.error("❌ Error fetching post:", error?.message, "| ID:", safeId, " Table:", table);
     return;
   }
 
-  // hide sections, show detail
-  document.querySelectorAll(".page-section").forEach(sec => sec.style.display="none");
-  document.getElementById("postDetail").style.display="block";
+  // ✅ Hide all sections and show detail section
+  document.querySelectorAll(".page-section").forEach(sec => sec.style.display = "none");
+  document.getElementById("postDetail").style.display = "block";
 
-  // Clear and rebuild title with share button
+  // ✅ Title with share icon (flex layout)
   const titleContainer = document.getElementById("detailTitle");
-  titleContainer.innerHTML = `${post.title}`;
+  titleContainer.innerHTML = `
+    <span class="post-title-text">${post.title}</span>
+    <img src="https://cdn-icons-png.flaticon.com/512/3466/3466003.png"
+         alt="Share"
+         class="title-share-icon"
+         onclick="openShareMenu('${post.id}', '${table}')">
+  `;
 
-  // Add share button beside title
-  const shareIcon = document.createElement("img");
-  shareIcon.src = "https://cdn-icons-png.flaticon.com/512/3466/3466003.png";
-  shareIcon.alt = "Share";
-  shareIcon.style.width = "20px";
-  shareIcon.style.cursor = "pointer";
-  shareIcon.style.marginLeft = "10px";
-  shareIcon.onclick = () => openShareMenu(post.id, table);
-  titleContainer.appendChild(shareIcon);
+  // ✅ Meta date (fallback if invalid)
+  const createdAt = post.created_at ? new Date(post.created_at).toDateString() : "Unknown date";
+  document.getElementById("detailMeta").innerText = `📅 Posted on ${createdAt}`;
 
-  // Meta + image + content
-  document.getElementById("detailMeta").innerText = 
-    `Posted on ${new Date(post.created_at).toDateString()}`;
-
-  if (post.image_url){
+  // ✅ Image
+  if (post.image_url) {
     document.getElementById("detailImage").src = post.image_url;
     document.getElementById("detailImage").style.display = "block";
   } else {
     document.getElementById("detailImage").style.display = "none";
   }
 
-  document.getElementById("detailContent").innerHTML = post.content;
+  // ✅ Auto-format content into paragraphs
+  let formattedContent = "";
+  if (post.content) {
+    formattedContent = post.content
+      .split(/\n+/) // break by newlines
+      .map(line => `<p>${line.trim()}</p>`)
+      .join("");
+  }
+  document.getElementById("detailContent").innerHTML = formattedContent;
 
-  history.pushState({postId:safeId, table}, post.title, `?id=${safeId}&t=${table}`);
+  // ✅ Update browser history
+  history.pushState({ postId: safeId, table }, post.title, `?id=${safeId}&t=${table}`);
 }
 
 /* ============================

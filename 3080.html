@@ -85,16 +85,79 @@
   #postDetail img { width:100%; border-radius:8px; margin:16px 0; }
   .back-btn { cursor:pointer; color:var(--uni-green); margin-bottom:15px; display:inline-block; }
 
-.watermark {
-  position:fixed;
-  top:50%;
-  left:50%;
-  transform:translate(-50%, -50%) rotate(-45deg);
-  font-size:60px;
-  color:rgba(0, 100, 0, 0.15);
-  z-index:0;
-  pointer-events:none;
+body { 
+  font-family: Arial, sans-serif; 
+  padding: 20px; 
+  line-height: 1.6; 
+  color: #222; 
+  position: relative; 
+}
+
+/* Watermark */
+body::before {
+  content: "EYES OF 3080";      /* Your watermark text */
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%) rotate(-30deg);
+  font-size: 120px;               /* Adjust size here: smaller 40px, larger 120px */
+  color: rgba(0, 100, 0, 0.15);  /* Greenish, semi-transparent */
+  z-index: 0;
+  pointer-events: none;
   white-space: nowrap;
+}
+
+/* Header */
+header { 
+  text-align: center; 
+  margin-bottom: 20px; 
+  border-bottom: 2px solid #006400; 
+  padding-bottom: 10px; 
+  position: relative; 
+  z-index: 1; 
+}
+
+header img { 
+  max-width: 80px; 
+  display: block; 
+  margin: 0 auto 8px; 
+}
+
+h1 { 
+  text-align: center; 
+  font-size: 22px; 
+  margin: 15px 0; 
+  border-top: 2px solid #006400; 
+  border-bottom: 2px solid #006400; 
+  padding: 10px 0; 
+  color: #006400; 
+  position: relative; 
+  z-index: 1; 
+}
+
+p.meta { 
+  text-align: center; 
+  font-size: 13px; 
+  color: #666; 
+  position: relative; 
+  z-index: 1; 
+}
+
+.content { 
+  margin-top: 20px; 
+  position: relative; 
+  z-index: 1; 
+}
+
+footer { 
+  margin-top: 30px; 
+  text-align: center; 
+  font-size: 12px; 
+  color: #555; 
+  border-top: 1px dashed #aaa; 
+  padding-top: 10px; 
+  position: relative; 
+  z-index: 1; 
 }
 
 #detailTitle {

@@ -260,7 +260,7 @@ async function resetPassword() {
   // 👇 Supabase will send reset email with link
   const { error } = await supabase.auth.resetPasswordForEmail(email, {
     redirectTo: window.location.origin + "/reset.html" 
-    // e.g. https://your-username.github.io/your-site/reset.html
+    // e.g. https://campusmates12.github.io/EYES-OF-3080/reset.html
   });
 
   if (error) {

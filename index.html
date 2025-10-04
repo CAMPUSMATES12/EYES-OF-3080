@@ -6,7 +6,7 @@
 <title>Welcome - EYES OF 3080</title>
 
 <!-- Favicon -->
-<link rel="icon" type="image/png" href="https://vtpsruejncfykiazrfsx.supabase.co/storage/v1/object/public/PRODUCTS/EYES%20OF%203080%20logo">
+<link rel="icon" type="image/png" href="https://vtpsruejncfykiazrfsx.supabase.co/storage/v1/object/public/PRODUCTS/EYES%20OF%203080%20logo.png">
 
 <style>
 /* Reset & base */
@@ -41,38 +41,6 @@ body, html {
 h1 { font-size: 2rem; margin-bottom:10px; }
 p { color:#d0ffd0; }
 
-/* Announcement Modal */
-#announcement {
-  display:none;
-  position:absolute; top:50%; left:50%;
-  transform:translate(-50%,-50%);
-  width:90%; max-width:450px;
-  background:#fff; color:#0a5a2b;
-  padding:25px; border-radius:20px;
-  text-align:center;
-  box-shadow:0 0 25px rgba(0,255,0,0.5);
-  z-index:3;
-}
-#announcement img {
-  display:block;
-  margin:0 auto 15px auto;
-  width:100px;
-  height:100px;
-  border-radius:50%;
-  border:3px solid rgba(0,255,0,0.4);
-  box-shadow:0 0 15px rgba(0,255,0,0.6);
-}
-#announcement h2 { font-size:1.5rem; margin-bottom:10px; }
-#announcement p { color:#155e36; margin-bottom:15px; }
-#announcement button {
-  padding:12px 25px;
-  border:none; border-radius:10px;
-  background:#0a5a2b; color:#fff;
-  font-size:16px; cursor:pointer;
-  transition: background 0.3s;
-}
-#announcement button:hover { background:#155e36; }
-
 /* Forms container */
 .auth-container {
   display:none;
@@ -100,7 +68,7 @@ p { color:#d0ffd0; }
   font-size:16px; cursor:pointer;
   transition: background 0.3s;
 }
-.auth-container button:hover { background:#155e36; }
+.auth-container button:hover { background:#0c7a3d; }
 .auth-toggle {
   margin-top:15px; text-align:center; font-size:14px;
 }
@@ -120,17 +88,9 @@ canvas {
 
 <!-- Welcome Screen -->
 <div class="welcome" id="welcomeBox">
-  <img src="https://vtpsruejncfykiazrfsx.supabase.co/storage/v1/object/public/PRODUCTS/EYES%20OF%203080%20logo" alt="EYES OF 3080 Logo">
+  <img src="https://vtpsruejncfykiazrfsx.supabase.co/storage/v1/object/public/PRODUCTS/EYES%20OF%203080%20logo.png" alt="EYES OF 3080 Logo">
   <h1>👁️ EYES OF 3080</h1>
   <p>Welcome to the hub of UNIOSUN gist, news, and marketplace</p>
-</div>
-
-<!-- Announcement Modal -->
-<div id="announcement">
-  <img src="https://vtpsruejncfykiazrfsx.supabase.co/storage/v1/object/public/PRODUCTS/EYES%20OF%203080%20logo" alt="EYES OF 3080 Logo">
-  <h2>🎉 Milestone Achieved!</h2>
-  <p>Over 400 students are now exploring EYES OF 3080! Thank you for your support—together, we’re making learning smarter and easier..</p>
-  <button onclick="closeAnnouncement()">Close</button>
 </div>
 
 <!-- Auth Forms -->
@@ -146,14 +106,49 @@ canvas {
   </div>
 
   <!-- Login -->
-  <div id="loginForm" style="display:none;">
-    <h2>Login</h2>
-    <input type="email" id="loginEmail" placeholder="Email" required>
-    <input type="password" id="loginPassword" placeholder="Password" required>
-    <button onclick="login()">Login</button>
-    <div class="auth-toggle">Don’t have an account? <a onclick="showSignup()">Sign Up</a></div>
+<div id="loginForm" style="display:none; text-align:center; max-width:400px; margin:0 auto; padding:20px; border:1px solid #006400; border-radius:8px; background:#f9fff9;">
+  <h2 style="color:#006400;">Login</h2>
+
+  <input type="email" id="loginEmail" placeholder="Email" required 
+         style="width:100%; padding:10px; margin:8px 0; border:1px solid #006400; border-radius:5px;">
+  
+  <input type="password" id="loginPassword" placeholder="Password" required 
+         style="width:100%; padding:10px; margin:8px 0; border:1px solid #006400; border-radius:5px;">
+  
+  <button onclick="login()" 
+          style="width:100%; padding:10px; background:#006400; color:white; border:none; border-radius:5px; cursor:pointer; margin-top:10px;">
+    Login
+  </button>
+
+  <!-- Forgot Password -->
+  <div style="margin-top:10px;">
+    <a onclick="showForgotPassword()" style="color:#006400; cursor:pointer; text-decoration:underline;">Forgot Password?</a>
+  </div>
+
+  <div class="auth-toggle" style="margin-top:15px;">
+    Don’t have an account? 
+    <a onclick="showSignup()" style="color:#006400; cursor:pointer; font-weight:bold;">Sign Up</a>
   </div>
 </div>
+
+<!-- Forgot Password Form -->
+<div id="forgotPasswordForm" style="display:none; text-align:center; max-width:400px; margin:0 auto; padding:20px; border:1px solid #006400; border-radius:8px; background:#f9fff9;">
+  <h2 style="color:#006400;">Reset Password</h2>
+
+  <input type="email" id="resetEmail" placeholder="Enter your email" required 
+         style="width:100%; padding:10px; margin:8px 0; border:1px solid #006400; border-radius:5px;">
+
+  <button onclick="resetPassword()" 
+          style="width:100%; padding:10px; background:#006400; color:white; border:none; border-radius:5px; cursor:pointer; margin-top:10px;">
+    Send Reset Link
+  </button>
+
+  <div style="margin-top:15px;">
+    <a onclick="showLogin()" style="color:#006400; cursor:pointer; text-decoration:underline;">Back to Login</a>
+  </div>
+</div>
+
+
 
 <!-- Supabase -->
 <script src="https://unpkg.com/@supabase/supabase-js"></script>
@@ -162,25 +157,19 @@ const SUPABASE_URL = "https://vtpsruejncfykiazrfsx.supabase.co";
 const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZ0cHNydWVqbmNmeWtpYXpyZnN4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTY3NDA5NzQsImV4cCI6MjA3MjMxNjk3NH0.UV55gbsSAgnyolxJhIYTaJUpvoJFsJn0_-LMNwhwAK0";
 const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-// Check session on load
+// ✅ Check session on load
 (async ()=>{
   const { data: { session } } = await supabase.auth.getSession();
   if(session){
     window.location.href="3080.html"; // Already logged in
   } else {
-    // Show welcome, then announcement
+    // Show welcome, then auth
     setTimeout(()=>{
       document.getElementById("welcomeBox").style.display="none";
-      document.getElementById("announcement").style.display="block";
+      document.getElementById("authBox").style.display="block";
     },3000);
   }
 })();
-
-// Close announcement
-function closeAnnouncement(){
-  document.getElementById("announcement").style.display="none";
-  document.getElementById("authBox").style.display="block";
-}
 
 // Toggle forms
 function showLogin(){
@@ -197,6 +186,7 @@ async function signUp(){
   const fullName = document.getElementById("signupName").value.trim();
   const email = document.getElementById("signupEmail").value.trim();
   const password = document.getElementById("signupPassword").value.trim();
+
   if(!fullName || !email || !password) return alert("Please fill all fields");
 
   const { error } = await supabase.auth.signUp({
@@ -210,21 +200,80 @@ async function signUp(){
   showLogin();
 }
 
-// Login
-async function login(){
+
+// ==========================
+// LOGIN FUNCTION
+// ==========================
+async function login() {
   const email = document.getElementById("loginEmail").value.trim();
   const password = document.getElementById("loginPassword").value.trim();
-  if(!email || !password) return alert("Please enter email and password");
+
+  if (!email || !password) {
+    alert("⚠️ Please enter both email and password");
+    return;
+  }
 
   const { error } = await supabase.auth.signInWithPassword({
     email: email,
     password: password
   });
 
-  if(error){ alert("❌ "+error.message); return; }
-  window.location.href="3080.html";
+  if (error) {
+    console.error("❌ Login error:", error.message);
+    alert("❌ " + error.message);
+    return;
+  }
+
+  // ✅ Login successful
+  window.location.href = "3080.html"; // redirect after login
+}
+
+// ==========================
+// SHOW FORGOT PASSWORD FORM
+// ==========================
+function showForgotPassword() {
+  document.getElementById("loginForm").style.display = "none";
+  document.getElementById("signupForm").style.display = "none";
+  document.getElementById("forgotPasswordForm").style.display = "block";
+}
+
+// ==========================
+// BACK TO LOGIN
+// ==========================
+function showLogin() {
+  document.getElementById("forgotPasswordForm").style.display = "none";
+  document.getElementById("signupForm").style.display = "none";
+  document.getElementById("loginForm").style.display = "block";
+}
+
+// ==========================
+// RESET PASSWORD FUNCTION
+// ==========================
+async function resetPassword() {
+  const email = document.getElementById("resetEmail").value.trim();
+
+  if (!email) {
+    alert("⚠️ Please enter your email address.");
+    return;
+  }
+
+  // 👇 Supabase will send reset email with link
+  const { error } = await supabase.auth.resetPasswordForEmail(email, {
+    redirectTo: window.location.origin + "/reset.html" 
+    // e.g. https://your-username.github.io/your-site/reset.html
+  });
+
+  if (error) {
+    console.error("❌ Reset error:", error.message);
+    alert("❌ Failed to send reset link: " + error.message);
+    return;
+  }
+
+  alert("✅ A password reset link has been sent to " + email);
+  showLogin(); // switch back to login form
 }
 </script>
+
 
 <script>
 // === Particles ===

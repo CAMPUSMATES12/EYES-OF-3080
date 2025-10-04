@@ -402,18 +402,34 @@ select.grade-select.f9, select.grade-select.f { background-color: #ffe0e0; color
 ============================ -->
 <div id="profilePage" class="profile-page">
   <div class="profile-container">
+    <!-- Close Button -->
     <button class="close-profile" onclick="toggleProfile()">✖</button>
 
+    <!-- Profile Header -->
     <div class="profile-header">
-      <img src="https://vtpsruejncfykiazrfsx.supabase.co/storage/v1/object/public/PRODUCTS/EYES%20OF%203080%20logo" alt="Eyes of 3080 Logo" class="profile-logo">
+      <img src="https://vtpsruejncfykiazrfsx.supabase.co/storage/v1/object/public/PRODUCTS/EYES%20OF%203080%20logo" 
+           alt="Eyes of 3080 Logo" class="profile-logo">
       <h2 id="profileName">User Name</h2>
       <p id="profileEmail">user@example.com</p>
       <p id="profileCreated">Member since: ...</p>
     </div>
 
+    <!-- Profile Actions -->
     <div class="profile-actions">
       <button onclick="editProfile()">Edit Profile</button>
       <button onclick="logoutUser()">Logout</button>
+    </div>
+
+    <!-- Friends Section -->
+    <div class="profile-connections" style="margin-top:25px; text-align:left;">
+      <h3 style="color:#39b54a;">FRIENDS LIST</h3>
+      <div style="margin-top:10px;">
+        <button 
+          style="padding: 8px 15px; border-radius: 6px; border: none; background-color: #39b54a; color: #fff; cursor: pointer; font-weight: bold;"
+          onclick="window.location.href='connections.html'">
+          View friends list
+        </button>
+      </div>
     </div>
   </div>
 </div>

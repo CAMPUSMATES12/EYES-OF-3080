@@ -330,7 +330,160 @@ select.grade-select.f9, select.grade-select.f { background-color: #ffe0e0; color
 </section>
 
 
-  
+<!-- Floating Bot Button -->
+<div id="chat-toggle" onclick="toggleChat()">
+  <img src="https://vtpsruejncfykiazrfsx.supabase.co/storage/v1/object/public/PRODUCTS/EYES%20OF%203080%20logo" alt="Bot" />
+  <span class="bot-icon">🤖</span>
+</div>
+
+<!-- Floating Chatbot -->
+<div id="chatbot" style="display:none;">
+  <div id="chat-header">
+    <span>EYES OF 3080 ASSISTANT 🤖</span>
+    <button id="chat-close" onclick="toggleChat()">−</button>
+  </div>
+  <div id="chat-body">
+    <div id="chat-messages"></div>
+    <div class="chat-input-box">
+      <input type="text" id="chat-input" placeholder="Ask me anything..." onkeypress="handleChat(event)">
+      <button onclick="sendChat()">➤</button>
+    </div>
+  </div>
+</div>
+
+<style>
+  /* Floating toggle button */
+  #chat-toggle {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    background: #006400;
+    border-radius: 50%;
+    width: 55px;
+    height: 55px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    box-shadow: 0px 4px 10px rgba(0,0,0,0.3);
+    cursor: pointer;
+    z-index: 9999;
+  }
+  #chat-toggle img {
+    width: 35px;
+    height: 35px;
+    border-radius: 50%;
+  }
+
+    .logo-bot {
+    position: relative;
+    display: inline-block;
+    width: 70px; /* adjust size */
+    height: 70px;
+  }
+  .main-logo {
+    width: 100%;
+    border-radius: 50%;
+  }
+  .bot-icon {
+    position: absolute;
+    bottom: -5px;
+    right: -5px;
+    background: #006400;
+    color: white;
+    font-size: 16px;
+    padding: 4px;
+    border-radius: 50%;
+    border: 2px solid white;
+  }
+
+
+
+  /* Chatbox */
+  #chatbot {
+    position: fixed;
+    bottom: 85px;
+    right: 20px;
+    width: 320px;
+    height: 420px;
+    background: #fff;
+    border-radius: 12px;
+    box-shadow: 0px 4px 10px rgba(0,0,0,0.25);
+    font-family: Arial, sans-serif;
+    display: flex;
+    flex-direction: column;
+    z-index: 9999;
+  }
+  #chat-header {
+    background: #006400;
+    color: #fff;
+    padding: 10px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-radius: 12px 12px 0 0;
+    font-weight: bold;
+    font-size: 14px;
+  }
+  #chat-header button {
+    background: transparent;
+    border: none;
+    color: #fff;
+    font-size: 18px;
+    cursor: pointer;
+  }
+  #chat-body {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    background: #f9f9f9;
+  }
+  #chat-messages {
+    flex: 1;
+    padding: 10px;
+    overflow-y: auto;
+    font-size: 14px;
+  }
+  .msg {
+    max-width: 80%;
+    padding: 8px 12px;
+    margin: 5px 0;
+    border-radius: 12px;
+    line-height: 1.4;
+    clear: both;
+    display: inline-block;
+  }
+  .user {
+    background: #006400;
+    color: #fff;
+    float: right;
+    border-bottom-right-radius: 0;
+  }
+  .bot {
+    background: #e5e5e5;
+    color: #222;
+    float: left;
+    border-bottom-left-radius: 0;
+  }
+  .chat-input-box {
+    display: flex;
+    border-top: 1px solid #ccc;
+  }
+  #chat-input {
+    flex: 1;
+    border: none;
+    padding: 10px;
+    font-size: 14px;
+    outline: none;
+  }
+  .chat-input-box button {
+    border: none;
+    background: #006400;
+    color: white;
+    padding: 10px 15px;
+    cursor: pointer;
+    border-radius: 0 0 12px 0;
+  }
+</style>
 
 <!-- 🎮 GAMING ZONE -->
 <section id="gaming" class="page-section" style="display:none;">
@@ -1337,6 +1490,67 @@ function showSection(id){
   window.scrollTo(0,0);
 }
 
+
+// ✅ Toggle Chatbox
+  function toggleChat() {
+    const chatbox = document.getElementById("chatbot");
+    const toggleBtn = document.getElementById("chat-toggle");
+    if (chatbox.style.display === "none") {
+      chatbox.style.display = "flex";
+      toggleBtn.style.display = "none";
+      greetBot();
+    } else {
+      chatbox.style.display = "none";
+      toggleBtn.style.display = "flex";
+    }
+  }
+
+  // ✅ Auto greeting when opened
+  function greetBot() {
+    const messages = document.getElementById("chat-messages");
+    if (messages.innerHTML.trim() === "") {
+      messages.innerHTML += `<div class="msg bot">👋 Hi! I’m the <b>Eyes of 3080 Assistant</b>. Ask me about GPA, Aggregate, Cut-off, Screening, or News!</div>`;
+    }
+  }
+
+  function handleChat(e) {
+    if (e.key === "Enter") {
+      sendChat();
+    }
+  }
+
+  function sendChat() {
+    const input = document.getElementById("chat-input");
+    const messages = document.getElementById("chat-messages");
+    const userMsg = input.value.trim();
+    if (!userMsg) return;
+
+    // User msg
+    messages.innerHTML += `<div class="msg user">${userMsg}</div>`;
+    input.value = "";
+
+    // Bot reply
+    let reply = "🤔 I don’t know that yet. Try asking about GPA, Aggregate, Cut-off, Screening, or News.";
+
+    if (/cut.?off/i.test(userMsg)) {
+      reply = "📊 UNIOSUN cut-off marks vary by course. Nursing and Medicine usually have higher cut-offs.";
+    } 
+    else if (/gpa/i.test(userMsg)) {
+      reply = "🎓 GPA = Total Grade Points ÷ Total Credit Units. Try our GPA Calculator!";
+    } 
+    else if (/aggregate/i.test(userMsg)) {
+      reply = "📌 Aggregate = JAMB% + O’Level%. Use the Aggregate Calculator section.";
+    } 
+    else if (/screening/i.test(userMsg)) {
+      reply = "📝 Screening updates are posted on the school portal and Eyes of 3080.";
+    } 
+    else if (/hello|hi/i.test(userMsg)) {
+      reply = "👋 Hello! How can I help you today?";
+    }
+
+    messages.innerHTML += `<div class="msg bot">${reply}</div>`;
+    messages.scrollTop = messages.scrollHeight;
+  }
  /* ============================
    RENDER POSTS + FULL POST WITH COMMENTS
 ============================ */

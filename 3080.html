@@ -2097,12 +2097,15 @@ async function editProfile() {
   loadUserProfile();
 }
 
-// Logout function
+// Logout
 async function logoutUser() {
   const { error } = await supabase.auth.signOut();
-  if (error) return alert("Logout failed: " + error.message);
-  alert("Logged out!");
-  toggleProfile();
+  if (error) {
+    return alert("Logout failed: " + error.message);
+  }
+  
+  // Redirect to home page after logout
+  window.location.href = "index.html";
 }
 
 /* ============================

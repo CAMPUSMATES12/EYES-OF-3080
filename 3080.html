@@ -1728,25 +1728,30 @@ if (!document.getElementById("post-modal")) {
   document.body.appendChild(modalContainer);
 }
 
-// Render post cards (main list)
+// Render post cards (main list) with logo
 function renderCard(post, table) {
-  return `
-    <article class="card" style="border:1px solid #006400; padding:15px; margin-bottom:15px; border-radius:8px;">
-      <div class="card-header" style="display:flex; align-items:center; justify-content:space-between;">
-        <h3 style="flex:1; margin:0; padding-right:10px; color:#006400;">${post.title}</h3>
-        <div class="card-actions" style="display:flex; gap:8px; align-items:center;">
-          <img src="https://cdn-icons-png.flaticon.com/512/3466/3466003.png" 
-               alt="Share" style="width:20px; cursor:pointer;" 
-               onclick="openShareMenu('${post.id}', '${table}')">
-        </div>
-      </div>
+  const logoUrl = "https://vtpsruejncfykiazrfsx.supabase.co/storage/v1/object/public/PRODUCTS/EYES%20OF%203080%20logo";
 
-      <p>${post.excerpt || (post.content ? post.content.substring(0, 100) : "")}...</p>
-      <button class="btn" 
-              style="background:#006400; color:white; padding:6px 12px; border:none; border-radius:4px;" 
-              onclick="openPost('${post.id}', '${table}')">
-        Read More
-      </button>
+  return `
+    <article class="card" style="border:1px solid #006400; padding:15px; margin-bottom:15px; border-radius:8px; display:flex; align-items:flex-start; gap:10px;">
+      <img src="${logoUrl}" alt="Logo" style="width:50px; height:50px; border-radius:50%; flex-shrink:0;">
+      <div style="flex:1;">
+        <div class="card-header" style="display:flex; align-items:center; justify-content:space-between;">
+          <h3 style="flex:1; margin:0; padding-right:10px; color:#006400;">${post.title}</h3>
+          <div class="card-actions" style="display:flex; gap:8px; align-items:center;">
+            <img src="https://cdn-icons-png.flaticon.com/512/3466/3466003.png" 
+                 alt="Share" style="width:20px; cursor:pointer;" 
+                 onclick="openShareMenu('${post.id}', '${table}')">
+          </div>
+        </div>
+
+        <p>${post.excerpt || (post.content ? post.content.substring(0, 100) : "")}...</p>
+        <button class="btn" 
+                style="background:#006400; color:white; padding:6px 12px; border:none; border-radius:4px;" 
+                onclick="openPost('${post.id}', '${table}')">
+          Read More
+        </button>
+      </div>
     </article>
   `;
 }
@@ -1857,7 +1862,6 @@ async function submitComment(postId) {
   input.value = "";
   loadComments(postId); // reload comments
 }
-
 
 /* ============================
    LOAD POSTS INTO GRID

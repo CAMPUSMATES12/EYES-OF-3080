@@ -1033,19 +1033,23 @@ select.grade-select.f9, select.grade-select.f { background-color: #ffe0e0; color
 </section>
 
 <!-- 📑 PDF RESOURCES SECTION -->
-<section id="pdfs" class="page-section" style="display:none; padding:20px;">
+<section id="pdfs" class="page-section" style="padding:20px;">
   <h2 class="section">📑 PDF Resources</h2>
   <p>Download past questions, guides, and handouts.</p>
 
   <!-- Level Selection -->
   <label for="levelSelect"><b>Choose your level:</b></label>
-  <select id="levelSelect" class="styled-select" onchange="showLevelPDFs()">
-    <option value="">-- Select Level --</option>
-    <option value="100">100 Level</option>
-    <option value="200">200 Level</option>
-    <option value="300">300 Level</option>
-    <option value="400">400 Level</option>
+  <select id="levelSelect" class="styled-select">
+    <option value="">-- All Levels --</option>
+    <option value="100L">100 Level</option>
+    <option value="200L">200 Level</option>
+    <option value="300L">300 Level</option>
+    <option value="400L">400 Level</option>
   </select>
+
+  <!-- PDF Container -->
+  <div id="pdfSection" style="margin-top:20px;"></div>
+</section>
 
   <!-- 100 LEVEL -->
   <div id="pdfGrid100" class="pdf-grid" style="display:none; margin-top:20px;">
@@ -1176,38 +1180,80 @@ select.grade-select.f9, select.grade-select.f { background-color: #ffe0e0; color
   </div>
 </section>
 
-<!-- CSS -->
 <style>
-/* Responsive grid */
+/* ============================
+   PDF CARDS FLEX STYLE
+============================ */
+
+/* Container for PDF cards per level */
 .pdf-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-  gap: 18px;
+  display: flex;
+  flex-wrap: wrap;        /* wrap on smaller screens */
+  gap: 16px;              /* space between cards */
   margin-top: 20px;
+  justify-content: flex-start; /* align cards in a line */
 }
+
+/* Individual PDF card */
 .pdf-card {
-  background: var(--surface);
+  background: #f9f9f9; /* light surface */
   border-radius: 10px;
-  padding: 20px;
+  padding: 12px;
   text-align: center;
   box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+  width: 250px;       /* wider width */
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }
+
+/* PDF Title */
 .pdf-card h4 {
-  font-size: 15px;
-  margin-bottom: 12px;
-  color: var(--uni-green);
+  font-size: 14px;
+  margin-bottom: 10px;
+  color: #006400; /* uni-green */
+  font-weight: 600;
   word-break: break-word;
 }
 
-/* Styled Dropdown */
+/* Buttons container */
+.pdf-actions {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-top: 8px;
+}
+
+/* Download / Copy buttons */
+.pdf-btn {
+  display: inline-block;
+  padding: 6px 12px;       /* compact */
+  background: #006400;     /* green */
+  color: #fff;
+  border: none;
+  border-radius: 5px;
+  font-weight: bold;
+  font-size: 13px;
+  cursor: pointer;
+  text-decoration: none;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+.pdf-btn:hover {
+  background: #009900;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+}
+
+/* Dropdown Styling */
 .styled-select {
   padding: 10px 14px;
-  border: 2px solid var(--uni-green);
+  border: 2px solid #006400;
   border-radius: 8px;
-  font-size: 15px;
+  font-size: 14px;
   font-weight: bold;
   background: #f9fff9;
-  color: var(--uni-green);
+  color: #006400;
   outline: none;
   cursor: pointer;
   margin-top: 10px;
@@ -1219,28 +1265,21 @@ select.grade-select.f9, select.grade-select.f { background-color: #ffe0e0; color
   background: #e6f7e6;
 }
 
-/* Buttons */
-.pdf-btn {
-  display: inline-block;
-  margin-top: 12px;
-  padding: 10px 20px;
-  background: linear-gradient(135deg, var(--uni-green), var(--uni-green-2));
-  color: #fff;
-  border: none;
-  border-radius: 8px;
-  font-weight: bold;
-  font-size: 15px;
-  cursor: pointer;
-  text-decoration: none;
-  transition: transform 0.2s, box-shadow 0.2s;
-}
-.pdf-btn:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+/* ============================
+   Responsive Adjustments
+============================ */
+@media (max-width: 768px) {
+  .pdf-card {
+    width: 100%;   /* full width on mobile */
+  }
+  .pdf-actions {
+    justify-content: flex-start;
+  }
+  .styled-select {
+    width: 100%;
+  }
 }
 </style>
-
-
 
   <!-- Marketplace -->
 <section id="marketplace" class="page-section">
@@ -1917,39 +1956,121 @@ async function loadHomeNews() {
   container.innerHTML = data.map(news => renderCard(news, "home")).join("");
 }
 
-async function loadPDFs() {
-  const container = document.getElementById("pdf-list");
-  if (!container) return;
+// ============================
+// PDF LOADING & FILTERING
+// ============================
 
-  const { data, error } = await supabase
-    .from("pdf")
-    .select("*")
-    .order("id", { ascending: false });
+// Elements
+const pdfSection = document.getElementById("pdfSection");
+const levelSelect = document.getElementById("levelSelect");
 
-  if (error) {
-    console.error("❌ Error fetching PDFs:", error.message);
-    return;
-  }
-
-  container.innerHTML = data.map(pdf => `
-    <div class="card">
-      <h3>${pdf.title}</h3>
-      <a href="${pdf.file_url}" target="_blank">📄 Download</a>
-    </div>
-  `).join("");
+// ============================
+// NORMALIZE LEVEL FUNCTION
+// ============================
+function normalizeLevel(level) {
+  if (!level) return "";
+  level = level.toString().toUpperCase().trim();
+  if (level === "100L" || level === "100") return "100";
+  if (level === "200L" || level === "200") return "200";
+  if (level === "300L" || level === "300") return "300";
+  if (level === "400L" || level === "400") return "400";
+  return "Others";
 }
 
-/* ============================
-   PDF FILTER BY LEVEL
-============================ */
-document.getElementById("levelSelect").addEventListener("change", function() {
-  const level = this.value;
-  document.querySelectorAll(".pdf-grid").forEach(grid => grid.style.display = "none");
-  if (level) {
+// ============================
+// COPY LINK FUNCTION
+// ============================
+function copyPDFLink(url) {
+  if (!url) return;
+  navigator.clipboard.writeText(url)
+    .then(() => {
+      alert("✅ PDF link copied to clipboard!");
+    })
+    .catch(() => {
+      alert("❌ Failed to copy PDF link.");
+    });
+}
+
+// ============================
+// LOAD PDFs FROM SUPABASE
+// ============================
+async function loadPDFs() {
+  try {
+    const { data: pdfs, error } = await supabase
+      .from("pdf")
+      .select("*")
+      .order("id", { ascending: false }); // latest first
+
+    if (error) throw error;
+
+    if (!pdfs || pdfs.length === 0) {
+      pdfSection.innerHTML = "<p>No PDFs uploaded yet.</p>";
+      return;
+    }
+
+    // Group PDFs by normalized level
+    const levels = {};
+    pdfs.forEach(pdf => {
+      const lvl = normalizeLevel(pdf.level);
+      if (!levels[lvl]) levels[lvl] = [];
+      levels[lvl].push(pdf);
+    });
+
+    // Render PDFs grouped by level (hidden by default)
+    pdfSection.innerHTML = Object.keys(levels)
+      .map(lvl => `
+        <div class="pdf-grid" id="pdfGrid${lvl}" style="display:none; gap: 16px; margin-bottom: 30px;">
+          ${levels[lvl].map(pdf => `
+            <div class="pdf-card">
+              <h4>${pdf.topic || "Untitled PDF"}</h4>
+              <div class="pdf-actions" style="display:flex; justify-content:center; gap:10px; flex-wrap:wrap;">
+                <a href="${pdf.pdf_url}" target="_blank" download class="pdf-btn">Download</a>
+                <button class="pdf-btn" onclick="copyPDFLink('${pdf.pdf_url}')">Copy Link</button>
+              </div>
+            </div>
+          `).join('')}
+        </div>
+      `)
+      .join('');
+
+  } catch (err) {
+    console.error("❌ Error loading PDFs:", err);
+    pdfSection.innerHTML = "<p>Failed to load PDFs.</p>";
+  }
+}
+
+// ============================
+// SHOW PDFs BY LEVEL
+// ============================
+function showLevelPDFs(selectedLevel = "") {
+  const level = normalizeLevel(selectedLevel);
+  const grids = document.querySelectorAll(".pdf-grid");
+  grids.forEach(grid => grid.style.display = "none"); // hide all
+
+  if (level === "") {
+    // If "All Levels" selected, show nothing
+    return;
+  } else {
+    // Show only selected level
     const grid = document.getElementById("pdfGrid" + level);
     if (grid) grid.style.display = "grid";
   }
-});
+}
+
+// ============================
+// LEVEL SELECT EVENT
+// ============================
+if (levelSelect) {
+  levelSelect.addEventListener("change", function() {
+    showLevelPDFs(this.value);
+  });
+}
+
+// ============================
+// INITIAL LOAD
+// ============================
+loadPDFs();
+
 
 /* ============================
    OPEN SINGLE POST
@@ -2057,7 +2178,7 @@ async function openPost(id, table = "home") {
               <div style="position:relative;display:block;max-width:100%;margin:10px 0;">
                 <img src="${line}" style="width:100%;border-radius:6px;">
                 <img src="https://vtpsruejncfykiazrfsx.supabase.co/storage/v1/object/public/PRODUCTS/EYES%20OF%203080%20logo" 
-                     style="position:absolute;bottom:10px;right:10px;width:27%;max-width:200px;opacity:0.9;pointer-events:none;">
+                     style="position:absolute;bottom:10px;right:10px;width:25%;max-width:200px;opacity:0.9;pointer-events:none;">
               </div>`;
           }
 
@@ -2082,7 +2203,6 @@ async function openPost(id, table = "home") {
     alert("Something went wrong while opening this post.");
   }
 }
-
 /* ============================
    PRINT POST WITH WATERMARK
 ============================ */

@@ -2001,12 +2001,15 @@ async function openPost(id, table = "home") {
       document.getElementById("detailImage").style.display = "none";
     }
 
-    // Handle content + replace radio link with play button
+    // Handle content
     let formattedContent = "";
     if (post.content) {
       formattedContent = post.content
         .split(/\n+/)
         .map(line => {
+          line = line.trim();
+
+          // 🎧 Handle Radio Player
           if (line.includes("mytuner-radio.com")) {
             return `
               <div style="margin-top:15px;text-align:center;">
@@ -2015,14 +2018,36 @@ async function openPost(id, table = "home") {
                   🎧 Play Live
                 </button>
                 <div id="radioPlayer" style="display:none;margin-top:15px;">
-                  <iframe src="${line.trim()}" 
+                  <iframe src="${line}" 
                           width="100%" height="120" 
                           frameborder="0" allow="autoplay">
                   </iframe>
                 </div>
               </div>`;
           }
-          return `<p>${line.trim()}</p>`;
+
+          // 📺 Handle Facebook Video
+          if (line.includes("facebook.com")) {
+            return `
+              <div class="video-container" style="position:relative;max-width:700px;margin:20px auto;">
+                <iframe 
+                  src="https://www.facebook.com/plugins/video.php?href=${encodeURIComponent(line)}&show_text=false&width=700"
+                  width="100%" 
+                  height="400" 
+                  style="border:none;overflow:hidden;border-radius:8px;" 
+                  scrolling="no" 
+                  frameborder="0" 
+                  allowfullscreen="true" 
+                  allow="autoplay; clipboard-write; encrypted-media; picture-in-picture; web-share">
+                </iframe>
+                <!-- Watermark logo -->
+                <img src="https://vtpsruejncfykiazrfsx.supabase.co/storage/v1/object/public/PRODUCTS/EYES%20OF%203080%20logo" 
+                     style="position:absolute;top:10px;right:10px;width:60px;opacity:0.8;pointer-events:none;">
+              </div>`;
+          }
+
+          // Normal text
+          return `<p>${line}</p>`;
         })
         .join("");
     }

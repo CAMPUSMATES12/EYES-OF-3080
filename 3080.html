@@ -1969,9 +1969,11 @@ async function openPost(id, table = "home") {
       return;
     }
 
+    // Hide other sections and show detail
     document.querySelectorAll(".page-section").forEach(sec => sec.style.display = "none");
     document.getElementById("postDetail").style.display = "block";
 
+    // Title + Actions
     const titleContainer = document.getElementById("detailTitle");
     titleContainer.innerHTML = `
       <span class="post-title-text">${post.title}</span>
@@ -1987,9 +1989,11 @@ async function openPost(id, table = "home") {
            onclick="printPost('${post.id}', '${table}')">
     `;
 
+    // Date
     const createdAt = post.created_at ? new Date(post.created_at).toDateString() : "Unknown date";
     document.getElementById("detailMeta").innerText = `📅 Posted on ${createdAt}`;
 
+    // Image
     if (post.image_url) {
       document.getElementById("detailImage").src = post.image_url;
       document.getElementById("detailImage").style.display = "block";
@@ -1997,15 +2001,36 @@ async function openPost(id, table = "home") {
       document.getElementById("detailImage").style.display = "none";
     }
 
+    // Handle content + replace radio link with play button
     let formattedContent = "";
     if (post.content) {
       formattedContent = post.content
         .split(/\n+/)
-        .map(line => `<p>${line.trim()}</p>`)
+        .map(line => {
+          if (line.includes("mytuner-radio.com")) {
+            return `
+              <div style="margin-top:15px;text-align:center;">
+                <button onclick="document.getElementById('radioPlayer').style.display='block'; this.style.display='none';"
+                        style="background:#006400;color:white;padding:10px 20px;border:none;border-radius:5px;cursor:pointer;">
+                  🎧 Play Live
+                </button>
+                <div id="radioPlayer" style="display:none;margin-top:15px;">
+                  <iframe src="${line.trim()}" 
+                          width="100%" height="120" 
+                          frameborder="0" allow="autoplay">
+                  </iframe>
+                </div>
+              </div>`;
+          }
+          return `<p>${line.trim()}</p>`;
+        })
         .join("");
     }
+
+    // Put it in detailContent
     document.getElementById("detailContent").innerHTML = formattedContent;
 
+    // Update browser history
     history.pushState({ postId: safeId, table }, post.title, `?id=${safeId}&t=${table}`);
   } catch (err) {
     console.error("❌ Unexpected error opening post:", err);

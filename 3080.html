@@ -1993,10 +1993,15 @@ async function openPost(id, table = "home") {
     const createdAt = post.created_at ? new Date(post.created_at).toDateString() : "Unknown date";
     document.getElementById("detailMeta").innerText = `📅 Posted on ${createdAt}`;
 
-    // Image
+    // Main Image (with watermark overlay)
     if (post.image_url) {
-      document.getElementById("detailImage").src = post.image_url;
-      document.getElementById("detailImage").style.display = "block";
+      document.getElementById("detailImage").outerHTML = `
+        <div style="position:relative;display:block;max-width:100%;margin:10px 0;">
+          <img src="${post.image_url}" style="width:100%;border-radius:6px;">
+          <img src="https://vtpsruejncfykiazrfsx.supabase.co/storage/v1/object/public/PRODUCTS/EYES%20OF%203080%20logo" 
+               style="position:absolute;bottom:10px;right:10px;width:25%;max-width:200px;opacity:0.9;pointer-events:none;">
+        </div>
+      `;
     } else {
       document.getElementById("detailImage").style.display = "none";
     }
@@ -2042,12 +2047,27 @@ async function openPost(id, table = "home") {
                 </iframe>
                 <!-- Watermark logo -->
                 <img src="https://vtpsruejncfykiazrfsx.supabase.co/storage/v1/object/public/PRODUCTS/EYES%20OF%203080%20logo" 
-                     style="position:absolute;top:10px;right:10px;width:60px;opacity:0.8;pointer-events:none;">
+                     style="position:absolute;top:10px;right:10px;width:25%;max-width:200px;opacity:0.9;pointer-events:none;">
               </div>`;
           }
 
+          // 🖼️ Handle direct image links (with watermark)
+          if (/\.(jpeg|jpg|png|gif)$/i.test(line)) {
+            return `
+              <div style="position:relative;display:block;max-width:100%;margin:10px 0;">
+                <img src="${line}" style="width:100%;border-radius:6px;">
+                <img src="https://vtpsruejncfykiazrfsx.supabase.co/storage/v1/object/public/PRODUCTS/EYES%20OF%203080%20logo" 
+                     style="position:absolute;bottom:10px;right:10px;width:27%;max-width:200px;opacity:0.9;pointer-events:none;">
+              </div>`;
+          }
+
+          // 🌐 Skip raw plain links completely
+          if (/^https?:\/\//i.test(line)) {
+            return ""; // don’t show plain links as text
+          }
+
           // Normal text
-          return `<p>${line}</p>`;
+          return line ? `<p>${line}</p>` : "";
         })
         .join("");
     }

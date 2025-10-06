@@ -1199,18 +1199,41 @@ select.grade-select.f9, select.grade-select.f { background-color: #ffe0e0; color
   background: #f9f9f9; /* light surface */
   border-radius: 10px;
   padding: 12px;
-  text-align: center;
   box-shadow: 0 2px 6px rgba(0,0,0,0.1);
-  width: 250px;       /* wider width */
+  width: 300px;       /* slightly wider */
   display: flex;
   flex-direction: column;
   align-items: center;
 }
 
+/* PDF card content: logo + info */
+.pdf-card-content {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+}
+
+/* Logo beside each PDF */
+.pdf-logo {
+  width: 50px;
+  height: 50px;
+  object-fit: contain;
+  border-radius: 5px;
+}
+
+/* PDF info (title + buttons) */
+.pdf-info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
 /* PDF Title */
 .pdf-card h4 {
   font-size: 14px;
-  margin-bottom: 10px;
+  margin-bottom: 8px;
   color: #006400; /* uni-green */
   font-weight: 600;
   word-break: break-word;
@@ -1219,10 +1242,10 @@ select.grade-select.f9, select.grade-select.f { background-color: #ffe0e0; color
 /* Buttons container */
 .pdf-actions {
   display: flex;
-  justify-content: center;
+  justify-content: flex-start;
   gap: 8px;
   flex-wrap: wrap;
-  margin-top: 8px;
+  margin-top: 6px;
 }
 
 /* Download / Copy buttons */
@@ -1271,6 +1294,10 @@ select.grade-select.f9, select.grade-select.f { background-color: #ffe0e0; color
 @media (max-width: 768px) {
   .pdf-card {
     width: 100%;   /* full width on mobile */
+  }
+  .pdf-card-content {
+    flex-direction: row; /* logo beside info */
+    align-items: center;
   }
   .pdf-actions {
     justify-content: flex-start;
@@ -2017,21 +2044,26 @@ async function loadPDFs() {
     });
 
     // Render PDFs grouped by level (hidden by default)
-    pdfSection.innerHTML = Object.keys(levels)
-      .map(lvl => `
-        <div class="pdf-grid" id="pdfGrid${lvl}" style="display:none; gap: 16px; margin-bottom: 30px;">
-          ${levels[lvl].map(pdf => `
-            <div class="pdf-card">
+pdfSection.innerHTML = Object.keys(levels)
+  .map(lvl => `
+    <div class="pdf-grid" id="pdfGrid${lvl}" style="display:none; gap: 16px; margin-bottom: 30px;">
+      ${levels[lvl].map(pdf => `
+        <div class="pdf-card">
+          <div class="pdf-card-content">
+            <img src="https://vtpsruejncfykiazrfsx.supabase.co/storage/v1/object/public/PRODUCTS/EYES%20OF%203080%20logo" alt="Logo" class="pdf-logo">
+            <div class="pdf-info">
               <h4>${pdf.topic || "Untitled PDF"}</h4>
-              <div class="pdf-actions" style="display:flex; justify-content:center; gap:10px; flex-wrap:wrap;">
+              <div class="pdf-actions">
                 <a href="${pdf.pdf_url}" target="_blank" download class="pdf-btn">Download</a>
                 <button class="pdf-btn" onclick="copyPDFLink('${pdf.pdf_url}')">Copy Link</button>
               </div>
             </div>
-          `).join('')}
+          </div>
         </div>
-      `)
-      .join('');
+      `).join('')}
+    </div>
+  `)
+  .join('');
 
   } catch (err) {
     console.error("❌ Error loading PDFs:", err);

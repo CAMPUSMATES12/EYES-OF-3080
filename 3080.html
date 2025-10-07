@@ -6,23 +6,23 @@
 <title>EYES OF 3080</title>
 
 <!-- Site Description for SEO -->
-  <meta name="description" content="EYES OF 3080, We keep students connected, share real updates, and inspire one another to grow in UNIOSUN.">
+<meta name="description" content="EYES OF 3080 - Stay connected with real updates and growth in UNIOSUN.">
 
-  <!-- Favicon -->
-  <link rel="icon" type="image/png" href="https://vtpsruejncfykiazrfsx.supabase.co/storage/v1/object/public/PRODUCTS/EYES%20OF%203080%20logo.png">
+<!-- Favicon -->
+<link rel="icon" type="image/png" href="https://vtpsruejncfykiazrfsx.supabase.co/storage/v1/object/public/PRODUCTS/EYES%20OF%203080%20logo.png">
 
-  <!-- Open Graph / Facebook -->
-  <meta property="og:title" content="EYES OF 3080">
-  <meta property="og:description" content="We keep students connected, share real updates, and inspire one another to grow in UNIOSUN.">
-  <meta property="og:image" content="https://vtpsruejncfykiazrfsx.supabase.co/storage/v1/object/public/PRODUCTS/EYES%20OF%203080%20logo.png">
-  <meta property="og:url" content="https://yourwebsite.com">
-  <meta property="og:type" content="website">
+<!-- Open Graph / Facebook -->
+<meta property="og:title" content="EYES OF 3080">
+<meta property="og:description" content="We keep students connected, share real updates, and inspire one another to grow in UNIOSUN.">
+<meta property="og:image" content="https://vtpsruejncfykiazrfsx.supabase.co/storage/v1/object/public/PRODUCTS/EYES%20OF%203080%20logo.png">
+<meta property="og:url" content="https://yourwebsite.com">
+<meta property="og:type" content="website">
 
-  <!-- Twitter -->
-  <meta name="twitter:card" content="summary_large_image">
-  <meta name="twitter:title" content="EYES OF 3080">
-  <meta name="twitter:description" content="We keep students connected, share real updates, and inspire one another to grow in UNIOSUN.">
-  <meta name="twitter:image" content="https://vtpsruejncfykiazrfsx.supabase.co/storage/v1/object/public/PRODUCTS/EYES%20OF%203080%20logo.png">
+<!-- Twitter -->
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="EYES OF 3080">
+<meta name="twitter:description" content="We keep students connected, share real updates, and inspire one another to grow in UNIOSUN.">
+<meta name="twitter:image" content="https://vtpsruejncfykiazrfsx.supabase.co/storage/v1/object/public/PRODUCTS/EYES%20OF%203080%20logo.png">
 
 <style>
   :root {
@@ -2338,23 +2338,21 @@ async function printPost(id, table = "home") {
 /* ============================
    SHARE
 ============================ */
-function openShareMenu(id, table){
+function openShareMenu(id, table, title = "EYES OF 3080", preview = "") {
   const url = `${window.location.origin}${window.location.pathname}?id=${id}&t=${table}`;
-  const title = "Check this out!";
 
   if (navigator.share) {
     navigator.share({
-      title: title,
-      text: "Read this interesting post:",
+      title: title, // dynamic post title
+      text: preview || "Read this interesting post:", // short description/preview
       url: url
     }).catch(err => console.log("Share cancelled", err));
-  } 
-  else {
+  } else {
     const shareOptions = `
       Share this post:\n\n
-      🔗 WhatsApp: https://wa.me/?text=${encodeURIComponent(url)}\n
-      📘 Facebook: https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(url)}\n
-      🐦 Twitter: https://twitter.com/intent/tweet?url=${encodeURIComponent(url)}\n
+      🔗 WhatsApp: https://wa.me/?text=${encodeURIComponent(title + " - " + url)}\n
+      📘 Facebook: https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(url)}&quote=${encodeURIComponent(title)}\n
+      🐦 Twitter: https://twitter.com/intent/tweet?text=${encodeURIComponent(title)}&url=${encodeURIComponent(url)}\n
     `;
     navigator.clipboard.writeText(url);
     alert(shareOptions + "\n(Link copied to clipboard ✅)");

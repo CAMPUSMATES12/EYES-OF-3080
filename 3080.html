@@ -2297,6 +2297,22 @@ async function loadPDFs() {
 }
 
 // ============================
+// 🚀 Start — Resume Automatically
+// ============================
+document.addEventListener("DOMContentLoaded", async () => {
+  const userEmail = await getCurrentUserEmail();
+  let localStatus = localStorage.getItem("pdf_payment_status");
+
+  // Double-check latest status from Supabase
+  const onlineStatus = await checkPaymentStatus(userEmail);
+
+  const status = onlineStatus !== "none" ? onlineStatus : localStatus || "none";
+
+  if (status === "verified") showVerifiedUI();
+  else if (status === "pending") showPendingUI();
+  else showPaymentForm(userEmail);
+  });
+// ============================
 // 7️⃣ Initialize
 // ============================
 document.addEventListener("DOMContentLoaded", loadPDFs);

@@ -2058,8 +2058,250 @@ if (levelSelect) {
 loadPDFs();
 
 
-      
+// ============================
+// PDF ACCESS SYSTEM (Opay / PalmPay MANUAL PAYMENT + Auth + Auto Refresh)
+// ============================
 
+// 💡 CONFIG — edit these
+const PDF_ACCESS_PRICE = 500; // ₦500 one-time payment
+const PDF_ACCESS_TABLE = "pdf_access"; // Supabase table name
+
+// 💳 Your payment details
+const PAYMENT_INFO = {
+  name: "EYES OF 3080",
+  bank: "PalmPay / Opay",
+  accountNumber: "1234567890",
+  amount: PDF_ACCESS_PRICE,
+};
+
+// 📞 Admin WhatsApp numbers
+const ADMIN_WHATSAPP_NUMBERS = ["2349043855915", "2347063123719", "2348162833687"];
+
+// ============================
+// 1️⃣ AUTHENTICATION — Require Supabase Login
+// ============================
+async function getCurrentUser() {
+  const { data, error } = await supabase.auth.getUser();
+  if (error || !data.user) {
+    const pdfSection = document.getElementById("pdfSection");
+    pdfSection.innerHTML = `
+      <div style="text-align:center; padding:30px; background:#fff3cd; border-radius:10px;">
+        <h3 style="color:#856404;">⚠️ Login Required</h3>
+        <p>Please log in to your account before accessing PDFs or making a payment.</p>
+        <button onclick="window.location.href='/index.html'" style="
+          background:#006400;
+          color:white;
+          border:none;
+          padding:10px 20px;
+          border-radius:6px;
+          margin-top:10px;
+          cursor:pointer;">
+          🔐 Go to Login
+        </button>
+      </div>`;
+    return null;
+  }
+  return data.user;
+}
+
+// ============================
+// 2️⃣ Check if User Has Access
+// ============================
+async function checkPDFAccess(userEmail) {
+  try {
+    const { data, error } = await supabase
+      .from(PDF_ACCESS_TABLE)
+      .select("paid, verified")
+      .eq("email", userEmail)
+      .maybeSingle();
+
+    if (error) {
+      console.error("❌ Error checking access:", error);
+      return false;
+    }
+
+    // ✅ Access granted if paid or verified
+    return data?.paid === true || data?.verified === true;
+  } catch (err) {
+    console.error("❌ Unexpected error:", err);
+    return false;
+  }
+}
+
+// ============================
+// 3️⃣ Manual Payment Box (Full Name + Txn ID)
+// ============================
+async function showManualPaymentBox(userEmail) {
+  const pdfSection = document.getElementById("pdfSection");
+  pdfSection.innerHTML = `
+    <div style="text-align:center; background:#f9fff9; padding:25px; border-radius:12px; border:2px solid #006400;">
+      <h3 style="color:#006400; font-weight:700;">🔒 Unlock All PDFs</h3>
+      <p style="color:#333;">Pay a one-time fee of <b>₦${PDF_ACCESS_PRICE}</b> using the account below.</p>
+
+      <div style="background:#fff; border:1px dashed #009e60; padding:15px; border-radius:8px; display:inline-block; margin:10px 0;">
+        <p><b>Account Name:</b> ${PAYMENT_INFO.name}</p>
+        <p><b>Bank:</b> ${PAYMENT_INFO.bank}</p>
+        <p><b>Account Number:</b> ${PAYMENT_INFO.accountNumber}</p>
+        <p><b>Amount:</b> ₦${PDF_ACCESS_PRICE}</p>
+      </div>
+
+      <p style="margin-top:10px; font-size:14px; color:#444;">After payment, enter your Full Name and Transaction ID below 👇</p>
+
+      <input id="payerName" type="text" placeholder="Full Name" style="width:80%; padding:8px; margin-top:8px; border:1px solid #ccc; border-radius:6px;"><br>
+      <input id="txnId" type="text" placeholder="Transaction ID (Opay/PalmPay)" style="width:80%; padding:8px; margin-top:8px; border:1px solid #ccc; border-radius:6px;"><br>
+
+      <button onclick="submitPaymentDetails('${userEmail}')" style="
+        background:#006400;
+        color:#fff;
+        border:none;
+        margin-top:12px;
+        padding:10px 25px;
+        border-radius:6px;
+        cursor:pointer;
+        font-weight:600;">
+        I Have Paid
+      </button>
+    </div>
+  `;
+}
+
+// ============================
+// 4️⃣ Submit Payment Info (No uploads)
+// ============================
+async function submitPaymentDetails(userEmail) {
+  const payerName = document.getElementById("payerName").value.trim();
+  const txnId = document.getElementById("txnId").value.trim();
+
+  if (!payerName || !txnId) {
+    alert("⚠️ Please fill in both your full name and transaction ID.");
+    return;
+  }
+
+  try {
+    const { error } = await supabase.from(PDF_ACCESS_TABLE).upsert({
+      email: userEmail,
+      name: payerName,
+      transaction_id: txnId,
+      paid: false,
+      amount: PDF_ACCESS_PRICE,
+      verified: false,
+      created_at: new Date().toISOString(),
+    });
+
+    if (error) throw error;
+
+    // ✅ Show pending verification message
+    document.getElementById("pdfSection").innerHTML = `
+      <div style="text-align:center; background:#fff8e1; padding:30px; border-radius:12px; border:1px solid #ffcc00;">
+        <h3 style="color:#b8860b; font-weight:700;">🕐 Payment Pending Verification</h3>
+        <p style="color:#555;">Your payment details have been submitted.</p>
+        <p style="color:#555;">Please wait while we confirm your payment.</p>
+        <div style="margin-top:15px;">
+          <span style="background:#ffcc00; color:#000; padding:6px 12px; border-radius:6px; font-weight:600;">
+            ⏳ Awaiting Confirmation
+          </span>
+        </div>
+      </div>
+    `;
+
+    // 🟢 Send WhatsApp alert to admin(s)
+    const message = encodeURIComponent(
+      `📥 *New PDF Payment Submitted*\n\n👤 Name: ${payerName}\n📧 Email: ${userEmail}\n💰 Amount: ₦${PDF_ACCESS_PRICE}\n🔢 Txn ID: ${txnId}\n🕒 Time: ${new Date().toLocaleString()}\n\nPlease verify and approve in Supabase.`
+    );
+
+    ADMIN_WHATSAPP_NUMBERS.forEach((num, i) => {
+      setTimeout(() => {
+        window.open(`https://wa.me/${num}?text=${message}`, "_blank");
+      }, i * 800);
+    });
+
+  } catch (err) {
+    console.error("❌ Error submitting payment details:", err);
+    alert("❌ Failed to submit payment. Details: " + (err.message || JSON.stringify(err)));
+  }
+}
+
+// ============================
+// 5️⃣ Auto Refresh (Listen for Paid/Verified Updates)
+// ============================
+async function listenForVerification(userEmail) {
+  // Real-time listener for changes to this user’s record
+  supabase
+    .channel('pdf_access_changes')
+    .on(
+      'postgres_changes',
+      {
+        event: '*',
+        schema: 'public',
+        table: PDF_ACCESS_TABLE,
+        filter: `email=eq.${userEmail}`,
+      },
+      async (payload) => {
+        console.log("🔄 PDF Access Table Changed:", payload);
+        const { new: newRow } = payload;
+
+        // If verified or paid now true — reload PDFs automatically
+        if (newRow?.verified === true || newRow?.paid === true) {
+          document.getElementById("pdfSection").innerHTML = `
+            <div style="text-align:center; color:#006400; font-weight:600; padding:20px;">
+              ✅ Access Granted! Reloading your PDFs...
+            </div>`;
+          setTimeout(loadPDFs, 1500);
+        }
+      }
+    )
+    .subscribe();
+}
+
+// ============================
+// 6️⃣ Load PDFs or Payment Box
+// ============================
+async function loadPDFs() {
+  const pdfSection = document.getElementById("pdfSection");
+
+  // Get authenticated user
+  const user = await getCurrentUser();
+  if (!user) return;
+  const userEmail = user.email;
+
+  // Start real-time listener
+  listenForVerification(userEmail);
+
+  // Check access
+  const hasAccess = await checkPDFAccess(userEmail);
+
+  if (!hasAccess) {
+    showManualPaymentBox(userEmail);
+    return;
+  }
+
+  // ✅ Load PDFs after access granted
+  pdfSection.innerHTML = "<p>📂 Loading your PDFs...</p>";
+
+  const { data: pdfs, error } = await supabase
+    .from("pdf")
+    .select("*")
+    .order("id", { ascending: false });
+
+  if (error || !pdfs?.length) {
+    pdfSection.innerHTML = "<p>No PDFs available yet.</p>";
+    return;
+  }
+
+  pdfSection.innerHTML = pdfs.map(pdf => `
+    <div style="border:1px solid #ccc; border-radius:8px; padding:15px; margin:10px 0;">
+      <strong style="color:#000;">${pdf.topic || "Untitled PDF"}</strong><br>
+      <a href="${pdf.pdf_url}" target="_blank" style="color:#006400;">📄 View / Download</a>
+    </div>
+  `).join("");
+}
+
+// ============================
+// 7️⃣ Initialize
+// ============================
+document.addEventListener("DOMContentLoaded", loadPDFs);
+
+      
         
 
 

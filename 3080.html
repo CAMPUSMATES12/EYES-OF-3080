@@ -2120,7 +2120,6 @@ async function checkPDFAccess(userEmail) {
       return false;
     }
 
-    // ✅ Access granted if paid or verified
     return data?.paid === true || data?.verified === true;
   } catch (err) {
     console.error("❌ Unexpected error:", err);
@@ -2129,7 +2128,7 @@ async function checkPDFAccess(userEmail) {
 }
 
 // ============================
-// 3️⃣ Manual Payment Box (Full Name + Txn ID)
+// 3️⃣ Manual Payment Box
 // ============================
 async function showManualPaymentBox(userEmail) {
   const pdfSection = document.getElementById("pdfSection");
@@ -2166,7 +2165,7 @@ async function showManualPaymentBox(userEmail) {
 }
 
 // ============================
-// 4️⃣ Submit Payment Info (No uploads)
+// 4️⃣ Submit Payment Info
 // ============================
 async function submitPaymentDetails(userEmail) {
   const payerName = document.getElementById("payerName").value.trim();
@@ -2190,12 +2189,12 @@ async function submitPaymentDetails(userEmail) {
 
     if (error) throw error;
 
-    // ✅ Show pending verification message
+    localStorage.setItem("pdf_payment_status", "pending");
+
     document.getElementById("pdfSection").innerHTML = `
       <div style="text-align:center; background:#fff8e1; padding:30px; border-radius:12px; border:1px solid #ffcc00;">
         <h3 style="color:#b8860b; font-weight:700;">🕐 Payment Pending Verification</h3>
-        <p style="color:#555;">Your payment details have been submitted.</p>
-        <p style="color:#555;">Please wait while we confirm your payment.</p>
+        <p>Your payment details have been submitted. Please wait for confirmation.</p>
         <div style="margin-top:15px;">
           <span style="background:#ffcc00; color:#000; padding:6px 12px; border-radius:6px; font-weight:600;">
             ⏳ Awaiting Confirmation
@@ -2204,9 +2203,8 @@ async function submitPaymentDetails(userEmail) {
       </div>
     `;
 
-    // 🟢 Send WhatsApp alert to admin(s)
     const message = encodeURIComponent(
-      `📥 *New PDF Payment Submitted*\n\n👤 Name: ${payerName}\n📧 Email: ${userEmail}\n💰 Amount: ₦${PDF_ACCESS_PRICE}\n🔢 Txn ID: ${txnId}\n🕒 Time: ${new Date().toLocaleString()}\n\nPlease verify and approve in Supabase.`
+      `📥 *New PDF Payment Submitted*\n\n👤 Name: ${payerName}\n📧 Email: ${userEmail}\n💰 Amount: ₦${PDF_ACCESS_PRICE}\n🔢 Txn ID: ${txnId}\n🕒 ${new Date().toLocaleString()}`
     );
 
     ADMIN_WHATSAPP_NUMBERS.forEach((num, i) => {
@@ -2222,31 +2220,23 @@ async function submitPaymentDetails(userEmail) {
 }
 
 // ============================
-// 5️⃣ Auto Refresh (Listen for Paid/Verified Updates)
+// 5️⃣ Auto Refresh (Realtime Updates)
 // ============================
 async function listenForVerification(userEmail) {
-  // Real-time listener for changes to this user’s record
   supabase
-    .channel('pdf_access_changes')
+    .channel("pdf_access_updates")
     .on(
-      'postgres_changes',
-      {
-        event: '*',
-        schema: 'public',
-        table: PDF_ACCESS_TABLE,
-        filter: `email=eq.${userEmail}`,
-      },
+      "postgres_changes",
+      { event: "UPDATE", schema: "public", table: PDF_ACCESS_TABLE, filter: `email=eq.${userEmail}` },
       async (payload) => {
-        console.log("🔄 PDF Access Table Changed:", payload);
-        const { new: newRow } = payload;
-
-        // If verified or paid now true — reload PDFs automatically
-        if (newRow?.verified === true || newRow?.paid === true) {
+        const newRow = payload.new;
+        if (newRow?.paid || newRow?.verified) {
+          localStorage.setItem("pdf_payment_status", "verified");
           document.getElementById("pdfSection").innerHTML = `
             <div style="text-align:center; color:#006400; font-weight:600; padding:20px;">
-              ✅ Access Granted! Reloading your PDFs...
+              ✅ Access Granted! Loading your PDFs...
             </div>`;
-          setTimeout(loadPDFs, 1500);
+          setTimeout(() => loadPDFs(userEmail), 1500);
         }
       }
     )
@@ -2256,26 +2246,28 @@ async function listenForVerification(userEmail) {
 // ============================
 // 6️⃣ Load PDFs or Payment Box
 // ============================
-async function loadPDFs() {
+async function loadPDFs(userEmail) {
   const pdfSection = document.getElementById("pdfSection");
 
-  // Get authenticated user
-  const user = await getCurrentUser();
-  if (!user) return;
-  const userEmail = user.email;
-
-  // Start real-time listener
-  listenForVerification(userEmail);
-
-  // Check access
   const hasAccess = await checkPDFAccess(userEmail);
 
   if (!hasAccess) {
-    showManualPaymentBox(userEmail);
+    const localStatus = localStorage.getItem("pdf_payment_status");
+    if (localStatus === "pending") {
+      pdfSection.innerHTML = `
+        <div style="text-align:center; background:#fff8e1; padding:30px; border-radius:12px; border:1px solid #ffcc00;">
+          <h3 style="color:#b8860b;">🕐 Payment Pending</h3>
+          <p>We are still verifying your payment. Please wait...</p>
+        </div>`;
+    } else {
+      showManualPaymentBox(userEmail);
+    }
     return;
   }
 
-  // ✅ Load PDFs after access granted
+  // ✅ User has access
+  localStorage.setItem("pdf_payment_status", "verified");
+
   pdfSection.innerHTML = "<p>📂 Loading your PDFs...</p>";
 
   const { data: pdfs, error } = await supabase
@@ -2290,33 +2282,23 @@ async function loadPDFs() {
 
   pdfSection.innerHTML = pdfs.map(pdf => `
     <div style="border:1px solid #ccc; border-radius:8px; padding:15px; margin:10px 0;">
-      <strong style="color:#000;">${pdf.topic || "Untitled PDF"}</strong><br>
+      <strong>${pdf.topic || "Untitled PDF"}</strong><br>
       <a href="${pdf.pdf_url}" target="_blank" style="color:#006400;">📄 View / Download</a>
     </div>
   `).join("");
 }
 
 // ============================
-// 🚀 Start — Resume Automatically
+// 🚀 7️⃣ Initialize
 // ============================
 document.addEventListener("DOMContentLoaded", async () => {
-  const userEmail = await getCurrentUserEmail();
-  let localStatus = localStorage.getItem("pdf_payment_status");
+  const user = await getCurrentUser();
+  if (!user) return;
 
-  // Double-check latest status from Supabase
-  const onlineStatus = await checkPaymentStatus(userEmail);
-
-  const status = onlineStatus !== "none" ? onlineStatus : localStatus || "none";
-
-  if (status === "verified") showVerifiedUI();
-  else if (status === "pending") showPendingUI();
-  else showPaymentForm(userEmail);
-  });
-// ============================
-// 7️⃣ Initialize
-// ============================
-document.addEventListener("DOMContentLoaded", loadPDFs);
-
+  const userEmail = user.email;
+  listenForVerification(userEmail);
+  loadPDFs(userEmail);
+});
       
         
 

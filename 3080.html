@@ -2292,11 +2292,11 @@ async function loadPDFs(userEmail) {
       levels[lvl].push(pdf);
     });
 
-    // 4️⃣ Render PDFs using your CSS classes and Bootstrap icons
+    // 4️⃣ Render PDFs using **your existing CSS classes and layout**
     pdfSection.innerHTML = Object.keys(levels)
-      .map(lvl => `
-        <div class="pdf-grid" id="pdfGrid${lvl}" style="display:none;">
-          ${levels[lvl].map(pdf => `
+      .map(level => `
+        <div class="pdf-grid" id="pdfGrid${level}" style="display:none;">
+          ${levels[level].map(pdf => `
             <div class="pdf-card">
               <div class="pdf-info">
                 <h5 class="pdf-title">📘 ${pdf.topic || getFileNameFromUrl(pdf.pdf_url)}</h5>
@@ -2317,6 +2317,13 @@ async function loadPDFs(userEmail) {
           `).join('')}
         </div>
       `).join('');
+
+    // 5️⃣ Optionally show all PDFs by default or first level
+    const firstLevel = Object.keys(levels)[0];
+    if (firstLevel) {
+      const firstGrid = document.getElementById("pdfGrid" + firstLevel);
+      if (firstGrid) firstGrid.style.display = "grid";
+    }
 
   } catch (err) {
     console.error("❌ Error loading PDFs:", err);

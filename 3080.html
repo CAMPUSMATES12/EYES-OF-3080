@@ -2247,41 +2247,55 @@ async function loadPDFs(userEmail) {
   const pdfSection = document.getElementById("pdfSection");
 
   try {
-    // ✅ Always check the DB first
-    const { data, error } = await supabase
+    // ✅ Check if user has paid / verified
+    const { data: accessData, error: accessError } = await supabase
       .from(PDF_ACCESS_TABLE)
       .select("paid, verified")
       .eq("email", userEmail)
       .maybeSingle();
+    if (accessError) throw accessError;
 
-    if (error) throw error;
-
-    if (data?.paid || data?.verified) {
-      // Payment verified in DB — override localStorage
-      localStorage.setItem("pdf_payment_status", "verified");
-      pdfSection.innerHTML = "<p>📂 Loading your PDFs...</p>";
-      // ...load PDFs code here...
+    if (!accessData?.paid && !accessData?.verified) {
+      const localStatus = localStorage.getItem("pdf_payment_status");
+      if (localStatus === "pending") {
+        pdfSection.innerHTML = `
+          <div style="text-align:center; background:#fff8e1; padding:30px; border-radius:12px; border:1px solid #ffcc00;">
+            <h3 style="color:#b8860b;">🕐 Payment Pending</h3>
+            <p>Your payment has been submitted. Await verification...</p>
+          </div>`;
+        listenForVerification(userEmail);
+        return;
+      }
+      showManualPaymentBox(userEmail);
       return;
     }
 
-    // Not verified — check localStorage for pending submissions
-    const localStatus = localStorage.getItem("pdf_payment_status");
-    if (localStatus === "pending") {
-      pdfSection.innerHTML = `
-        <div style="text-align:center; background:#fff8e1; padding:30px; border-radius:12px; border:1px solid #ffcc00;">
-          <h3 style="color:#b8860b;">🕐 Payment Pending</h3>
-          <p>Your payment has been submitted. Await verification...</p>
-        </div>`;
-      listenForVerification(userEmail);
+    // ✅ User has access — load PDFs
+    localStorage.setItem("pdf_payment_status", "verified");
+    pdfSection.innerHTML = "<p>📂 Loading your PDFs...</p>";
+
+    const { data: pdfs, error: pdfError } = await supabase
+      .from("pdf")
+      .select("*")
+      .order("id", { ascending: false });
+
+    if (pdfError) throw pdfError;
+
+    if (!pdfs || pdfs.length === 0) {
+      pdfSection.innerHTML = "<p>No PDFs available yet.</p>";
       return;
     }
 
-    // No payment submitted yet
-    showManualPaymentBox(userEmail);
+    pdfSection.innerHTML = pdfs.map(pdf => `
+      <div style="border:1px solid #ccc; border-radius:8px; padding:15px; margin:10px 0;">
+        <strong>${pdf.topic || "Untitled PDF"}</strong><br>
+        <a href="${pdf.pdf_url}" target="_blank" style="color:#006400;">📄 View / Download</a>
+      </div>
+    `).join("");
 
   } catch (err) {
     console.error("❌ Error loading PDFs:", err);
-    pdfSection.innerHTML = "<p>❌ Could not load PDFs. Try again later.</p>";
+    pdfSection.innerHTML = "<p>❌ Could not load PDFs. Check console.</p>";
   }
 }
 // ============================

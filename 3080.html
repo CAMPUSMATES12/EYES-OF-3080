@@ -1918,32 +1918,26 @@ function getFileNameFromUrl(url) {
 function copyPDFLink(url) {
   if (!url) return;
   navigator.clipboard.writeText(url)
-    .then(() => {
-      alert("✅ PDF link copied to clipboard!");
-    })
-    .catch(() => {
-      alert("❌ Failed to copy PDF link.");
-    });
+    .then(() => { alert("✅ PDF link copied to clipboard!"); })
+    .catch(() => { alert("❌ Failed to copy PDF link."); });
 }
 
 // ============================
-// LOAD PDFs FROM SUPABASE
+// RENDER ALL PDFs FUNCTION
 // ============================
 async function renderAllPDFs() {
   try {
     const { data: pdfs, error } = await supabase
       .from("pdf")
       .select("*")
-      .order("id", { ascending: false }); // latest first
+      .order("id", { ascending: false });
 
     if (error) throw error;
-
     if (!pdfs || pdfs.length === 0) {
       pdfSection.innerHTML = "<p>No PDFs uploaded yet.</p>";
       return;
     }
 
-    // Group PDFs by normalized level
     const levels = {};
     pdfs.forEach(pdf => {
       const lvl = normalizeLevel(pdf.level);
@@ -1951,10 +1945,9 @@ async function renderAllPDFs() {
       levels[lvl].push(pdf);
     });
 
-    // Render PDFs grouped by level (hidden by default)
     pdfSection.innerHTML = Object.keys(levels)
       .map(lvl => `
-        <div class="pdf-grid" id="pdfGrid${lvl}" style="display:none; gap: 16px; margin-bottom: 30px;">
+        <div class="pdf-grid" id="pdfGrid${lvl}" style="display:none; gap:16px; margin-bottom:30px;">
           ${levels[lvl].map(pdf => `
             <div class="pdf-card" style="
               background: linear-gradient(90deg, #004d25, #009e60);
@@ -1966,74 +1959,26 @@ async function renderAllPDFs() {
               gap: 14px;
               box-shadow: 0 4px 10px rgba(0,0,0,0.15);
               font-family: 'Poppins', sans-serif;
-              transition: transform 0.3s;
             ">
               <img src="https://vtpsruejncfykiazrfsx.supabase.co/storage/v1/object/public/PRODUCTS/EYES%20OF%203080%20logo" 
                    alt="Logo" 
-                   style="width: 60px; height: 60px; border-radius: 8px; background: white; padding: 4px;">
-              
+                   style="width:60px; height:60px; border-radius:8px; background:white; padding:4px;">
               <div class="pdf-info" style="flex:1;">
-                <h4 style="margin: 0 0 6px 0; font-size: 1rem; font-weight: 600;">📘 ${pdf.topic || getFileNameFromUrl(pdf.pdf_url) || "Untitled PDF"}</h4>
-                <p style="margin: 0 0 8px 0; font-size: 0.85rem; opacity: 0.9;">Level: ${pdf.level || "N/A"}</p>
-                
+                <h4 style="margin:0 0 6px 0; font-size:1rem; font-weight:600;">📘 ${pdf.topic || getFileNameFromUrl(pdf.pdf_url) || "Untitled PDF"}</h4>
+                <p style="margin:0 0 8px 0; font-size:0.85rem; opacity:0.9;">Level: ${pdf.level || "N/A"}</p>
                 <div class="pdf-actions" style="display:flex; gap:8px; flex-wrap:wrap;">
-                  <a href="${pdf.pdf_url}" target="_blank" class="pdf-btn" style="
-                    background: rgba(255,255,255,0.15);
-                    color: white;
-                    border: none;
-                    padding: 8px 12px;
-                    border-radius: 6px;
-                    text-decoration: none;
-                    display: flex;
-                    align-items: center;
-                    gap: 6px;
-                    font-size: 0.85rem;
-                    transition: background 0.3s;
-                  ">
-                    <i class="bi bi-eye-fill"></i> View
-                  </a>
-
-                  <a href="${pdf.pdf_url}" download class="pdf-btn" style="
-                    background: rgba(255,255,255,0.15);
-                    color: white;
-                    border: none;
-                    padding: 8px 12px;
-                    border-radius: 6px;
-                    text-decoration: none;
-                    display: flex;
-                    align-items: center;
-                    gap: 6px;
-                    font-size: 0.85rem;
-                    transition: background 0.3s;
-                  ">
-                    <i class="bi bi-download"></i> Download
-                  </a>
-
-                  <button class="pdf-btn" onclick="copyPDFLink('${pdf.pdf_url}')" style="
-                    background: rgba(255,255,255,0.15);
-                    color: white;
-                    border: none;
-                    padding: 8px 12px;
-                    border-radius: 6px;
-                    cursor: pointer;
-                    display: flex;
-                    align-items: center;
-                    gap: 6px;
-                    font-size: 0.85rem;
-                    transition: background 0.3s;
-                  ">
-                    <i class="bi bi-clipboard"></i> Copy Link
-                  </button>
+                  <a href="${pdf.pdf_url}" target="_blank" class="pdf-btn" style="...">View</a>
+                  <a href="${pdf.pdf_url}" download class="pdf-btn" style="...">Download</a>
+                  <button class="pdf-btn" onclick="copyPDFLink('${pdf.pdf_url}')" style="...">Copy Link</button>
                 </div>
               </div>
             </div>
           `).join('')}
         </div>
-      `)
-      .join('');
+      `).join('');
 
   } catch (err) {
-    console.error("❌ Error loading PDFs:", err);
+    console.error("❌ Error rendering PDFs:", err);
     pdfSection.innerHTML = "<p>Failed to load PDFs.</p>";
   }
 }
@@ -2044,13 +1989,8 @@ async function renderAllPDFs() {
 function showLevelPDFs(selectedLevel = "") {
   const level = normalizeLevel(selectedLevel);
   const grids = document.querySelectorAll(".pdf-grid");
-  grids.forEach(grid => grid.style.display = "none"); // hide all
-
-  if (level === "") {
-    // If "All Levels" selected, show nothing
-    return;
-  } else {
-    // Show only selected level
+  grids.forEach(grid => grid.style.display = "none"); 
+  if (level) {
     const grid = document.getElementById("pdfGrid" + level);
     if (grid) grid.style.display = "grid";
   }
@@ -2066,19 +2006,10 @@ if (levelSelect) {
 }
 
 // ============================
-// INITIAL LOAD
+// PDF ACCESS SYSTEM
 // ============================
-renderAllPDFs();
-
-// ============================
-// PDF ACCESS SYSTEM — DATABASE-DRIVEN
-// ============================
-
-// 💡 CONFIG
-const PDF_ACCESS_PRICE = 500; // ₦500 one-time payment
-const PDF_ACCESS_TABLE = "pdf_access"; // Supabase table name
-
-// 💳 Payment details
+const PDF_ACCESS_PRICE = 500; 
+const PDF_ACCESS_TABLE = "pdf_access"; 
 const PAYMENT_INFO = {
   name: "EYES OF 3080",
   bank: "PalmPay / Opay",
@@ -2087,26 +2018,16 @@ const PAYMENT_INFO = {
 };
 
 // ============================
-// 1️⃣ AUTHENTICATION — Require Supabase Login
+// GET CURRENT USER
 // ============================
 async function getCurrentUser() {
   const { data, error } = await supabase.auth.getUser();
   if (error || !data.user) {
-    const pdfSection = document.getElementById("pdfSection");
     pdfSection.innerHTML = `
       <div style="text-align:center; padding:30px; background:#fff3cd; border-radius:10px;">
         <h3 style="color:#856404;">⚠️ Login Required</h3>
-        <p>Please log in to your account before accessing PDFs or making a payment.</p>
-        <button onclick="window.location.href='/index.html'" style="
-          background:#006400;
-          color:white;
-          border:none;
-          padding:10px 20px;
-          border-radius:6px;
-          margin-top:10px;
-          cursor:pointer;">
-          🔐 Go to Login
-        </button>
+        <p>Please log in to access PDFs.</p>
+        <button onclick="window.location.href='/index.html'" style="background:#006400; color:white; border:none; padding:10px 20px; border-radius:6px; margin-top:10px; cursor:pointer;">🔐 Go to Login</button>
       </div>`;
     return null;
   }
@@ -2114,45 +2035,30 @@ async function getCurrentUser() {
 }
 
 // ============================
-// 2️⃣ SHOW MANUAL PAYMENT BOX
+// SHOW PAYMENT BOX
 // ============================
-function showManualPaymentBox(userEmail, fullName = "") {
-  const pdfSection = document.getElementById("pdfSection");
+function showManualPaymentBox(userEmail, fullName="") {
   pdfSection.innerHTML = `
     <div style="text-align:center; background:#f9fff9; padding:25px; border-radius:12px; border:2px solid #006400;">
-      <h3 style="color:#006400; font-weight:700;">🔒 Unlock All PDFs</h3>
-      <p style="color:#333;">Pay a one-time fee of <b>₦${PDF_ACCESS_PRICE}</b> using the account below.</p>
-
+      <h3 style="color:#006400;">🔒 Unlock All PDFs</h3>
+      <p>Pay ₦${PDF_ACCESS_PRICE} using the account below.</p>
       <div style="background:#fff; border:1px dashed #009e60; padding:15px; border-radius:8px; display:inline-block; margin:10px 0;">
         <p><b>Account Name:</b> ${PAYMENT_INFO.name}</p>
         <p><b>Bank:</b> ${PAYMENT_INFO.bank}</p>
         <p><b>Account Number:</b> ${PAYMENT_INFO.accountNumber}</p>
         <p><b>Amount:</b> ₦${PDF_ACCESS_PRICE}</p>
       </div>
-
-      <p style="margin-top:10px; font-size:14px; color:#444;">After payment, enter your Full Name and Transaction ID below 👇</p>
-
+      <p>After payment, enter your Full Name & Transaction ID 👇</p>
       <input id="payerName" type="text" placeholder="Full Name" value="${fullName}" style="width:80%; padding:8px; margin-top:8px; border:1px solid #ccc; border-radius:6px;"><br>
-      <input id="payerEmail" type="email" placeholder="Email Address" value="${userEmail}" style="width:80%; padding:8px; margin-top:8px; border:1px solid #ccc; border-radius:6px;"><br>
-      <input id="txnId" type="text" placeholder="Transaction ID (Opay/PalmPay)" style="width:80%; padding:8px; margin-top:8px; border:1px solid #ccc; border-radius:6px;"><br>
-
-      <button onclick="submitPaymentDetails()" style="
-        background:#006400;
-        color:#fff;
-        border:none;
-        margin-top:12px;
-        padding:10px 25px;
-        border-radius:6px;
-        cursor:pointer;
-        font-weight:600;">
-        I Have Paid
-      </button>
+      <input id="payerEmail" type="email" placeholder="Email" value="${userEmail}" style="width:80%; padding:8px; margin-top:8px; border:1px solid #ccc; border-radius:6px;"><br>
+      <input id="txnId" type="text" placeholder="Transaction ID" style="width:80%; padding:8px; margin-top:8px; border:1px solid #ccc; border-radius:6px;"><br>
+      <button onclick="submitPaymentDetails()" style="background:#006400; color:#fff; border:none; padding:10px 25px; border-radius:6px; margin-top:12px; cursor:pointer;">I Have Paid</button>
     </div>
   `;
 }
 
 // ============================
-// 3️⃣ SUBMIT PAYMENT DETAILS
+// SUBMIT PAYMENT
 // ============================
 async function submitPaymentDetails() {
   const payerName = document.getElementById("payerName").value.trim();
@@ -2160,7 +2066,7 @@ async function submitPaymentDetails() {
   const txnId = document.getElementById("txnId").value.trim();
 
   if (!payerName || !payerEmail || !txnId) {
-    alert("⚠️ Please fill in your full name, email, and transaction ID.");
+    alert("⚠️ Fill in your full name, email, and transaction ID.");
     return;
   }
 
@@ -2177,116 +2083,72 @@ async function submitPaymentDetails() {
 
     if (error) throw error;
 
-    document.getElementById("pdfSection").innerHTML = `
+    pdfSection.innerHTML = `
       <div style="text-align:center; background:#fff8e1; padding:30px; border-radius:12px; border:1px solid #ffcc00;">
-        <h3 style="color:#b8860b; font-weight:700;">🕐 Payment Pending Verification</h3>
-        <p>Your payment details have been submitted. Please wait for admin verification.</p>
+        <h3 style="color:#b8860b;">🕐 Payment Pending Verification</h3>
+        <p>Waiting for admin verification...</p>
       </div>
     `;
 
-    // Start listening for verification
     listenForVerification(payerEmail);
-
   } catch (err) {
-    console.error("❌ Error submitting payment:", err);
+    console.error(err);
     alert("❌ Failed to submit payment: " + (err.message || JSON.stringify(err)));
   }
 }
 
 // ============================
-// 4️⃣ LISTEN FOR ADMIN VERIFICATION
-// ============================
-async function listenForVerification(userEmail) {
-  supabase
-    .channel("pdf_access_updates")
-    .on(
-      "postgres_changes",
-      {
-        event: "UPDATE",
-        schema: "public",
-        table: PDF_ACCESS_TABLE,
-        filter: `email=eq.${userEmail}`,
-      },
-      (payload) => {
-        const newRow = payload.new;
-        if (newRow?.paid || newRow?.verified) {
-          document.getElementById("pdfSection").innerHTML = `
-            <div style="text-align:center; color:#006400; font-weight:600; padding:20px;">
-              ✅ Payment Verified! Loading your PDFs...
-            </div>
-          `;
-          setTimeout(() => loadPDFs(userEmail), 1500);
-        }
-      }
-    )
-    .subscribe();
-}
-
-// ============================
-// 5️⃣ LOAD PDFs — DATABASE-DRIVEN ACCESS CHECK
+// CHECK ACCESS
 // ============================
 async function checkUserAccess(userEmail) {
-  const pdfSection = document.getElementById("pdfSection");
-
   try {
     const { data: accessData, error } = await supabase
-      .from("pdf_access")
+      .from(PDF_ACCESS_TABLE)
       .select("paid, verified, full_name")
       .eq("email", userEmail)
       .maybeSingle();
 
     if (error) throw error;
 
-    // Pending payment
     if (!accessData?.paid && !accessData?.verified) {
-      pdfSection.innerHTML = `
-        <div class="pdf-pending" style="text-align:center; background:#fff8e1; padding:20px; border-radius:10px; border:1px solid #ffcc00;">
-          🕐 Payment Pending. Await verification...
-        </div>
-      `;
+      showManualPaymentBox(userEmail, accessData?.full_name || "");
       listenForVerification(userEmail);
       return;
     }
 
-    // Payment verified — render PDFs
-    if (typeof renderAllPDFs === "function") {
-      renderAllPDFs();
-    } else {
-      pdfSection.innerHTML = "<p class='text-center'>❌ PDF render function not found.</p>";
-      console.error("renderAllPDFs() is not defined.");
-    }
+    if (typeof renderAllPDFs === "function") renderAllPDFs();
+    else console.error("❌ renderAllPDFs() not found.");
   } catch (err) {
-    console.error("❌ Error checking access:", err);
-    pdfSection.innerHTML = "<p class='text-center'>❌ Could not check access. Check console.</p>";
+    console.error(err);
+    pdfSection.innerHTML = "<p class='text-center'>❌ Could not check access.</p>";
   }
 }
 
-// Listen for verification updates
+// ============================
+// LISTEN FOR VERIFICATION
+// ============================
 function listenForVerification(userEmail) {
   supabase.channel("pdf_access_updates")
     .on(
       "postgres_changes",
-      { event: "UPDATE", schema: "public", table: "pdf_access", filter: `email=eq.${userEmail}` },
+      { event: "UPDATE", schema: "public", table: PDF_ACCESS_TABLE, filter: `email=eq.${userEmail}` },
       (payload) => {
         const newRow = payload.new;
-        if (newRow?.paid || newRow?.verified) {
-          checkUserAccess(userEmail);
-        }
+        if (newRow?.paid || newRow?.verified) checkUserAccess(userEmail);
       }
     )
     .subscribe();
 }
 
 // ============================
-// 6️⃣ INITIALIZE SYSTEM
+// INITIALIZE SYSTEM
 // ============================
 document.addEventListener("DOMContentLoaded", async () => {
   const user = await getCurrentUser();
   if (!user) return;
-
   const userEmail = user.email;
+  checkUserAccess(userEmail);
   listenForVerification(userEmail);
-  loadPDFs(userEmail);
 });
 
 /* ============================

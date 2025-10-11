@@ -2225,13 +2225,13 @@ async function listenForVerification(userEmail) {
 // ============================
 // 5️⃣ LOAD PDFs — DATABASE-DRIVEN ACCESS CHECK
 // ============================
-async function loadPDFs(userEmail) {
+async function loadPDFsWithAccessCheck(userEmail) {
   const pdfSection = document.getElementById("pdfSection");
 
   try {
     const { data: accessData, error } = await supabase
       .from(PDF_ACCESS_TABLE)
-      .select("paid, verified")
+      .select("paid, verified, full_name")
       .eq("email", userEmail)
       .maybeSingle();
 
@@ -2243,12 +2243,12 @@ async function loadPDFs(userEmail) {
       return;
     }
 
-    // ✅ Payment verified — render existing PDFs
-    if (typeof renderPDFCards === "function") {
-      renderPDFCards(); // your original PDF JS + CSS
+    // ✅ Payment verified — call your existing PDF function
+    if (typeof loadPDFs === "function") {
+      loadPDFs(); // <-- your old PDF JS function
     } else {
       pdfSection.innerHTML = "<p class='text-center'>❌ PDF render function not found.</p>";
-      console.error("renderPDFCards() function is not defined.");
+      console.error("loadPDFs() function is not defined.");
     }
 
   } catch (err) {

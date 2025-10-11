@@ -2244,11 +2244,11 @@ async function loadPDFs(userEmail) {
     }
 
     // ✅ Payment verified — render existing PDFs
-    if (typeof loadPDFs === "function") {
-  loadPDFs(); // call your existing PDF JS function
+    if (typeof renderPDFCards === "function") {
+  renderPDFCards(); // your original PDF JS + CSS
 } else {
   pdfSection.innerHTML = "<p class='text-center'>❌ PDF render function not found.</p>";
-  console.error("loadPDFs() function is not defined.");
+  console.error("renderPDFCards() function is not defined.");
 }
 
   } catch (err) {

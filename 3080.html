@@ -2102,7 +2102,7 @@ async function getCurrentUser() {
 }
 
 // ============================
-// 2️⃣ Check if User Has Access
+// 2️⃣ Check if User Has Access (Fixed)
 // ============================
 async function checkPDFAccess(userEmail) {
   try {
@@ -2112,17 +2112,24 @@ async function checkPDFAccess(userEmail) {
       .eq("email", userEmail)
       .maybeSingle();
 
-    if (error) {
-      console.error("❌ Error checking access:", error);
+    if (error) throw error;
+
+    if (!data) {
+      // ❌ No record found — reset local state
+      localStorage.removeItem("pdf_payment_status");
       return false;
     }
 
-    return data?.paid === true || data?.verified === true;
+    // ✅ Access granted if paid or verified
+    return data.paid === true || data.verified === true;
   } catch (err) {
-    console.error("❌ Unexpected error:", err);
+    console.error("❌ Error checking access:", err);
     return false;
   }
 }
+
+
+
 
 // ============================
 // 3️⃣ Show Manual Payment Box
@@ -2162,9 +2169,7 @@ async function showManualPaymentBox(userEmail) {
   `;
 }
 
-// ============================
-// 4️⃣ Submit Payment Info (No WhatsApp)
-// ============================
+
 // ============================
 // 4️⃣ Submit Payment Info
 // ============================
@@ -2244,75 +2249,50 @@ async function listenForVerification(userEmail) {
 }
 
 // ============================
-// 6️⃣ Load PDFs or Payment Box (with auto reset if record deleted)
+// 6️⃣ Load PDFs or Payment Box (Improved)
 // ============================
 async function loadPDFs(userEmail) {
   const pdfSection = document.getElementById("pdfSection");
 
-  try {
-    // 🔍 Check user payment record from Supabase
-    const { data, error } = await supabase
-      .from(PDF_ACCESS_TABLE)
-      .select("paid, verified")
-      .eq("email", userEmail)
-      .maybeSingle();
+  const hasAccess = await checkPDFAccess(userEmail);
 
-    if (error) {
-      console.error("❌ Error checking payment status:", error);
-      pdfSection.innerHTML = `<p style="color:red;">Error loading payment info.</p>`;
-      return;
-    }
+  if (!hasAccess) {
+    const localStatus = localStorage.getItem("pdf_payment_status");
 
-    // 🧹 CASE 1 — Record deleted or missing
-    if (!data) {
-      console.warn("⚠️ Payment record not found — resetting status.");
+    if (localStatus === "pending") {
+      pdfSection.innerHTML = `
+        <div style="text-align:center; background:#fff8e1; padding:30px; border-radius:12px; border:1px solid #ffcc00;">
+          <h3 style="color:#b8860b;">🕐 Payment Pending</h3>
+          <p>We are still verifying your payment. Please wait...</p>
+        </div>`;
+    } else {
+      // 🧹 Clear any old status since record is gone or reset
       localStorage.removeItem("pdf_payment_status");
       showManualPaymentBox(userEmail);
-      return;
     }
-
-    // 🕐 CASE 2 — Not verified or paid yet
-    if (!data.paid && !data.verified) {
-      const localStatus = localStorage.getItem("pdf_payment_status");
-      if (localStatus === "pending") {
-        pdfSection.innerHTML = `
-          <div style="text-align:center; background:#fff8e1; padding:30px; border-radius:12px; border:1px solid #ffcc00;">
-            <h3 style="color:#b8860b;">🕐 Payment Pending</h3>
-            <p>We are still verifying your payment. Please wait...</p>
-          </div>`;
-      } else {
-        showManualPaymentBox(userEmail);
-      }
-      return;
-    }
-
-    // ✅ CASE 3 — Payment verified
-    localStorage.setItem("pdf_payment_status", "verified");
-    pdfSection.innerHTML = "<p>📂 Loading your PDFs...</p>";
-
-    // Fetch available PDFs
-    const { data: pdfs, error: pdfError } = await supabase
-      .from("pdf")
-      .select("*")
-      .order("id", { ascending: false });
-
-    if (pdfError || !pdfs?.length) {
-      pdfSection.innerHTML = "<p>No PDFs available yet.</p>";
-      return;
-    }
-
-    // Display unlocked PDFs
-    pdfSection.innerHTML = pdfs.map(pdf => `
-      <div style="border:1px solid #ccc; border-radius:8px; padding:15px; margin:10px 0;">
-        <strong>${pdf.topic || "Untitled PDF"}</strong><br>
-        <a href="${pdf.pdf_url}" target="_blank" style="color:#006400;">📄 View / Download</a>
-      </div>
-    `).join("");
-
-  } catch (err) {
-    console.error("❌ Unexpected error in loadPDFs:", err);
-    pdfSection.innerHTML = "<p style='color:red;'>Something went wrong while loading PDFs.</p>";
+    return;
   }
+
+  // ✅ Access granted
+  localStorage.setItem("pdf_payment_status", "verified");
+  pdfSection.innerHTML = "<p>📂 Loading your PDFs...</p>";
+
+  const { data: pdfs, error } = await supabase
+    .from("pdf")
+    .select("*")
+    .order("id", { ascending: false });
+
+  if (error || !pdfs?.length) {
+    pdfSection.innerHTML = "<p>No PDFs available yet.</p>";
+    return;
+  }
+
+  pdfSection.innerHTML = pdfs.map(pdf => `
+    <div style="border:1px solid #ccc; border-radius:8px; padding:15px; margin:10px 0;">
+      <strong>${pdf.topic || "Untitled PDF"}</strong><br>
+      <a href="${pdf.pdf_url}" target="_blank" style="color:#006400;">📄 View / Download</a>
+    </div>
+  `).join("");
 }
 // ============================
 // 🚀 7️⃣ Initialize System

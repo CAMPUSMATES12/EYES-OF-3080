@@ -2226,15 +2226,16 @@ async function listenForVerification(userEmail) {
 }
 
 // ============================
-// 6️⃣ LOAD PDFs — WITH ACCESS CHECK
+// LOAD PDFs — WITH ACCESS CHECK
 // ============================
 async function loadPDFs(userEmail) {
   const pdfSection = document.getElementById("pdfSection");
 
   try {
+    // 1️⃣ Check if user has paid / verified
     const { data: accessData, error: accessError } = await supabase
       .from(PDF_ACCESS_TABLE)
-      .select("paid, verified, full_name")
+      .select("paid, verified")
       .eq("email", userEmail)
       .maybeSingle();
     if (accessError) throw accessError;
@@ -2246,18 +2247,26 @@ async function loadPDFs(userEmail) {
         listenForVerification(userEmail);
         return;
       }
-      showManualPaymentBox(userEmail, accessData?.full_name || "");
+      showManualPaymentBox(userEmail);
       return;
     }
 
-    // ✅ User has access — call your **existing PDF rendering function**
+    // 2️⃣ User has access — call your **existing PDF rendering function**
     localStorage.setItem("pdf_payment_status", "verified");
-    if (typeof renderPDFCards === "function") {
-      renderPDFCards(); // your old PDF JS + CSS function
-    } else {
-      pdfSection.innerHTML = "<p class='text-center'>❌ PDF render function not found.</p>";
-      console.error("renderPDFCards() function is not defined.");
+
+    // ✅ Wait until your old PDF JS function exists
+    function tryRenderPDFs(retries = 10, delay = 300) {
+      if (typeof renderPDFCards === "function") {
+        renderPDFCards(); // call your old PDF JS
+      } else if (retries > 0) {
+        setTimeout(() => tryRenderPDFs(retries - 1, delay), delay);
+      } else {
+        pdfSection.innerHTML = "<p class='text-center'>❌ PDF render function not found. Check console.</p>";
+        console.error("renderPDFCards() function is not defined.");
+      }
     }
+
+    tryRenderPDFs(); // start trying
 
   } catch (err) {
     console.error("❌ Error loading PDFs:", err);

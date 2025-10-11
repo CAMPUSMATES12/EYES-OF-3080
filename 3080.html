@@ -2244,8 +2244,8 @@ async function loadPDFs(userEmail) {
     }
 
     // ✅ Payment verified — render existing PDFs
-    if (typeof loadPDFs === "function") {
-      loadPDFs(); // your original PDF JS + CSS
+    if (typeof renderPDFCards === "function") {
+      renderPDFCards(); // your original PDF JS + CSS
     } else {
       pdfSection.innerHTML = "<p class='text-center'>❌ PDF render function not found.</p>";
       console.error("renderPDFCards() function is not defined.");
@@ -2256,7 +2256,6 @@ async function loadPDFs(userEmail) {
     pdfSection.innerHTML = "<p class='text-center'>❌ Could not load PDFs. Check console.</p>";
   }
 }
-
 
 
 

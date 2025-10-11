@@ -2062,20 +2062,17 @@ loadPDFs();
 // PDF ACCESS SYSTEM (Opay / PalmPay MANUAL PAYMENT + Auth + Auto Refresh)
 // ============================
 
-// 💡 CONFIG — edit these
+// 💡 CONFIG
 const PDF_ACCESS_PRICE = 500; // ₦500 one-time payment
 const PDF_ACCESS_TABLE = "pdf_access"; // Supabase table name
 
-// 💳 Your payment details
+// 💳 Payment details
 const PAYMENT_INFO = {
   name: "EYES OF 3080",
   bank: "PalmPay / Opay",
   accountNumber: "1234567890",
   amount: PDF_ACCESS_PRICE,
 };
-
-// 📞 Admin WhatsApp numbers
-const ADMIN_WHATSAPP_NUMBERS = ["2349043855915", "2347063123719", "2348162833687"];
 
 // ============================
 // 1️⃣ AUTHENTICATION — Require Supabase Login
@@ -2128,7 +2125,7 @@ async function checkPDFAccess(userEmail) {
 }
 
 // ============================
-// 3️⃣ Manual Payment Box
+// 3️⃣ Show Manual Payment Box
 // ============================
 async function showManualPaymentBox(userEmail) {
   const pdfSection = document.getElementById("pdfSection");
@@ -2146,8 +2143,9 @@ async function showManualPaymentBox(userEmail) {
 
       <p style="margin-top:10px; font-size:14px; color:#444;">After payment, enter your Full Name and Transaction ID below 👇</p>
 
-      <input id="payerName" type="text" placeholder="Full Name" style="width:80%; padding:8px; margin-top:8px; border:1px solid #ccc; border-radius:6px;"><br>
-      <input id="txnId" type="text" placeholder="Transaction ID (Opay/PalmPay)" style="width:80%; padding:8px; margin-top:8px; border:1px solid #ccc; border-radius:6px;"><br>
+    <input id="payerName" type="text" placeholder="Full Name" style="width:80%; padding:8px; margin-top:8px; border:1px solid #ccc; border-radius:6px;"><br>
+<input id="payerEmail" type="email" placeholder="Email Address" style="width:80%; padding:8px; margin-top:8px; border:1px solid #ccc; border-radius:6px;"><br>
+<input id="txnId" type="text" placeholder="Transaction ID (Opay/PalmPay)" style="width:80%; padding:8px; margin-top:8px; border:1px solid #ccc; border-radius:6px;"><br>
 
       <button onclick="submitPaymentDetails('${userEmail}')" style="
         background:#006400;
@@ -2165,14 +2163,15 @@ async function showManualPaymentBox(userEmail) {
 }
 
 // ============================
-// 4️⃣ Submit Payment Info
+// 4️⃣ Submit Payment Info (No WhatsApp)
 // ============================
 async function submitPaymentDetails(userEmail) {
   const payerName = document.getElementById("payerName").value.trim();
+const payerEmail = document.getElementById("payerEmail").value.trim();
   const txnId = document.getElementById("txnId").value.trim();
 
-  if (!payerName || !txnId) {
-    alert("⚠️ Please fill in both your full name and transaction ID.");
+    if (!payerName || !payerEmail || !txnId) {
+    alert("⚠️ Please fill in your full name, email, and transaction ID.");
     return;
   }
 
@@ -2189,8 +2188,10 @@ async function submitPaymentDetails(userEmail) {
 
     if (error) throw error;
 
+    // Save pending state locally
     localStorage.setItem("pdf_payment_status", "pending");
 
+    // Show pending message
     document.getElementById("pdfSection").innerHTML = `
       <div style="text-align:center; background:#fff8e1; padding:30px; border-radius:12px; border:1px solid #ffcc00;">
         <h3 style="color:#b8860b; font-weight:700;">🕐 Payment Pending Verification</h3>
@@ -2203,16 +2204,6 @@ async function submitPaymentDetails(userEmail) {
       </div>
     `;
 
-    const message = encodeURIComponent(
-      `📥 *New PDF Payment Submitted*\n\n👤 Name: ${payerName}\n📧 Email: ${userEmail}\n💰 Amount: ₦${PDF_ACCESS_PRICE}\n🔢 Txn ID: ${txnId}\n🕒 ${new Date().toLocaleString()}`
-    );
-
-    ADMIN_WHATSAPP_NUMBERS.forEach((num, i) => {
-      setTimeout(() => {
-        window.open(`https://wa.me/${num}?text=${message}`, "_blank");
-      }, i * 800);
-    });
-
   } catch (err) {
     console.error("❌ Error submitting payment details:", err);
     alert("❌ Failed to submit payment. Details: " + (err.message || JSON.stringify(err)));
@@ -2220,14 +2211,19 @@ async function submitPaymentDetails(userEmail) {
 }
 
 // ============================
-// 5️⃣ Auto Refresh (Realtime Updates)
+// 5️⃣ Auto Refresh — Listen for Verification in Real Time
 // ============================
 async function listenForVerification(userEmail) {
   supabase
     .channel("pdf_access_updates")
     .on(
       "postgres_changes",
-      { event: "UPDATE", schema: "public", table: PDF_ACCESS_TABLE, filter: `email=eq.${userEmail}` },
+      {
+        event: "UPDATE",
+        schema: "public",
+        table: PDF_ACCESS_TABLE,
+        filter: `email=eq.${userEmail}`,
+      },
       async (payload) => {
         const newRow = payload.new;
         if (newRow?.paid || newRow?.verified) {
@@ -2248,7 +2244,6 @@ async function listenForVerification(userEmail) {
 // ============================
 async function loadPDFs(userEmail) {
   const pdfSection = document.getElementById("pdfSection");
-
   const hasAccess = await checkPDFAccess(userEmail);
 
   if (!hasAccess) {
@@ -2265,9 +2260,8 @@ async function loadPDFs(userEmail) {
     return;
   }
 
-  // ✅ User has access
+  // ✅ Access granted
   localStorage.setItem("pdf_payment_status", "verified");
-
   pdfSection.innerHTML = "<p>📂 Loading your PDFs...</p>";
 
   const { data: pdfs, error } = await supabase
@@ -2289,7 +2283,7 @@ async function loadPDFs(userEmail) {
 }
 
 // ============================
-// 🚀 7️⃣ Initialize
+// 🚀 7️⃣ Initialize System
 // ============================
 document.addEventListener("DOMContentLoaded", async () => {
   const user = await getCurrentUser();

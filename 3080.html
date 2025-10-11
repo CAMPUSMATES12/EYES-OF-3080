@@ -1034,7 +1034,7 @@ l
   </section>
 </section>
 
-<!-- 📑 PDF RESOURCES SECTION -->
+ <!-- 📑 PDF RESOURCES SECTION -->
 <section id="pdfs" class="page-section" style="padding:20px;">
   <h2 class="section">📑 PDF Resources</h2>
   <p>Download past questions, guides, and handouts.</p>
@@ -1052,6 +1052,18 @@ l
   <!-- PDF Container -->
   <div id="pdfSection" style="margin-top:20px;"></div>
 </section>
+
+<!-- ============================
+     SCRIPTS
+============================ -->
+
+<!-- 1️⃣ Your existing PDF JS that actually renders PDFs -->
+<script src="/js/old-pdf.js"></script>
+
+<!-- 2️⃣ New PDF access/payment system JS -->
+<script src="/js/pdf-access.js"></script>
+
+
 
 
 <style>
@@ -2225,17 +2237,16 @@ async function listenForVerification(userEmail) {
     .subscribe();
 }
 
-// ============================
-// LOAD PDFs — WITH ACCESS CHECK
+ // ============================
+// 6️⃣ LOAD PDFs — WITH ACCESS CHECK
 // ============================
 async function loadPDFs(userEmail) {
   const pdfSection = document.getElementById("pdfSection");
 
   try {
-    // 1️⃣ Check if user has paid / verified
     const { data: accessData, error: accessError } = await supabase
       .from(PDF_ACCESS_TABLE)
-      .select("paid, verified")
+      .select("paid, verified, full_name")
       .eq("email", userEmail)
       .maybeSingle();
     if (accessError) throw accessError;
@@ -2247,32 +2258,26 @@ async function loadPDFs(userEmail) {
         listenForVerification(userEmail);
         return;
       }
-      showManualPaymentBox(userEmail);
+      showManualPaymentBox(userEmail, accessData?.full_name || "");
       return;
     }
 
-    // 2️⃣ User has access — call your **existing PDF rendering function**
+    // ✅ User has access — call your **existing PDF rendering function**
     localStorage.setItem("pdf_payment_status", "verified");
-
-    // ✅ Wait until your old PDF JS function exists
-    function tryRenderPDFs(retries = 10, delay = 300) {
-      if (typeof renderPDFCards === "function") {
-        renderPDFCards(); // call your old PDF JS
-      } else if (retries > 0) {
-        setTimeout(() => tryRenderPDFs(retries - 1, delay), delay);
-      } else {
-        pdfSection.innerHTML = "<p class='text-center'>❌ PDF render function not found. Check console.</p>";
-        console.error("renderPDFCards() function is not defined.");
-      }
+    if (typeof renderPDFCards === "function") {
+      renderPDFCards(); // your old PDF JS + CSS function
+    } else {
+      pdfSection.innerHTML = "<p class='text-center'>❌ PDF render function not found.</p>";
+      console.error("renderPDFCards() function is not defined.");
     }
-
-    tryRenderPDFs(); // start trying
 
   } catch (err) {
     console.error("❌ Error loading PDFs:", err);
     pdfSection.innerHTML = "<p class='text-center'>❌ Could not load PDFs. Check console.</p>";
   }
 }
+
+
 
 // ============================
 // 7️⃣ Initialize System

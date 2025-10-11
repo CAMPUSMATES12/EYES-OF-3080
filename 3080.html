@@ -2270,7 +2270,7 @@ async function loadPDFs(userEmail) {
       return;
     }
 
-    // 2️⃣ User has access — load and render PDFs with levels
+    // 2️⃣ User has access — fetch PDFs
     localStorage.setItem("pdf_payment_status", "verified");
 
     const { data: pdfs, error: pdfError } = await supabase
@@ -2280,11 +2280,11 @@ async function loadPDFs(userEmail) {
     if (pdfError) throw pdfError;
 
     if (!pdfs || pdfs.length === 0) {
-      pdfSection.innerHTML = "<p>No PDFs available yet.</p>";
+      pdfSection.innerHTML = "<p class='text-center'>No PDFs available yet.</p>";
       return;
     }
 
-    // Group PDFs by normalized level
+    // 3️⃣ Group PDFs by normalized level
     const levels = {};
     pdfs.forEach(pdf => {
       const lvl = normalizeLevel(pdf.level);
@@ -2292,28 +2292,35 @@ async function loadPDFs(userEmail) {
       levels[lvl].push(pdf);
     });
 
-    // Render PDFs grouped by level (hidden initially)
+    // 4️⃣ Render PDFs using your CSS classes and Bootstrap icons
     pdfSection.innerHTML = Object.keys(levels)
       .map(lvl => `
-        <div class="pdf-grid" id="pdfGrid${lvl}" style="display:none; gap:16px; margin-bottom:30px;">
+        <div class="pdf-grid" id="pdfGrid${lvl}" style="display:none;">
           ${levels[lvl].map(pdf => `
             <div class="pdf-card">
-              <h4>${pdf.topic || getFileNameFromUrl(pdf.pdf_url)}</h4>
-              <p>Level: ${pdf.level || "N/A"}</p>
+              <div class="pdf-info">
+                <h5 class="pdf-title">📘 ${pdf.topic || getFileNameFromUrl(pdf.pdf_url)}</h5>
+                <p class="pdf-level">Level: ${pdf.level || "N/A"}</p>
+              </div>
               <div class="pdf-actions">
-                <a href="${pdf.pdf_url}" target="_blank" class="pdf-btn">View</a>
-                <a href="${pdf.pdf_url}" download class="pdf-btn">Download</a>
-                <button class="pdf-btn" onclick="copyPDFLink('${pdf.pdf_url}')">Copy Link</button>
+                <a href="${pdf.pdf_url}" target="_blank" class="btn btn-outline-primary btn-sm">
+                  <i class="bi bi-eye-fill"></i> View
+                </a>
+                <a href="${pdf.pdf_url}" download class="btn btn-outline-success btn-sm">
+                  <i class="bi bi-download"></i> Download
+                </a>
+                <button class="btn btn-outline-secondary btn-sm" onclick="copyPDFLink('${pdf.pdf_url}')">
+                  <i class="bi bi-clipboard"></i> Copy Link
+                </button>
               </div>
             </div>
           `).join('')}
         </div>
-      `)
-      .join('');
+      `).join('');
 
   } catch (err) {
     console.error("❌ Error loading PDFs:", err);
-    pdfSection.innerHTML = "<p>❌ Could not load PDFs. Check console.</p>";
+    pdfSection.innerHTML = "<p class='text-center'>❌ Could not load PDFs. Check console.</p>";
   }
 }
 // ============================

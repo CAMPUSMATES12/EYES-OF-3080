@@ -2102,7 +2102,7 @@ async function getCurrentUser() {
 }
 
 // ============================
-// 2️⃣ Check if User Has Access
+// Check if User Has Access (Updated for refresh)
 // ============================
 async function checkPDFAccess(userEmail) {
   try {
@@ -2114,17 +2114,24 @@ async function checkPDFAccess(userEmail) {
 
     if (error) throw error;
 
-    if (!data) {
-      localStorage.removeItem("pdf_payment_status");
-      return false;
+    // ✅ If payment is verified, return true
+    if (data?.paid === true || data?.verified === true) {
+      localStorage.setItem("pdf_payment_status", "verified");
+      return true;
     }
 
-    return data.paid === true || data.verified === true;
+    // ❌ Not verified, but check if user submitted payment
+    const localStatus = localStorage.getItem("pdf_payment_status");
+    if (localStatus === "pending") return false;
+
+    return false;
   } catch (err) {
     console.error("❌ Error checking access:", err);
     return false;
   }
 }
+
+
 
 // ============================
 // 3️⃣ Show Manual Payment Box
@@ -2232,16 +2239,18 @@ async function listenForVerification(userEmail) {
     .subscribe();
 }
 
+
 // ============================
-// 6️⃣ Load PDFs or Payment Box
+// Load PDFs or Payment Box (Updated)
 // ============================
 async function loadPDFs(userEmail) {
   const pdfSection = document.getElementById("pdfSection");
+
   const hasAccess = await checkPDFAccess(userEmail);
   const localStatus = localStorage.getItem("pdf_payment_status");
 
   if (hasAccess) {
-    localStorage.setItem("pdf_payment_status", "verified");
+    // ✅ Access granted
     pdfSection.innerHTML = "<p>📂 Loading your PDFs...</p>";
 
     const { data: pdfs, error } = await supabase
@@ -2260,20 +2269,22 @@ async function loadPDFs(userEmail) {
         <a href="${pdf.pdf_url}" target="_blank" style="color:#006400;">📄 View / Download</a>
       </div>
     `).join("");
-    return;
-  }
 
-  if (localStatus === "pending") {
+  } else if (localStatus === "pending") {
+    // ⏳ Payment submitted but not verified
     pdfSection.innerHTML = `
       <div style="text-align:center; background:#fff8e1; padding:30px; border-radius:12px; border:1px solid #ffcc00;">
         <h3 style="color:#b8860b;">🕐 Payment Pending</h3>
-        <p>We are still verifying your payment. Please wait...</p>
+        <p>Your payment has been submitted. Await verification...</p>
       </div>`;
-    return;
-  }
+    // Keep listening for admin verification
+    listenForVerification(userEmail);
 
-  localStorage.removeItem("pdf_payment_status");
-  showManualPaymentBox(userEmail);
+  } else {
+    // ❌ No payment submitted yet
+    localStorage.removeItem("pdf_payment_status");
+    showManualPaymentBox(userEmail);
+  }
 }
 
 // ============================

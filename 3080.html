@@ -2165,33 +2165,37 @@ async function showManualPaymentBox(userEmail) {
 // ============================
 // 4️⃣ Submit Payment Info (No WhatsApp)
 // ============================
+// ============================
+// 4️⃣ Submit Payment Info
+// ============================
 async function submitPaymentDetails(userEmail) {
   const payerName = document.getElementById("payerName").value.trim();
-const payerEmail = document.getElementById("payerEmail").value.trim();
+  const payerEmail = document.getElementById("payerEmail").value.trim();
   const txnId = document.getElementById("txnId").value.trim();
 
-    if (!payerName || !payerEmail || !txnId) {
+  if (!payerName || !payerEmail || !txnId) {
     alert("⚠️ Please fill in your full name, email, and transaction ID.");
     return;
   }
 
   try {
+    // 🟢 Save payment record correctly
     const { error } = await supabase.from(PDF_ACCESS_TABLE).upsert({
-      email: userEmail,
-      name: payerName,
+      email: payerEmail,           // ✅ Save actual email entered
+      full_name: payerName,        // ✅ Correct column name
       transaction_id: txnId,
       paid: false,
-      amount: PDF_ACCESS_PRICE,
       verified: false,
+      amount: PDF_ACCESS_PRICE,
       created_at: new Date().toISOString(),
     });
 
     if (error) throw error;
 
-    // Save pending state locally
+    // 💾 Remember locally
     localStorage.setItem("pdf_payment_status", "pending");
 
-    // Show pending message
+    // 🕐 Show waiting screen
     document.getElementById("pdfSection").innerHTML = `
       <div style="text-align:center; background:#fff8e1; padding:30px; border-radius:12px; border:1px solid #ffcc00;">
         <h3 style="color:#b8860b; font-weight:700;">🕐 Payment Pending Verification</h3>

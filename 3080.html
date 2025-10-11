@@ -1929,7 +1929,7 @@ function copyPDFLink(url) {
 // ============================
 // LOAD PDFs FROM SUPABASE
 // ============================
-async function loadPDFs() {
+async function renderAllPDFs() {
   try {
     const { data: pdfs, error } = await supabase
       .from("pdf")
@@ -2068,7 +2068,7 @@ if (levelSelect) {
 // ============================
 // INITIAL LOAD
 // ============================
-loadPDFs();
+renderAllPDFs();
 
 // ============================
 // PDF ACCESS SYSTEM — DATABASE-DRIVEN

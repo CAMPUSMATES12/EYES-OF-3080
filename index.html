@@ -195,9 +195,40 @@ async function signUp(){
     options: { data: { full_name: fullName } }
   });
 
-  if(error){ alert("❌ "+error.message); return; }
-  alert("✅ Sign up successful! Please login.");
+  if(error){ 
+    alert("❌ " + error.message); 
+    return; 
+  }
+
+  // ✅ Sign up successful
+  alert("✅ Sign up successful! Please check your email for a welcome message.");
+  
+  // Call EmailJS to send welcome email
+  sendWelcomeEmail(fullName, email);
+
   showLogin();
+}
+
+// EmailJS function
+function sendWelcomeEmail(name, toEmail) {
+  emailjs.send('service_7hcax5y', 'template_h5z14gg', {
+    to_email: toEmail,
+    cc_email: '',           // Optional: add CC
+    bcc_email: '',          // Optional: add BCC
+    name: name,
+    message: `Hello ${name},
+
+Welcome to Eyes of 3080! We're thrilled to have you join our community of visionaries.
+Get ready to explore, discover, and experience things from a whole new perspective.
+Your journey starts now — let’s make every view extraordinary.
+
+The Eyes of 3080 Team`
+  })
+  .then((response) => {
+    console.log('Welcome email sent!', response.status, response.text);
+  }, (error) => {
+    console.log('Email failed...', error);
+  });
 }
 
 

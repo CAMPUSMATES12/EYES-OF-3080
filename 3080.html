@@ -289,6 +289,268 @@ select.grade-select.f9, select.grade-select.f { background-color: #ffe0e0; color
   from { opacity: 0; transform: translateY(-10px); }
   to { opacity: 1; transform: translateY(0); }
 }
+/* ===============================
+   UNIOSUN MARKETPLACE STYLES
+=============================== */
+
+#marketplace {
+  padding: 16px;
+  background: #f8fff8;
+  max-width: 900px;
+  margin: 0 auto;
+}
+
+/* ====== SECTION TITLE ====== */
+.section-title {
+  font-size: 20px;
+  font-weight: bold;
+  color: #0b6d0b;
+  text-align: center;
+  margin-bottom: 8px;
+}
+
+#marketplace p {
+  text-align: center;
+  font-size: 14px;
+  color: #444;
+  margin-bottom: 8px;
+}
+
+/* ===== REGISTER BUTTON (Smaller & Clean) ===== */
+.register-btn {
+  display: inline-block;
+  background: #0b6d0b;
+  color: white;
+  padding: 6px 12px;
+  border-radius: 6px;
+  text-decoration: none;
+  font-weight: 500;
+  margin: 8px auto;
+  display: block;
+  width: fit-content;
+  font-size: 13px;
+  transition: background 0.3s ease;
+}
+
+.register-btn:hover {
+  background: #094c09;
+}
+
+/* ===== “VIEW PRODUCTS” TEXT ===== */
+.view-products-text {
+  font-size: 13px;
+  color: #0b6d0b;
+  font-weight: 600;
+  text-align: center;
+  margin: 8px 0 4px;
+}
+
+/* ===== PRODUCT SLIDER (VERTICAL LAYOUT) ===== */
+.product-slider {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 8px 0;
+}
+
+/* ===== PRODUCT CARD ===== */
+.product-card {
+  display: flex;
+  align-items: center;
+  background: #ffffff;
+  border-radius: 10px;
+  padding: 8px;
+  box-shadow: 0 1.5px 5px rgba(0,0,0,0.08);
+  transition: transform 0.2s, box-shadow 0.2s;
+  cursor: pointer;
+}
+
+.product-card:hover {
+  transform: scale(1.02);
+  box-shadow: 0 3px 8px rgba(0,0,0,0.12);
+}
+
+/* ===== PRODUCT CARD IMAGE ===== */
+.product-card img {
+  width: 80px;
+  height: 80px;
+  object-fit: cover;
+  border-radius: 8px;
+  margin-right: 12px;
+}
+
+/* ===== CARD INFO TEXT ===== */
+.card-info {
+  flex: 1;
+}
+
+.card-info h4 {
+  color: #0b6d0b;
+  font-size: 15px;
+  margin-bottom: 4px;
+  font-weight: 600;
+}
+
+.card-info p {
+  font-weight: bold;
+  color: #333;
+  font-size: 13.5px;
+  margin: 1px 0;
+}
+
+/* ===== SMALL CLICK HINT ===== */
+.click-tip {
+  display: block;
+  font-size: 11px;
+  color: #777;
+  margin-top: 3px;
+}
+
+/* ===== PRODUCT DETAILS PAGE ===== */
+#productDetails {
+  display: none;
+  padding: 16px;
+  background: #fff;
+  border-radius: 10px;
+  box-shadow: 0 1px 6px rgba(0,0,0,0.08);
+  max-width: 850px;
+  margin: 0 auto;
+}
+
+/* ===== BACK BUTTON ===== */
+.back-btn {
+  background: transparent;
+  color: #0b6d0b;
+  border: none;
+  font-size: 17px;
+  cursor: pointer;
+  font-weight: 600;
+  margin-bottom: 8px;
+}
+
+/* ===== PRODUCT DETAILS CONTENT ===== */
+#detailsContent {
+  text-align: center;
+}
+
+/* ===== DETAILS IMAGE STYLE ===== */
+#detailsContent img {
+  width: 88%;
+  max-width: 360px;
+  height: auto;
+  border-radius: 10px;
+  margin: 10px auto;
+  display: block;
+  object-fit: cover;
+  box-shadow: 0 1px 6px rgba(0,0,0,0.1);
+}
+
+/* ===== DETAILS HEADINGS ===== */
+#detailsContent h2 {
+  color: #0b6d0b;
+  font-size: 18px;
+  margin-bottom: 6px;
+}
+
+#detailsContent p {
+  color: #444;
+  line-height: 1.5;
+  font-size: 14px;
+  margin-bottom: 8px;
+}
+
+.details-price {
+  font-size: 15px;
+  font-weight: bold;
+  color: #0b6d0b;
+  margin-top: 6px;
+}
+
+/* ===== BUY NOW BUTTON (WhatsApp) ===== */
+.whatsapp-btn {
+  display: inline-block;
+  background: #25d366;
+  color: white;
+  padding: 7px 13px;
+  border-radius: 6px;
+  text-decoration: none;
+  font-weight: 600;
+  font-size: 13.5px;
+  margin-top: 8px;
+  transition: background 0.3s ease;
+}
+
+.whatsapp-btn:hover {
+  background: #1ebe5d;
+}
+
+.whatsapp-btn i {
+  margin-right: 6px;
+}
+
+/* ===== AUTO SLIDER IMAGES (PRODUCT GALLERY) ===== */
+.carousel-container {
+  overflow: hidden;
+  position: relative;
+  width: 100%;
+  max-width: 380px;
+  margin: 0 auto 10px;
+  border-radius: 10px;
+  box-shadow: 0 1px 6px rgba(0,0,0,0.1);
+}
+
+.carousel-slider {
+  display: flex;
+  transition: transform 0.8s ease-in-out;
+}
+
+.carousel-slider img {
+  min-width: 100%;
+  border-radius: 10px;
+  object-fit: cover;
+}
+
+/* ===== SMALL SCREEN RESPONSIVENESS ===== */
+@media (max-width: 600px) {
+  .product-card {
+    padding: 7px;
+  }
+
+  .product-card img {
+    width: 70px;
+    height: 70px;
+    margin-right: 10px;
+  }
+
+  .card-info h4 {
+    font-size: 14px;
+  }
+
+  .card-info p {
+    font-size: 12.5px;
+  }
+
+  #detailsContent img {
+    width: 92%;
+    max-width: 320px;
+  }
+
+  .whatsapp-btn {
+    font-size: 13px;
+    padding: 6px 12px;
+  }
+}
+
+/* ===== SMOOTH FADE-IN ANIMATION (OPTIONAL) ===== */
+@keyframes fadeIn {
+  from { opacity: 0; transform: scale(0.98); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+.product-card,
+#productDetails {
+  animation: fadeIn 0.3s ease;
+}
 
   /* COUNTER SECTION */
   .stats-section { background:var(--uni-green); color:#fff; padding:50px 20px; text-align:center; }
@@ -1208,223 +1470,32 @@ select.grade-select.f9, select.grade-select.f { background-color: #ffe0e0; color
 }
 </style>
 
-  <!-- Marketplace -->
+  <!-- MARKETPLACE SECTION -->
 <section id="marketplace" class="page-section">
-  <h2 class="section">🛍️ UNIOSUN MARKETPLACE</h2>
-  <p>
-    Shop campus essentials, merch & e-books right here on <b>Eyes of 3080</b>.
-  </p>
-  <p>
-    Want to sell your products on our marketplace?  
-  </p>
-  <a href="https://wa.me/2347063123719?text=Hello%2C%20I%20want%20to%20register%20my%20goods%20on%20UNIOSUN%20Marketplace" 
-     target="_blank" 
-     style="display:inline-block; background:#0a5a2b; color:#fff; padding:12px 24px; border-radius:30px; font-weight:600; text-decoration:none; transition:background 0.3s ease;">
-    📩 Register
-  </a>
-</section>
+  <h2 class="section-title">🛍️ UNIOSUN MARKETPLACE</h2>
+  <p>Shop campus essentials, merch & e-books right here on <b>Eyes of 3080</b>.</p>
 
-  <!-- PRODUCT GRID (dynamic from Supabase) -->
-  <div class="product-grid">
-    <!-- Products will load here automatically -->
+  <p>Want to sell your products?</p>
+  <a href="https://wa.me/2347063123719?text=Hello%2C%20I%20want%20to%20register%20my%20goods%20on%20UNIOSUN%20Marketplace"
+     target="_blank" 
+     class="register-btn">Register Your Product</a>
+
+  <!-- Small text under register -->
+  <p class="view-products-text">🛒 <b>VIEW PRODUCTS</b></p>
+
+  <div id="productGrid" class="product-grid">
+    <div id="productSlider" class="product-slider"></div>
   </div>
 </section>
 
-<!-- 🛒 CART DRAWER -->
-<div id="cart-drawer">
-  <h3>Your Cart</h3>
-  <div id="cart-items"></div>
-  <p class="total">Total: ₦<span id="cart-total">0</span></p>
-  <button class="checkout" onclick="checkoutWhatsApp()">✅ Checkout via WhatsApp</button>
-  <button class="close-cart" onclick="toggleCart()">✖ Close</button>
-</div>
+<!-- PRODUCT DETAILS PAGE -->
+<section id="productDetails" class="page-section" style="display:none;">
+  <button class="back-btn" onclick="showMarketplace()">← Back</button>
+  <div id="detailsContent"></div>
+</section>
 
-<!-- 🛒 CART ICON -->
-<div id="cart-icon" class="cart-icon" onclick="toggleCart()">
-  🛒 <span id="cart-count">0</span>
-</div>
+  
 
-<style>
-/* ===================== MARKETPLACE LAYOUT ===================== */
-#marketplace {
-  margin-top: 40px;
-  padding: 20px;
-}
-
-.product-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
-  gap: 20px;
-}
-
-.product-card {
-  background: #fff;
-  border-radius: 12px;
-  padding: 15px;
-  text-align: center;
-  box-shadow: 0 4px 10px rgba(0,0,0,0.1);
-  transition: transform 0.2s, box-shadow 0.2s;
-}
-
-.product-card:hover { 
-  transform: translateY(-6px); 
-  box-shadow: 0 6px 15px rgba(0,0,0,0.15);
-}
-
-.product-card img {
-  max-width: 100%;
-  border-radius: 8px;
-  margin-bottom: 10px;
-}
-
-.product-card h3 { 
-  margin: 8px 0; 
-  font-size: 18px; 
-}
-
-.price { 
-  font-weight: bold; 
-  color: #0a5a2b; 
-  font-size: 16px; 
-}
-
-.desc { 
-  font-size: 13px; 
-  color: #666; 
-}
-
-.product-card button {
-  margin-top: 10px;
-  background: #0a5a2b;
-  color: white;
-  border: none;
-  padding: 10px 14px;
-  border-radius: 6px;
-  cursor: pointer;
-  font-size: 14px;
-  transition: background 0.3s;
-}
-
-.product-card button:hover { 
-  background: #155e36; 
-}
-
-/* ===================== CART DRAWER ===================== */
-#cart-drawer {
-  position: fixed;
-  top: 0; 
-  right: -350px;
-  width: 320px;
-  height: 100%;
-  background: #fff;
-  box-shadow: -3px 0 10px rgba(0,0,0,0.3);
-  padding: 20px;
-  transition: right 0.3s ease;
-  z-index: 1000;
-  display: flex;
-  flex-direction: column;
-}
-
-#cart-drawer.open { 
-  right: 0; 
-}
-
-#cart-items { 
-  flex: 1; 
-  overflow-y: auto; 
-  margin: 10px 0; 
-}
-
-.cart-item { 
-  display: flex; 
-  align-items: center; 
-  justify-content: space-between; 
-  margin-bottom: 12px; 
-}
-
-.cart-item img { 
-  width: 45px; 
-  height: 45px; 
-  margin-right: 10px; 
-  border-radius: 5px; 
-}
-
-.cart-item span { 
-  flex: 1; 
-  font-size: 14px; 
-}
-
-.cart-item .qty { 
-  display: flex; 
-  align-items: center; 
-}
-
-.cart-item button { 
-  background: #ddd; 
-  border: none; 
-  padding: 4px 8px; 
-  margin: 0 3px; 
-  cursor: pointer; 
-  border-radius: 4px; 
-}
-
-.cart-item button:hover { 
-  background: #bbb; 
-}
-
-.total { 
-  font-weight: bold; 
-  margin-top: 10px; 
-  font-size: 16px; 
-}
-
-.checkout, .close-cart {
-  margin-top: 12px;
-  padding: 12px;
-  border: none;
-  background: #0a5a2b;
-  color: #fff;
-  border-radius: 6px;
-  cursor: pointer;
-  font-size: 15px;
-}
-
-.checkout:hover { 
-  background: #155e36; 
-}
-
-.close-cart { 
-  background: #888; 
-}
-
-.close-cart:hover { 
-  background: #555; 
-}
-
-/* ===================== FLOATING CART ICON ===================== */
-.cart-icon {
-  position: fixed;
-  top: 15px; 
-  right: 20px;
-  background: #0a5a2b;
-  color: #fff;
-  padding: 8px 12px;
-  border-radius: 25px;
-  cursor: pointer;
-  font-size: 16px;
-  z-index: 1100;
-  display: none; /* hidden by default */
-}
-
-.cart-icon span {
-  background: red;
-  color: #fff;
-  font-size: 12px;
-  padding: 2px 6px;
-  border-radius: 50%;
-  margin-left: 5px;
-}
-</style>
 
   <!-- SINGLE POST -->
 <section id="postDetail" class="page-section" style="display:none; padding:20px;">
@@ -1730,6 +1801,81 @@ document.querySelectorAll("#menu a").forEach(link=>{
 });
 
 
+/// ==========================
+//  UNIOSUN MARKETPLACE JS
+// ==========================
+document.addEventListener("DOMContentLoaded", async () => {
+  const productGrid = document.getElementById("productGrid");
+
+  // Create slider container if not exists
+  if (!document.getElementById("productSlider")) {
+    const slider = document.createElement("div");
+    slider.id = "productSlider";
+    slider.className = "product-slider";
+    productGrid.appendChild(slider);
+  }
+
+  const productSlider = document.getElementById("productSlider");
+
+  // ✅ Fetch products from Supabase
+  async function fetchProducts() {
+    try {
+      const { data: products, error } = await supabase
+        .from("market")
+        .select("*")
+        .order("created_at", { ascending: false });
+
+      if (error) throw error;
+
+      if (!products || products.length === 0) {
+        productSlider.innerHTML = "<p>No products available yet.</p>";
+        return;
+      }
+
+      // ✅ Render products horizontally (slider)
+      productSlider.innerHTML = products
+        .map((prod) => {
+          // Handle both array or string images
+          let imageUrl = "https://via.placeholder.com/400x300?text=No+Image";
+          if (Array.isArray(prod.images) && prod.images.length > 0) {
+            imageUrl = prod.images[0];
+          } else if (typeof prod.image_urls === "string") {
+            const cleaned = prod.image_urls.replace(/[\[\]"]/g, "").split(",")[0];
+            if (cleaned) imageUrl = cleaned.trim();
+          } else if (prod.image_urls?.[0]) {
+            imageUrl = prod.image_urls[0];
+          }
+
+          return `
+            <div class="product-card" data-id="${prod.id}">
+              <img src="${imageUrl}" alt="${prod.title}">
+              <div class="card-info">
+                <h4>${prod.title}</h4>
+                <p>₦${prod.price ? prod.price.toLocaleString() : "—"}</p>
+  <small class="click-info">Click to view full details</small>              
+</div>
+            </div>
+          `;
+        })
+        .join("");
+
+      // ✅ Click handler for each product card
+      document.querySelectorAll(".product-card").forEach((card) => {
+        card.addEventListener("click", () => {
+          const productId = card.getAttribute("data-id");
+          openPost(productId, "market"); // your openPost() already handles market view
+        });
+      });
+    } catch (err) {
+      console.error("❌ Failed to fetch products:", err);
+      productSlider.innerHTML = "<p>Failed to load products. Please refresh.</p>";
+    }
+  }
+
+  
+  // ✅ Initial load
+  fetchProducts();
+});
 
 
 /* ============================
@@ -2284,7 +2430,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 });
 
 /* ============================
-   OPEN SINGLE POST
+   OPEN SINGLE POST OR PRODUCT
 ============================ */
 async function openPost(id, table = "home") {
   try {
@@ -2297,124 +2443,173 @@ async function openPost(id, table = "home") {
 
     if (error || !post) {
       console.error("❌ Error fetching post:", error?.message, "| ID:", safeId, " Table:", table);
-      alert("❌ Could not load post. Please try again.");
+      alert("❌ Could not load item. Please try again.");
       return;
     }
 
-    // Hide other sections and show detail
-    document.querySelectorAll(".page-section").forEach(sec => sec.style.display = "none");
-    document.getElementById("postDetail").style.display = "block";
+    // Hide all sections
+    document.querySelectorAll(".page-section").forEach(sec => (sec.style.display = "none"));
 
-    // Title + Actions
-    const titleContainer = document.getElementById("detailTitle");
-    titleContainer.innerHTML = `
-      <span class="post-title-text">${post.title}</span>
-      <img src="https://cdn-icons-png.flaticon.com/512/3466/3466003.png"
-           alt="Share"
-           class="title-share-icon"
-           style="width:20px;cursor:pointer;margin-left:8px;"
-           onclick="openShareMenu('${post.id}', '${table}')">
-      <img src="https://cdn-icons-png.flaticon.com/512/60/60577.png"
-           alt="Print"
-           class="title-print-icon"
-           style="width:16px;cursor:pointer;margin-left:6px;"
-           onclick="printPost('${post.id}', '${table}')">
+    // =====================================================
+    // 📰 NEWS POSTS SECTION
+    // =====================================================
+    if (table !== "market") {
+      document.getElementById("postDetail").style.display = "block";
+
+      const titleContainer = document.getElementById("detailTitle");
+      titleContainer.innerHTML = `
+        <span class="post-title-text">${post.title}</span>
+        <img src="https://cdn-icons-png.flaticon.com/512/3466/3466003.png"
+             alt="Share" style="width:20px;cursor:pointer;margin-left:8px;"
+             onclick="openShareMenu('${post.id}', '${table}')">
+        <img src="https://cdn-icons-png.flaticon.com/512/60/60577.png"
+             alt="Print" style="width:16px;cursor:pointer;margin-left:6px;"
+             onclick="printPost('${post.id}', '${table}')">
+      `;
+
+      const createdAt = post.created_at ? new Date(post.created_at).toDateString() : "Unknown date";
+      document.getElementById("detailMeta").innerText = `📅 Posted on ${createdAt}`;
+
+      if (post.image_url) {
+        document.getElementById("detailImage").outerHTML = `
+          <div style="position:relative;display:block;max-width:100%;margin:10px 0;">
+            <img src="${post.image_url}" style="width:100%;border-radius:6px;">
+            <img src="https://vtpsruejncfykiazrfsx.supabase.co/storage/v1/object/public/PRODUCTS/EYES%20OF%203080%20logo" 
+                 style="position:absolute;bottom:10px;right:10px;width:25%;max-width:200px;opacity:0.9;pointer-events:none;">
+          </div>`;
+      } else {
+        document.getElementById("detailImage").style.display = "none";
+      }
+
+      let formattedContent = "";
+      if (post.content) {
+        formattedContent = post.content
+          .split(/\n+/)
+          .map(line => {
+            line = line.trim();
+            if (line.includes("mytuner-radio.com")) {
+              return `
+                <div style="margin-top:15px;text-align:center;">
+                  <button onclick="document.getElementById('radioPlayer').style.display='block'; this.style.display='none';"
+                          style="background:#006400;color:white;padding:10px 20px;border:none;border-radius:5px;cursor:pointer;">
+                    🎧 Play Live
+                  </button>
+                  <div id="radioPlayer" style="display:none;margin-top:15px;">
+                    <iframe src="${line}" width="100%" height="120" frameborder="0" allow="autoplay"></iframe>
+                  </div>
+                </div>`;
+            }
+            if (line.includes("facebook.com")) {
+              return `
+                <div class="video-container" style="position:relative;max-width:700px;margin:20px auto;">
+                  <iframe 
+                    src="https://www.facebook.com/plugins/video.php?href=${encodeURIComponent(line)}&show_text=false&width=700"
+                    width="100%" height="400" style="border:none;overflow:hidden;border-radius:8px;"
+                    scrolling="no" frameborder="0" allowfullscreen="true"
+                    allow="autoplay; clipboard-write; encrypted-media; picture-in-picture; web-share"></iframe>
+                  <img src="https://vtpsruejncfykiazrfsx.supabase.co/storage/v1/object/public/PRODUCTS/EYES%20OF%203080%20logo" 
+                       style="position:absolute;top:10px;right:10px;width:25%;max-width:200px;opacity:0.9;pointer-events:none;">
+                </div>`;
+            }
+            if (/\.(jpeg|jpg|png|gif)$/i.test(line)) {
+              return `
+                <div style="position:relative;display:block;max-width:100%;margin:10px 0;">
+                  <img src="${line}" style="width:100%;border-radius:6px;">
+                  <img src="https://vtpsruejncfykiazrfsx.supabase.co/storage/v1/object/public/PRODUCTS/EYES%20OF%203080%20logo" 
+                       style="position:absolute;bottom:10px;right:10px;width:25%;max-width:200px;opacity:0.9;pointer-events:none;">
+                </div>`;
+            }
+            if (/^https?:\/\//i.test(line)) return "";
+            return line ? `<p>${line}</p>` : "";
+          })
+          .join("");
+      }
+
+      document.getElementById("detailContent").innerHTML = formattedContent;
+      history.pushState({ postId: safeId, table }, post.title, `?id=${safeId}&t=${table}`);
+      return;
+    }
+
+    // =====================================================
+    // 🛍️ MARKETPLACE SECTION (AUTO SLIDE)
+    // =====================================================
+    document.getElementById("productDetails").style.display = "block";
+
+    let images = [];
+    if (Array.isArray(post.images)) images = post.images;
+    else if (typeof post.images === "string" && post.images.trim() !== "")
+      images = post.images.replace(/[\[\]"]/g, "").split(",");
+
+    const gallery = images.length
+      ? `
+      <div class="carousel-container" style="overflow:hidden;position:relative;">
+        <div class="carousel-slider" style="display:flex;transition:transform 0.8s ease;">
+          ${images.map(img => `<img src="${img.trim()}" style="min-width:100%;border-radius:8px;">`).join("")}
+        </div>
+      </div>`
+      : "<p>No product images available.</p>";
+
+    const detailsHTML = `
+      <h2 style="color:#000;">${post.title}</h2>
+      ${gallery}
+      <p><b>PRICE:</b> ₦${post.price || "N/A"}</p>
+      <p><b>STOCK:</b> ${post.stock || "Available"}</p>
+      <p style="margin-top:12px; color:#000; line-height:1.6;">
+        <b style="color:#000;">DESCRIPTION:</b><br>
+        ${post.description || "No description provided."}
+      </p>
+      <div style="margin-top:10px;">
+        <a href="https://wa.me/${post.whatsapp || ""}?text=Hi%2C%20I'm%20interested%20in%20your%20${encodeURIComponent(
+          post.title
+        )}"
+           target="_blank"
+           style="display:inline-block;background:#000;color:white;padding:9px 11px;border-radius:6px;text-decoration:none;">
+           🛒BUY NOW
+        </a>
+      </div>
     `;
 
-    // Date
-    const createdAt = post.created_at ? new Date(post.created_at).toDateString() : "Unknown date";
-    document.getElementById("detailMeta").innerText = `📅 Posted on ${createdAt}`;
+    document.getElementById("detailsContent").innerHTML = detailsHTML;
 
-    // Main Image (with watermark overlay)
-    if (post.image_url) {
-      document.getElementById("detailImage").outerHTML = `
-        <div style="position:relative;display:block;max-width:100%;margin:10px 0;">
-          <img src="${post.image_url}" style="width:100%;border-radius:6px;">
-          <img src="https://vtpsruejncfykiazrfsx.supabase.co/storage/v1/object/public/PRODUCTS/EYES%20OF%203080%20logo" 
-               style="position:absolute;bottom:10px;right:10px;width:25%;max-width:200px;opacity:0.9;pointer-events:none;">
-        </div>
-      `;
-    } else {
-      document.getElementById("detailImage").style.display = "none";
+    // ==============================
+    // Auto Slide Carousel (no buttons)
+    // ==============================
+    const slider = document.querySelector(".carousel-slider");
+    if (slider) {
+      const totalImages = slider.children.length;
+      let index = 0;
+
+      // Auto slide every 3 seconds
+      setInterval(() => {
+        index = (index + 1) % totalImages;
+        slider.style.transform = `translateX(-${index * 100}%)`;
+      }, 3000);
+
+      // Swipe for touch devices
+      let startX = 0;
+      slider.addEventListener("touchstart", e => (startX = e.touches[0].clientX));
+      slider.addEventListener("touchend", e => {
+        const endX = e.changedTouches[0].clientX;
+        if (endX - startX > 50) index = (index - 1 + totalImages) % totalImages;
+        else if (startX - endX > 50) index = (index + 1) % totalImages;
+        slider.style.transform = `translateX(-${index * 100}%)`;
+      });
     }
 
-    // Handle content
-    let formattedContent = "";
-    if (post.content) {
-      formattedContent = post.content
-        .split(/\n+/)
-        .map(line => {
-          line = line.trim();
-
-          // 🎧 Handle Radio Player
-          if (line.includes("mytuner-radio.com")) {
-            return `
-              <div style="margin-top:15px;text-align:center;">
-                <button onclick="document.getElementById('radioPlayer').style.display='block'; this.style.display='none';"
-                        style="background:#006400;color:white;padding:10px 20px;border:none;border-radius:5px;cursor:pointer;">
-                  🎧 Play Live
-                </button>
-                <div id="radioPlayer" style="display:none;margin-top:15px;">
-                  <iframe src="${line}" 
-                          width="100%" height="120" 
-                          frameborder="0" allow="autoplay">
-                  </iframe>
-                </div>
-              </div>`;
-          }
-
-          // 📺 Handle Facebook Video
-          if (line.includes("facebook.com")) {
-            return `
-              <div class="video-container" style="position:relative;max-width:700px;margin:20px auto;">
-                <iframe 
-                  src="https://www.facebook.com/plugins/video.php?href=${encodeURIComponent(line)}&show_text=false&width=700"
-                  width="100%" 
-                  height="400" 
-                  style="border:none;overflow:hidden;border-radius:8px;" 
-                  scrolling="no" 
-                  frameborder="0" 
-                  allowfullscreen="true" 
-                  allow="autoplay; clipboard-write; encrypted-media; picture-in-picture; web-share">
-                </iframe>
-                <!-- Watermark logo -->
-                <img src="https://vtpsruejncfykiazrfsx.supabase.co/storage/v1/object/public/PRODUCTS/EYES%20OF%203080%20logo" 
-                     style="position:absolute;top:10px;right:10px;width:25%;max-width:200px;opacity:0.9;pointer-events:none;">
-              </div>`;
-          }
-
-          // 🖼️ Handle direct image links (with watermark)
-          if (/\.(jpeg|jpg|png|gif)$/i.test(line)) {
-            return `
-              <div style="position:relative;display:block;max-width:100%;margin:10px 0;">
-                <img src="${line}" style="width:100%;border-radius:6px;">
-                <img src="https://vtpsruejncfykiazrfsx.supabase.co/storage/v1/object/public/PRODUCTS/EYES%20OF%203080%20logo" 
-                     style="position:absolute;bottom:10px;right:10px;width:25%;max-width:200px;opacity:0.9;pointer-events:none;">
-              </div>`;
-          }
-
-          // 🌐 Skip raw plain links completely
-          if (/^https?:\/\//i.test(line)) {
-            return ""; // don’t show plain links as text
-          }
-
-          // Normal text
-          return line ? `<p>${line}</p>` : "";
-        })
-        .join("");
-    }
-
-    // Put it in detailContent
-    document.getElementById("detailContent").innerHTML = formattedContent;
-
-    // Update browser history
-    history.pushState({ postId: safeId, table }, post.title, `?id=${safeId}&t=${table}`);
+    history.pushState({ postId: safeId, table }, post.title, `?product=${safeId}`);
   } catch (err) {
     console.error("❌ Unexpected error opening post:", err);
-    alert("Something went wrong while opening this post.");
+    alert("Something went wrong while opening this page.");
   }
 }
 
+/* ============================
+   BACK TO MARKETPLACE
+============================ */
+function showMarketplace() {
+  document.querySelectorAll(".page-section").forEach(sec => (sec.style.display = "none"));
+  document.getElementById("marketplace").style.display = "block";
+}
 
 
 /* ============================

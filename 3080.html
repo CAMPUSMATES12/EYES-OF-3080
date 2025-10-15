@@ -68,6 +68,78 @@
     nav ul.active { display:flex; }
   }
 
+/* ============================
+   STUDENT RESOURCES (Eyes of 3080)
+============================ */
+#student-resources {
+  background: #f9fff9;
+  padding: 40px 20px;
+  color: #033d1b;
+  border-radius: 12px;
+  animation: fadeIn 0.6s ease-in;
+}
+
+#student-resources .section {
+  text-align: center;
+  color: #006400;
+  font-weight: 800;
+  font-size: 1.8em;
+  margin-bottom: 10px;
+}
+
+#student-resources .section-subtitle {
+  text-align: center;
+  color: #2e8b3a;
+  margin-bottom: 30px;
+  font-size: 0.95em;
+}
+
+.resources-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 20px;
+}
+
+.resource-card {
+  background: white;
+  border: 2px solid #2e8b3a;
+  border-radius: 10px;
+  padding: 20px;
+  text-align: center;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+  transition: all 0.3s ease;
+}
+
+.resource-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 4px 15px rgba(0,100,0,0.2);
+}
+
+.resource-card h3 {
+  color: #006400;
+  margin-bottom: 10px;
+}
+
+.resource-card p {
+  font-size: 0.9em;
+  color: #2f4f4f;
+  margin-bottom: 15px;
+}
+
+.resource-btn {
+  background: #006400;
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  padding: 8px 15px;
+  cursor: pointer;
+  font-weight: 600;
+  transition: 0.3s;
+}
+
+.resource-btn:hover {
+  background: #008f4c;
+}
   /* SEARCH */
   .search { max-width:400px; margin:16px auto; }
   .search input { width:100%; padding:10px 14px; border-radius:8px; border:1px solid #ccc; }
@@ -605,7 +677,7 @@ select.grade-select.f9, select.grade-select.f { background-color: #ffe0e0; color
     <li><a onclick="showSection('gaming')">Gaming</a></li>
     <li><a onclick="showSection('pdfs')">PDFs</a></li>
     <li><a onclick="showSection('anonymous')">Anonymous</a></li>
-    <li><a onclick="showSection('uniosun-login-help')">UNIOSUN LOGIN HELP</a></li>
+   <li><a onclick="showSection('student-resources')">Student resources</a></li>
     <li><a onclick="showSection('calculators')">Calculators</a></li>
     <li><a onclick="showSection('marketplace')">Marketplace🛍️</a></li>
   </ul>
@@ -1240,69 +1312,74 @@ select.grade-select.f9, select.grade-select.f { background-color: #ffe0e0; color
 }
 </style>
 
-<!-- UNIOSUN LOGIN HELP -->
-<section id="uniosun-login-help" class="page-section" style="display:none;">
-  <h2 class="section">UNIOSUN Login Help</h2>
+<!-- ============================
+     STUDENT RESOURCES (Eyes of 3080)
+============================ -->
+<section id="student-resources" class="page-section" style="display:none;">
+  <h2 class="section-title">STUDENT RESOURCES</h2>
+  <p class="section-subtitle">
+    Quick access to important UNIOSUN student links and downloadable materials.
+  </p>
 
-  <!-- Copy Portal Link -->
-  <button onclick="copyPortalLink()" style="
-    background:#0a5a2b; color:white; border:none; border-radius:4px;
-    padding:8px 12px; cursor:pointer; margin-bottom:15px;
-  ">Copy UNIOSUN Portal Link</button>
+  <div class="resources-grid">
 
-  <section class="grid">
+    <!-- Academic Calendar -->
+    <article class="resource-card">
+      <h3>Academic Calendar</h3>
+      <p>Download or view the official UNIOSUN academic calendar for the current session.</p>
 
-    <!-- Step 1: Open Portal -->
-    <article class="card">
-      <h3>Step 1: Open UNIOSUN Portal</h3>
-      <img src="https://vtpsruejncfykiazrfsx.supabase.co/storage/v1/object/public/PRODUCTS/1.jpeg" 
-           alt="UNIOSUN Portal Homepage" 
-           style="width:100%; border-radius:8px; margin-top:10px;" />
-      <p>Go to the official UNIOSUN portal to start the login or password retrieval process,click on returning applicants</p>
-      <div class="hr"></div>
+      <div class="resource-actions">
+        <button 
+          onclick="window.open('https://vtpsruejncfykiazrfsx.supabase.co/storage/v1/object/public/PRODUCTS/amended_academic_calendar_for_2024_2025_session.pdf')" 
+          class="resource-btn view-btn">View</button>
+
+        <button 
+          onclick="copyResourceLink('https://your-link-to-academic-calendar.pdf')" 
+          class="resource-btn copy-btn">Copy Link</button>
+
+        <button 
+          onclick="window.open('https://vtpsruejncfykiazrfsx.supabase.co/storage/v1/object/public/PRODUCTS/amended_academic_calendar_for_2024_2025_session.pdf')" 
+          class="resource-btn download-btn">Download</button>
+      </div>
     </article>
 
-    <!-- Step 2: Click Forgot Password -->
-    <article class="card">
-      <h3>Step 2: Click 'Login or Forgot Password'</h3>
-      <img src="https://vtpsruejncfykiazrfsx.supabase.co/storage/v1/object/public/PRODUCTS/2.jpeg" 
-           alt="LOGIN" 
-           style="width:100%; border-radius:8px; margin-top:10px;" />
-      <p>On the login page, input your details or <b>'forgot password'</b>if you dont remember it</p>
-      <div class="hr"></div>
+    <!-- Summer Calendar -->
+    <article class="resource-card">
+      <h3>🌞 Summer provisonal Timetable</h3>
+      <p>Access or download the official summer provisonal timetable for students in the summer program.</p>
+
+      <div class="resource-actions">
+        <button 
+          onclick="window.open('https://vtpsruejncfykiazrfsx.supabase.co/storage/v1/object/public/PRODUCTS/Provisional%20Summer%20Exam%20Timetable.pdf')" 
+          class="resource-btn view-btn">View</button>
+
+        <button 
+          onclick="copyResourceLink('https://vtpsruejncfykiazrfsx.supabase.co/storage/v1/object/public/PRODUCTS/Provisional%20Summer%20Exam%20Timetable.pdf')" 
+          class="resource-btn copy-btn">Copy Link</button>
+
+        <button 
+          onclick="window.open('https://your-link-to-summer-calendar.pdf', '_blank')" 
+          class="resource-btn download-btn">Download</button>
+      </div>
     </article>
 
-    <!-- Step 3: Enter Email or Matric Number -->
-    <article class="card">
-      <h3>Step 3: Enter JAMB REG and Email</h3>
-      <img src="https://vtpsruejncfykiazrfsx.supabase.co/storage/v1/object/public/PRODUCTS/3.jpeg" 
-           alt="Email Entry Screen" 
-           style="width:100%; border-radius:8px; margin-top:10px;" />
-      <p>Provide your registered email and jamb registration number to receive the password reset link.</p>
-      <div class="hr"></div>
+    <!-- UNIOSUN Student Portal -->
+    <article class="resource-card">
+      <h3>🌐 UNIOSUN Student Portal</h3>
+      <p>Quick access to your UNIOSUN student portal for results, registration, and updates.</p>
+
+      <div class="resource-actions">
+        <button 
+          onclick="window.open('https://portal.uniosun.edu.ng/')" 
+          class="resource-btn view-btn">Open Portal</button>
+
+        <button 
+          onclick="copyResourceLink('https://portal.uniosun.edu.ng/')" 
+          class="resource-btn copy-btn">Copy Link</button>
+      </div>
     </article>
 
-    <!-- Step 4: Check Email & Reset Password -->
-    <article class="card">
-      <h3>Step 4: Check Email & Reset Password</h3>
-      <img src="https://vtpsruejncfykiazrfsx.supabase.co/storage/v1/object/public/PRODUCTS/4.jpeg" 
-           alt="Password Reset Email" 
-           style="width:100%; border-radius:8px; margin-top:10px;" />
-      <p>Check your inbox (and spam folder) for the password reset link sent by UNIOSUN. Follow the link to set a new password.</p>
-      <div class="hr"></div>
-    </article>
-
-    <!-- Step 5: Log In With New Password -->
-    <article class="card">
-      <h3>Step 5: Log In</h3>
-      <img src="https://vtpsruejncfykiazrfsx.supabase.co/storage/v1/object/public/PRODUCTS/2.jpeg"" 
-           alt="Login Successful" 
-           style="width:100%; border-radius:8px; margin-top:10px;" />
-      <p>Return to the portal login page and log in with your new password to access your account.</p>
-      <div class="hr"></div>
-    </article>
-
-  </section>
+  </div>
 </section>
 
  <!-- 📑 PDF RESOURCES SECTION -->
@@ -1688,6 +1765,15 @@ function toggleDarkMode(){ document.body.classList.toggle("dark"); }
 document.querySelectorAll("#menu a").forEach(link=>{
   link.addEventListener("click", ()=>{ document.getElementById("menu").classList.remove("active"); });
 });
+
+// Copy resource link to clipboard
+function copyResourceLink(link) {
+  navigator.clipboard.writeText(link).then(() => {
+    alert("✅ Link copied to clipboard!");
+  }).catch(() => {
+    alert("❌ Failed to copy link.");
+  });
+}
 
 // -----------------------------
 // PROFILE SECTION HANDLER

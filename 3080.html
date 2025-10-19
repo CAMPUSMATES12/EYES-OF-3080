@@ -1854,10 +1854,10 @@ function showSection(id){
 
 
  /* ============================
-   RENDER POSTS + FULL POST WITH COMMENTS
+   RENDER POSTS + FULL POST WITH COMMENTS + SHAREABLE LINKS
 ============================ */
 
-// Ensure post-modal container exists
+// ✅ Ensure post-modal container exists
 if (!document.getElementById("post-modal")) {
   const modalContainer = document.createElement("div");
   modalContainer.id = "post-modal";
@@ -1871,13 +1871,15 @@ if (!document.getElementById("post-modal")) {
   modalContainer.style.display = "none"; // hidden initially
   modalContainer.style.padding = "50px";
   modalContainer.style.zIndex = "9999";
-
   document.body.appendChild(modalContainer);
 }
 
-// Render post cards (main list) with logo
+/* ============================
+   RENDER POST CARDS (LIST)
+============================ */
 function renderCard(post, table) {
   const logoUrl = "https://vtpsruejncfykiazrfsx.supabase.co/storage/v1/object/public/PRODUCTS/EYES%20OF%203080%20logo";
+  const postUrl = `${window.location.origin}${window.location.pathname}?post=${post.id}`;
 
   return `
     <article class="card" style="border:1px solid #006400; padding:15px; margin-bottom:15px; border-radius:8px; display:flex; align-items:flex-start; gap:10px;">
@@ -1886,9 +1888,9 @@ function renderCard(post, table) {
         <div class="card-header" style="display:flex; align-items:center; justify-content:space-between;">
           <h3 style="flex:1; margin:0; padding-right:10px; color:#006400;">${post.title}</h3>
           <div class="card-actions" style="display:flex; gap:8px; align-items:center;">
-            <img src="https://cdn-icons-png.flaticon.com/512/3466/3466003.png" 
+            <img src="https://cdn-icons-png.flaticon.com/512/1828/1828919.png" 
                  alt="Share" style="width:20px; cursor:pointer;" 
-                 onclick="openShareMenu('${post.id}', '${table}')">
+                 onclick="sharePost('${post.id}', '${table}')">
           </div>
         </div>
 
@@ -1903,7 +1905,9 @@ function renderCard(post, table) {
   `;
 }
 
-// Open full post with comment section
+/* ============================
+   OPEN FULL POST (With shareable URL)
+============================ */
 async function openPost(id, table = "home") {
   try {
     const { data: post, error } = await supabase
@@ -1917,10 +1921,11 @@ async function openPost(id, table = "home") {
       return;
     }
 
-    const container = document.getElementById("post-modal"); 
-
-    // Show modal
+    const container = document.getElementById("post-modal");
     container.style.display = "block";
+
+    // ✅ Update browser URL (without reloading)
+    history.pushState(null, "", `?post=${id}`);
 
     container.innerHTML = `
       <div style="background:white; border-radius:8px; max-width:800px; margin:0 auto; padding:20px; position:relative;">
@@ -1930,6 +1935,13 @@ async function openPost(id, table = "home") {
         </button>
         <h1 style="color:#006400;">${post.title}</h1>
         <p style="margin-bottom:10px;">${post.content}</p>
+
+        <div style="margin-top:15px;">
+          <button onclick="sharePost('${post.id}', '${table}')"
+                  style="background:#39b54a; color:#fff; border:none; padding:6px 10px; border-radius:5px; cursor:pointer;">
+            🔗 Share This Post
+          </button>
+        </div>
 
         <!-- COMMENTS -->
         <div id="comments-section-${post.id}" style="margin-top:20px; border-top:1px solid #006400; padding-top:10px;">
@@ -1949,21 +1961,43 @@ async function openPost(id, table = "home") {
     `;
 
     loadComments(post.id);
-
   } catch (err) {
     console.error(err);
     alert("Something went wrong.");
   }
 }
 
-// Close modal
+/* ============================
+   CLOSE POST MODAL
+============================ */
 function closePostModal() {
   const container = document.getElementById("post-modal");
   container.style.display = "none";
   container.innerHTML = ""; // clear content
+  history.pushState(null, "", window.location.pathname); // reset URL
 }
 
-// Load comments for a specific post
+/* ============================
+   SHARE POST FUNCTION
+============================ */
+function sharePost(id, table = "home") {
+  const postUrl = `${window.location.origin}${window.location.pathname}?post=${id}`;
+
+  if (navigator.share) {
+    navigator.share({
+      title: "Eyes of 3080 Post",
+      text: "Check out this post on Eyes of 3080 💚",
+      url: postUrl
+    }).catch(err => console.log("Share cancelled:", err));
+  } else {
+    navigator.clipboard.writeText(postUrl);
+    alert("🔗 Link copied to clipboard:\n" + postUrl);
+  }
+}
+
+/* ============================
+   LOAD COMMENTS
+============================ */
 async function loadComments(postId) {
   const { data: comments, error } = await supabase
     .from("comments")
@@ -1986,20 +2020,22 @@ async function loadComments(postId) {
   `).join("");
 }
 
-// Submit a comment
+/* ============================
+   SUBMIT COMMENT
+============================ */
 async function submitComment(postId) {
   const input = document.getElementById(`comment-input-${postId}`);
   const content = input.value.trim();
   if (!content) return alert("Comment cannot be empty");
 
-  const user = supabase.auth.user();
+  const { data: userData } = await supabase.auth.getUser();
+  const user = userData?.user;
+
   if (!user) return alert("You must be logged in to comment");
 
   const { error } = await supabase
     .from("comments")
-    .insert([
-      { post_id: postId, username: user.email, content }
-    ]);
+    .insert([{ post_id: postId, username: user.email, content }]);
 
   if (error) {
     console.error(error);
@@ -2007,8 +2043,17 @@ async function submitComment(postId) {
   }
 
   input.value = "";
-  loadComments(postId); // reload comments
+  loadComments(postId);
 }
+
+/* ============================
+   AUTO OPEN POST IF ?post=ID IS IN URL
+============================ */
+window.addEventListener("DOMContentLoaded", async () => {
+  const urlParams = new URLSearchParams(window.location.search);
+  const postId = urlParams.get("post");
+  if (postId) openPost(postId, "home");
+});
 
 /* ============================
    LOAD POSTS INTO GRID
@@ -2610,29 +2655,6 @@ async function printPost(id, table = "home") {
   } catch (err) {
     console.error("❌ Unexpected error printing post:", err);
     alert("Something went wrong while printing.");
-  }
-}
-/* ============================
-   SHARE
-============================ */
-function openShareMenu(id, table, title = "EYES OF 3080", preview = "") {
-  const url = `${window.location.origin}${window.location.pathname}?id=${id}&t=${table}`;
-
-  if (navigator.share) {
-    navigator.share({
-      title: title, // dynamic post title
-      text: preview || "Read this interesting post:", // short description/preview
-      url: url
-    }).catch(err => console.log("Share cancelled", err));
-  } else {
-    const shareOptions = `
-      Share this post:\n\n
-      🔗 WhatsApp: https://wa.me/?text=${encodeURIComponent(title + " - " + url)}\n
-      📘 Facebook: https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(url)}&quote=${encodeURIComponent(title)}\n
-      🐦 Twitter: https://twitter.com/intent/tweet?text=${encodeURIComponent(title)}&url=${encodeURIComponent(url)}\n
-    `;
-    navigator.clipboard.writeText(url);
-    alert(shareOptions + "\n(Link copied to clipboard ✅)");
   }
 }
 

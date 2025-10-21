@@ -1880,23 +1880,64 @@ if (!document.getElementById("post-modal")) {
 function renderCard(post, table) {
   const logoUrl = "https://vtpsruejncfykiazrfsx.supabase.co/storage/v1/object/public/PRODUCTS/EYES%20OF%203080%20logo";
   const postUrl = `${window.location.origin}${window.location.pathname}?post=${post.id}`;
+  const author = post.author || "Eyes of 3080 Admin";
+  const excerpt = post.excerpt || (post.content ? post.content.substring(0, 100) + "..." : "");
 
   return `
-    <article class="card" style="border:1px solid #006400; padding:15px; margin-bottom:15px; border-radius:8px; display:flex; align-items:flex-start; gap:10px;">
-      <img src="${logoUrl}" alt="Logo" style="width:50px; height:50px; border-radius:50%; flex-shrink:0;">
+    <article class="card" style="
+      border:1px solid #006400;
+      padding:15px;
+      margin-bottom:15px;
+      border-radius:8px;
+      display:flex;
+      align-items:flex-start;
+      gap:10px;
+    ">
+      <img src="${logoUrl}" alt="Logo" style="
+        width:50px;
+        height:50px;
+        border-radius:50%;
+        flex-shrink:0;
+      ">
       <div style="flex:1;">
-        <div class="card-header" style="display:flex; align-items:center; justify-content:space-between;">
-          <h3 style="flex:1; margin:0; padding-right:10px; color:#006400;">${post.title}</h3>
-          <div class="card-actions" style="display:flex; gap:8px; align-items:center;">
-            <img src="https://cdn-icons-png.flaticon.com/512/1828/1828919.png" 
-                 alt="Share" style="width:20px; cursor:pointer;" 
-                 onclick="sharePost('${post.id}', '${table}')">
+        <div class="card-header" style="
+          display:flex;
+          align-items:center;
+          justify-content:space-between;
+        ">
+          <h3 style="flex:1; margin:0; padding-right:10px; color:#006400;">
+            ${post.title}
+          </h3>
+          <div class="card-actions" style="
+            display:flex;
+            gap:8px;
+            align-items:center;
+          ">
+            <img
+              src="https://cdn-icons-png.flaticon.com/512/1828/1828919.png"
+              alt="Share"
+              style="width:20px; cursor:pointer;"
+              onclick="sharePost('${post.id}', '${table}')"
+            >
           </div>
         </div>
 
-        <p>${post.excerpt || (post.content ? post.content.substring(0, 100) : "")}...</p>
+        <!-- Author Section -->
+        <p style="margin:4px 0 8px 0; font-size:13px; color:#555;">
+          By <strong style="color:#006400;">${author}</strong>
+        </p>
+
+        <p style="margin-bottom:10px; color:#333;">${excerpt}</p>
+
         <button class="btn" 
-                style="background:#006400; color:white; padding:6px 12px; border:none; border-radius:4px;" 
+                style="
+                  background:#006400;
+                  color:white;
+                  padding:6px 12px;
+                  border:none;
+                  border-radius:4px;
+                  cursor:pointer;
+                " 
                 onclick="openPost('${post.id}', '${table}')">
           Read More
         </button>
@@ -1905,8 +1946,9 @@ function renderCard(post, table) {
   `;
 }
 
+
 /* ============================
-   OPEN FULL POST (With shareable URL)
+   OPEN FULL POST (With Author + Shareable URL)
 ============================ */
 async function openPost(id, table = "home") {
   try {
@@ -1917,10 +1959,13 @@ async function openPost(id, table = "home") {
       .single();
 
     if (error || !post) {
+      console.error("❌ Error loading post:", error);
       alert("❌ Could not load post.");
       return;
     }
 
+    const author = post.author || "Eyes of 3080 Admin"; // fallback author
+    const date = post.date ? new Date(post.date).toLocaleDateString() : "";
     const container = document.getElementById("post-modal");
     container.style.display = "block";
 
@@ -1928,31 +1973,83 @@ async function openPost(id, table = "home") {
     history.pushState(null, "", `?post=${id}`);
 
     container.innerHTML = `
-      <div style="background:white; border-radius:8px; max-width:800px; margin:0 auto; padding:20px; position:relative;">
+      <div style="
+        background:white; 
+        border-radius:8px; 
+        max-width:800px; 
+        margin:0 auto; 
+        padding:20px; 
+        position:relative;
+      ">
+        <!-- Close Button -->
         <button onclick="closePostModal()" 
-                style="position:absolute; top:10px; right:10px; background:#006400; color:white; border:none; padding:5px 10px; border-radius:4px; cursor:pointer;">
+                style="
+                  position:absolute; 
+                  top:10px; 
+                  right:10px; 
+                  background:#006400; 
+                  color:white; 
+                  border:none; 
+                  padding:5px 10px; 
+                  border-radius:4px; 
+                  cursor:pointer;
+                ">
           Close
         </button>
-        <h1 style="color:#006400;">${post.title}</h1>
-        <p style="margin-bottom:10px;">${post.content}</p>
 
+        <!-- Title -->
+        <h1 style="color:#006400; margin-bottom:8px;">${post.title}</h1>
+
+        <!-- Author + Date -->
+        <p style="font-size:14px; color:#555; margin:0 0 12px 0;">
+          By <strong style="color:#006400;">${author}</strong>
+          ${date ? ` • <span>${date}</span>` : ""}
+        </p>
+
+        <!-- Content -->
+        <p style="margin-bottom:10px; line-height:1.6; color:#333;">${post.content}</p>
+
+        <!-- SHARE -->
         <div style="margin-top:15px;">
           <button onclick="sharePost('${post.id}', '${table}')"
-                  style="background:#39b54a; color:#fff; border:none; padding:6px 10px; border-radius:5px; cursor:pointer;">
+                  style="
+                    background:#39b54a; 
+                    color:#fff; 
+                    border:none; 
+                    padding:6px 10px; 
+                    border-radius:5px; 
+                    cursor:pointer;
+                  ">
             🔗 Share This Post
           </button>
         </div>
 
         <!-- COMMENTS -->
-        <div id="comments-section-${post.id}" style="margin-top:20px; border-top:1px solid #006400; padding-top:10px;">
+        <div id="comments-section-${post.id}" 
+             style="margin-top:20px; border-top:1px solid #006400; padding-top:10px;">
           <h4 style="color:#006400;">Comments</h4>
           <div id="comments-container-${post.id}"></div>
 
           <textarea id="comment-input-${post.id}" 
                     placeholder="Write a comment..." 
-                    style="width:100%; padding:8px; margin-top:5px; border:1px solid #006400; border-radius:5px;"></textarea>
+                    style="
+                      width:100%; 
+                      padding:8px; 
+                      margin-top:5px; 
+                      border:1px solid #006400; 
+                      border-radius:5px;
+                    ">
+          </textarea>
 
-          <button style="background:#006400; color:white; padding:6px 12px; border:none; border-radius:4px; margin-top:5px;" 
+          <button style="
+                    background:#006400; 
+                    color:white; 
+                    padding:6px 12px; 
+                    border:none; 
+                    border-radius:4px; 
+                    margin-top:5px; 
+                    cursor:pointer;
+                  " 
                   onclick="submitComment('${post.id}')">
             Submit
           </button>
@@ -1960,13 +2057,13 @@ async function openPost(id, table = "home") {
       </div>
     `;
 
+    // Load comments for this post
     loadComments(post.id);
   } catch (err) {
-    console.error(err);
-    alert("Something went wrong.");
+    console.error("❌ Error while opening post:", err);
+    alert("Something went wrong while opening this post. Check the console for details.");
   }
 }
-
 /* ============================
    CLOSE POST MODAL
 ============================ */

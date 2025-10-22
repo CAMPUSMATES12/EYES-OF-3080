@@ -2756,6 +2756,116 @@ async function printPost(id, table = "home") {
 }
 
 /* ============================
+   BLOGGER-STYLE SHARE SYSTEM
+============================ */
+function openShareMenu(id, table, title = "Eyes of 3080") {
+  // Convert post title to slug
+  const slug = title
+    .toLowerCase()
+    .trim()
+    .replace(/\s+/g, "-")
+    .replace(/[^\w-]+/g, "")
+    .replace(/--+/g, "-");
+
+  // Generate Blogger-style URL like /2025/10/asuu-suspends-two-week-warning-strike.html
+  const now = new Date();
+  const year = now.getFullYear();
+  const month = String(now.getMonth() + 1).padStart(2, "0");
+  const permalink = `${window.location.origin}/${year}/${month}/${slug}.html`;
+
+  // Try native share (mobile)
+  if (navigator.share) {
+    navigator.share({
+      title: title,
+      url: permalink
+    }).catch(err => console.log("Share cancelled:", err));
+  } else {
+    // Share links (desktop)
+    const whatsapp = `https://wa.me/?text=${encodeURIComponent(permalink)}`;
+    const facebook = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(permalink)}`;
+    const twitter = `https://twitter.com/intent/tweet?url=${encodeURIComponent(permalink)}&text=${encodeURIComponent(title)}`;
+    const telegram = `https://t.me/share/url?url=${encodeURIComponent(permalink)}&text=${encodeURIComponent(title)}`;
+
+    const shareOptions = `
+🔗 Share this post:
+
+📱 WhatsApp → ${whatsapp}
+📘 Facebook → ${facebook}
+🐦 Twitter → ${twitter}
+✈ Telegram → ${telegram}
+
+(Link copied to clipboard ✅)
+`;
+
+    navigator.clipboard.writeText(permalink).catch(() => {});
+    alert(shareOptions);
+  }
+}
+
+/* ============================
+   AUTO-DETECT BLOGGER-STYLE PERMALINKS
+============================ */
+window.addEventListener("DOMContentLoaded", async () => {
+  const path = window.location.pathname;
+
+  // Match /2025/10/some-title.html
+  const match = path.match(/\/(\d{4})\/(\d{2})\/([a-z0-9-]+)\.html$/i);
+  if (match) {
+    const slug = match[3];
+
+    try {
+      // Try to find post by slug in "home" table
+      const { data: post, error } = await supabase
+        .from("home")
+        .select("*")
+        .ilike("title", `%${slug.replace(/-/g, " ")}%`)
+        .maybeSingle();
+
+      if (error) {
+        console.error("Supabase fetch error:", error);
+        alert("⚠️ Could not load this post. Please check the console.");
+        return;
+      }
+
+      if (!post) {
+        document.body.innerHTML = `
+          <div style="text-align:center;margin-top:100px;">
+            <h2> Post Not Found</h2>
+            <p>The post you're looking for doesn’t exist or was removed.</p>
+            <a href="/" style="color:#006400;">Go Back Home</a>
+          </div>`;
+        return;
+      }
+
+      // ✅ Render post automatically (same layout as openPost)
+      const container = document.createElement("div");
+      container.style.padding = "20px";
+      container.innerHTML = `
+        <div style="max-width:800px;margin:0 auto;background:white;padding:20px;border-radius:8px;">
+          <h1 style="color:#006400;">${post.title}</h1>
+          <p style="color:#555;font-size:14px;">
+            <b>${post.author || "Eyes of 3080 Admin"}</b>
+          </p>
+          <div style="line-height:1.6;margin-top:10px;">${post.content}</div>
+          <div style="margin-top:15px;">
+            <button onclick="openShareMenu('${post.id}', 'home', '${post.title}')"
+                    style="background:#39b54a;color:white;padding:6px 12px;border:none;border-radius:4px;cursor:pointer;">
+              🔗 Share
+            </button>
+            <a href="/" style="margin-left:10px;color:#006400;">Back to Home</a>
+          </div>
+        </div>
+      `;
+      document.body.innerHTML = "";
+      document.body.appendChild(container);
+    } catch (err) {
+      console.error("Auto-open permalink error:", err);
+      alert("⚠️ Failed to load post from permalink. Check console for details.");
+    }
+  }
+});
+
+/* ============================
    BACK
 ============================ */
 function goBack(){ showSection("home"); history.pushState({}, "News", window.location.pathname); }

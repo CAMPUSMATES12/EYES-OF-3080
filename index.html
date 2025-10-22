@@ -181,7 +181,9 @@ function showSignup(){
   document.getElementById("signupForm").style.display="block";
 }
 
-// Sign Up
+// ==========================
+// SIGN UP FUNCTION
+// ==========================
 async function signUp(){
   const fullName = document.getElementById("signupName").value.trim();
   const email = document.getElementById("signupEmail").value.trim();
@@ -199,7 +201,6 @@ async function signUp(){
   alert("✅ Sign up successful! Please login.");
   showLogin();
 }
-
 
 // ==========================
 // LOGIN FUNCTION
@@ -260,7 +261,6 @@ async function resetPassword() {
   // 👇 Supabase will send reset email with link
   const { error } = await supabase.auth.resetPasswordForEmail(email, {
     redirectTo: window.location.origin + "/reset.html" 
-    // e.g. https://campusmates12.github.io/EYES-OF-3080/reset.html
   });
 
   if (error) {
@@ -272,34 +272,113 @@ async function resetPassword() {
   alert("✅ A password reset link has been sent to " + email);
   showLogin(); // switch back to login form
 }
+
+
+// ==========================
+// BLOGGER-STYLE REDIRECT HANDLER
+// ==========================
+window.addEventListener("DOMContentLoaded", async () => {
+  const params = new URLSearchParams(window.location.search);
+  const redirect = params.get("redirect");
+
+  if (redirect) {
+    // Example: /2025/10/eyes-of-3080.html
+    const slugMatch = redirect.match(/\/\d{4}\/\d{2}\/([a-z0-9-]+)\.html/i);
+    if (slugMatch) {
+      const slug = slugMatch[1];
+      console.log("Redirected to post:", slug);
+
+      // Try to find post by slug in Supabase
+      const { data: post, error } = await supabase
+        .from("home") // 👈 your posts table
+        .select("*")
+        .ilike("slug", slug)
+        .single();
+
+      if (error) {
+        console.error("❌ Error fetching slug:", error.message);
+        alert("Post not found for this link.");
+        return;
+      }
+
+      if (post) {
+        // Wait a bit to ensure UI loads (if modal logic is in another file)
+        setTimeout(() => {
+          if (typeof openPost === "function") {
+            openPost(post.id, "home");
+          } else {
+            console.warn("openPost() not found. Please ensure your main JS is loaded.");
+          }
+        }, 1500);
+      }
+    }
+  }
+});
 </script>
 
 
+<!-- ==========================
+     PARTICLE BACKGROUND EFFECT
+=========================== -->
 <script>
-// === Particles ===
 const canvas = document.getElementById('particles');
 const ctx = canvas.getContext('2d');
 let w = canvas.width = window.innerWidth;
 let h = canvas.height = window.innerHeight;
-window.addEventListener('resize', ()=>{ w=canvas.width=window.innerWidth; h=canvas.height=window.innerHeight; });
+
+window.addEventListener('resize', ()=>{
+  w = canvas.width = window.innerWidth;
+  h = canvas.height = window.innerHeight;
+});
 
 class Particle {
-  constructor(){ this.x=Math.random()*w; this.y=Math.random()*h; this.size=Math.random()*2+1;
-    this.speedX=(Math.random()-0.5)*1.5; this.speedY=(Math.random()-0.5)*1.5;
+  constructor(){
+    this.x = Math.random()*w;
+    this.y = Math.random()*h;
+    this.size = Math.random()*2+1;
+    this.speedX = (Math.random()-0.5)*1.5;
+    this.speedY = (Math.random()-0.5)*1.5;
   }
-  update(){ this.x+=this.speedX; this.y+=this.speedY; if(this.x<0||this.x>w) this.speedX*=-1; if(this.y<0||this.y>h) this.speedY*=-1; }
-  draw(){ ctx.beginPath(); ctx.arc(this.x,this.y,this.size,0,Math.PI*2); ctx.fillStyle='rgba(0,255,0,0.7)'; ctx.fill(); }
+  update(){
+    this.x += this.speedX;
+    this.y += this.speedY;
+    if(this.x<0||this.x>w) this.speedX *= -1;
+    if(this.y<0||this.y>h) this.speedY *= -1;
+  }
+  draw(){
+    ctx.beginPath();
+    ctx.arc(this.x,this.y,this.size,0,Math.PI*2);
+    ctx.fillStyle='rgba(0,255,0,0.7)';
+    ctx.fill();
+  }
 }
-const particles=[]; for(let i=0;i<100;i++) particles.push(new Particle());
 
-function connectParticles(){ for(let a=0;a<particles.length;a++){ for(let b=a;b<particles.length;b++){
-  let dx=particles[a].x-particles[b].x, dy=particles[a].y-particles[b].y;
-  let dist=Math.sqrt(dx*dx+dy*dy);
-  if(dist<100){ ctx.beginPath(); ctx.strokeStyle=`rgba(0,255,0,${1-dist/100})`;
-    ctx.moveTo(particles[a].x,particles[a].y); ctx.lineTo(particles[b].x,particles[b].y); ctx.stroke(); }
-}}}
+const particles = [];
+for(let i=0;i<100;i++) particles.push(new Particle());
 
-function animate(){ ctx.clearRect(0,0,w,h); particles.forEach(p=>{p.update(); p.draw();}); connectParticles(); requestAnimationFrame(animate); }
+function connectParticles(){
+  for(let a=0;a<particles.length;a++){
+    for(let b=a;b<particles.length;b++){
+      let dx = particles[a].x - particles[b].x;
+      let dy = particles[a].y - particles[b].y;
+      let dist = Math.sqrt(dx*dx+dy*dy);
+      if(dist<100){
+        ctx.beginPath();
+        ctx.strokeStyle=`rgba(0,255,0,${1-dist/100})`;
+        ctx.moveTo(particles[a].x,particles[a].y);
+        ctx.lineTo(particles[b].x,particles[b].y);
+        ctx.stroke();
+      }
+    }
+  }
+}
+
+function animate(){
+  ctx.clearRect(0,0,w,h);
+  particles.forEach(p=>{p.update(); p.draw();});
+  connectParticles();
+  requestAnimationFrame(animate);
+}
 animate();
 </script>
 

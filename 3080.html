@@ -3101,23 +3101,87 @@ function showMarketplace() {
   document.getElementById("marketplace").style.display = "block";
 }
 
-async function toggleFavorite(productId) {
+// ============================
+// ❤️ FAVORITES SECTION
+// ============================
+
+// Function to show favorites
+async function showFavorites() {
   const { data: { user } } = await supabase.auth.getUser();
-  if (!user) return alert("Please log in to save favorites.");
+  if (!user) return alert("You must be logged in to view favorites.");
 
-  const { data: existing } = await supabase
+  // Fetch favorite items from Supabase
+  const { data: favorites, error } = await supabase
     .from("favorites")
-    .select("*")
-    .eq("user_id", user.id)
-    .eq("product_id", productId)
-    .single();
+    .select("product_id, products(*)") // Assuming relation to "products" table
+    .eq("user_id", user.id);
 
-  if (existing) {
-    await supabase.from("favorites").delete().eq("id", existing.id);
+  if (error) {
+    console.error("Error loading favorites:", error);
+    alert("Failed to load favorites. Try again later.");
+    return;
+  }
+
+  // Hide marketplace, show favorites section
+  document.getElementById("marketplace").style.display = "none";
+  document.getElementById("productDetails").style.display = "none";
+
+  // Create or show favorites container
+  let favSection = document.getElementById("favoritesSection");
+  if (!favSection) {
+    favSection = document.createElement("section");
+    favSection.id = "favoritesSection";
+    favSection.className = "page-section";
+    document.body.appendChild(favSection);
+  }
+
+  // Build favorite product cards
+  if (favorites.length === 0) {
+    favSection.innerHTML = `
+      <button class="back-btn" onclick="showMarketplace()">← Back</button>
+      <p style="text-align:center;color:#555;margin-top:20px;">You have no favorite items yet 💔</p>
+    `;
+    return;
+  }
+
+  const cardsHTML = favorites
+    .map(fav => {
+      const prod = fav.products || {};
+      return `
+        <div class="product-card" onclick="openProduct(${prod.id})">
+          <img src="${prod.images?.[0] || 'default.jpg'}" alt="${prod.title}">
+          <h4>${prod.title}</h4>
+          <p class="price-tag">₦${prod.price || "N/A"}</p>
+          <button class="contact-btn" onclick="removeFavorite(event, '${prod.id}')">❌ Remove</button>
+        </div>
+      `;
+    })
+    .join("");
+
+  favSection.innerHTML = `
+    <button class="back-btn" onclick="showMarketplace()">← Back to Marketplace</button>
+    <h2 style="color:#006400;text-align:center;margin-bottom:20px;">Your Favorites</h2>
+    <div class="product-grid">${cardsHTML}</div>
+  `;
+}
+
+// Function to remove from favorites
+async function removeFavorite(e, productId) {
+  e.stopPropagation(); // Prevent product card click
+
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return alert("You must be logged in.");
+
+  const { error } = await supabase
+    .from("favorites")
+    .delete()
+    .eq("user_id", user.id)
+    .eq("product_id", productId);
+
+  if (error) console.error("Error removing favorite:", error);
+  else {
     alert("Removed from favorites ");
-  } else {
-    await supabase.from("favorites").insert([{ user_id: user.id, product_id: productId }]);
-    alert("Added to favorites ❤️");
+    showFavorites(); // Refresh the list
   }
 }
 

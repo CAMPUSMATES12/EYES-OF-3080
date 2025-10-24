@@ -1471,7 +1471,7 @@ select.grade-select.f9, select.grade-select.f { background-color: #ffe0e0; color
   </div>
 
   <div id="productGrid" class="product-grid"></div>
-  <p class="no-products" id="noProducts" style="display:none;">😔 No products found</p>
+  <p class="no-products" id="noProducts" style="display:none;">No products found</p>
 </section>
 
 
@@ -1479,7 +1479,7 @@ select.grade-select.f9, select.grade-select.f { background-color: #ffe0e0; color
      PRODUCT DETAILS PAGE
 ============================ -->
 <section id="productDetails" class="page-section" style="display:none;">
-  <button class="back-btn" onclick="showMarketplace()">← Back to Marketplace</button>
+  <button class="back-btn" onclick="showMarketplace()">.</button>
   <div id="detailsContent" class="product-details"></div>
 </section>
 
@@ -2710,46 +2710,106 @@ async function openPost(id, table = "home") {
       return;
     }
 
-    // =====================================================
-    // 🛍️ MARKETPLACE SECTION (AUTO SLIDE)
-    // =====================================================
     document.getElementById("productDetails").style.display = "block";
 
-    let images = [];
-    if (Array.isArray(post.images)) images = post.images;
-    else if (typeof post.images === "string" && post.images.trim() !== "")
-      images = post.images.replace(/[\[\]"]/g, "").split(",");
+let images = [];
+if (Array.isArray(post.images)) images = post.images;
+else if (typeof post.images === "string" && post.images.trim() !== "")
+  images = post.images.replace(/[\[\]"]/g, "").split(",");
 
-    const gallery = images.length
-      ? `
-      <div class="carousel-container" style="overflow:hidden;position:relative;">
-        <div class="carousel-slider" style="display:flex;transition:transform 0.8s ease;">
-          ${images.map(img => `<img src="${img.trim()}" style="min-width:100%;border-radius:8px;">`).join("")}
-        </div>
-      </div>`
-      : "<p>No product images available.</p>";
+// ✅ Product Gallery (clean + rounded)
+const gallery = images.length
+  ? `
+  <div class="carousel-container" style="
+      overflow:hidden;
+      position:relative;
+      border-radius:14px;
+      box-shadow:0 3px 10px rgba(0,0,0,0.08);
+      margin-bottom:15px;
+  ">
+    <div class="carousel-slider" style="display:flex;transition:transform 0.8s ease;">
+      ${images.map(img => `
+        <img src="${img.trim()}" 
+             style="min-width:100%;border-radius:14px;height:230px;object-fit:cover;">
+      `).join("")}
+    </div>
+  </div>`
+  : "<p style='color:#777;font-size:0.95rem;'>No product images available.</p>";
 
-    const detailsHTML = `
-      <h2 style="color:#000;">${post.title}</h2>
-      ${gallery}
-      <p><b>PRICE:</b> ₦${post.price || "N/A"}</p>
-      <p><b>STOCK:</b> ${post.stock || "Available"}</p>
-      <p style="margin-top:12px; color:#000; line-height:1.6;">
-        <b style="color:#000;">DESCRIPTION:</b><br>
-        ${post.description || "No description provided."}
-      </p>
-      <div style="margin-top:10px;">
-        <a href="https://wa.me/${post.whatsapp || ""}?text=Hi%2C%20I'm%20interested%20in%20your%20${encodeURIComponent(
-          post.title
-        )}"
-           target="_blank"
-           style="display:inline-block;background:#000;color:white;padding:9px 11px;border-radius:6px;text-decoration:none;">
-           🛒BUY NOW
-        </a>
-      </div>
-    `;
+// ✅ Product Info (CDCare-like card)
+const detailsHTML = `
+  <div style="
+    max-width:420px;
+    margin:0 auto;
+    background:white;
+    border-radius:14px;
+    padding:20px;
+    box-shadow:0 3px 14px rgba(0,0,0,0.1);
+    text-align:left;
+    animation:fadeIn 0.4s ease;
+  ">
+    <h2 style="
+      color:#006400;
+      font-size:1.25rem;
+      font-weight:600;
+      margin-bottom:10px;
+      text-align:center;
+    ">
+      ${post.title}
+    </h2>
 
-    document.getElementById("detailsContent").innerHTML = detailsHTML;
+    ${gallery}
+
+    <p style="font-size:1rem;color:#111;margin:6px 0;">
+      <b>Price:</b> <span style="color:#008000;font-weight:600;">₦${post.price || "N/A"}</span>
+    </p>
+
+    <p style="font-size:0.95rem;color:#444;margin:6px 0;">
+      <b>Quantity:</b> ${post.stock || "Available"}
+    </p>
+
+    <p style="margin-top:12px;color:#333;font-size:0.95rem;line-height:1.6;">
+      <b>Description:</b><br>
+      ${post.description || "No description provided."}
+    </p>
+
+    <div style="margin-top:18px;display:flex;flex-direction:column;gap:10px;">
+      <a href="https://wa.me/${post.whatsapp || ""}?text=Hi%2C%20I'm%20interested%20in%20your%20${encodeURIComponent(post.title)}"
+         target="_blank"
+         style="
+            display:inline-block;
+            background:#006400;
+            color:white;
+            text-align:center;
+            padding:10px 12px;
+            border-radius:8px;
+            text-decoration:none;
+            font-weight:600;
+            letter-spacing:0.3px;
+            transition:background 0.3s;
+         ">
+         🛒 Buy Now
+      </a>
+
+      <button onclick="showMarketplace()" 
+              style="
+                background:#f0f0f0;
+                color:#333;
+                border:none;
+                padding:9px 12px;
+                border-radius:8px;
+                cursor:pointer;
+                font-weight:500;
+                transition:0.3s;
+              ">
+        ← Back to Marketplace
+      </button>
+    </div>
+  </div>
+`;
+
+document.getElementById("detailsContent").innerHTML = detailsHTML;
+
 
     // ==============================
     // Auto Slide Carousel (no buttons)

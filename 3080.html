@@ -1768,6 +1768,89 @@ function copyResourceLink(link) {
   })();
 });
 
+/* ============================
+   🔍 MARKETPLACE SEARCH FUNCTION
+============================ */
+async function filterProducts(query = "") {
+  const productGrid = document.getElementById("productGrid");
+  const noProducts = document.getElementById("noProducts");
+
+  query = query.trim().toLowerCase();
+
+  try {
+    // ✅ Fetch all products from Supabase
+    const { data: products, error } = await supabase
+      .from("market")
+      .select("*")
+      .order("created_at", { ascending: false });
+
+    if (error) throw error;
+
+    if (!products || products.length === 0) {
+      productGrid.innerHTML = "";
+      noProducts.style.display = "block";
+      return;
+    }
+
+    // ✅ Filter by title, category, or seller
+    const filtered = products.filter(p => {
+      const title = (p.title || "").toLowerCase();
+      const category = (p.category || "").toLowerCase();
+      const seller = (p.seller_name || "").toLowerCase();
+      return (
+        title.includes(query) ||
+        category.includes(query) ||
+        seller.includes(query)
+      );
+    });
+
+    // ✅ If no result
+    if (filtered.length === 0) {
+      productGrid.innerHTML = "";
+      noProducts.style.display = "block";
+      return;
+    }
+
+    // ✅ Hide no products message
+    noProducts.style.display = "none";
+
+    // ✅ Render results
+    productGrid.innerHTML = filtered
+      .map(prod => {
+        // Handle images safely
+        let imageUrl = "https://via.placeholder.com/400x300?text=No+Image";
+        if (Array.isArray(prod.images) && prod.images.length > 0) {
+          imageUrl = prod.images[0];
+        } else if (typeof prod.image_urls === "string") {
+          const cleaned = prod.image_urls.replace(/[\[\]"]/g, "").split(",")[0];
+          if (cleaned) imageUrl = cleaned.trim();
+        }
+
+        return `
+          <div class="product-card" data-id="${prod.id}">
+            <img src="${imageUrl}" alt="${prod.title}">
+            <div class="card-info">
+              <h4>${prod.title}</h4>
+              <p>₦${prod.price ? prod.price.toLocaleString() : "—"}</p>
+              <small class="click-info">Click to view full details</small>
+            </div>
+          </div>
+        `;
+      })
+      .join("");
+
+    // ✅ Re-attach click event to each product card
+    document.querySelectorAll(".product-card").forEach(card => {
+      card.addEventListener("click", () => {
+        const productId = card.getAttribute("data-id");
+        openPost(productId, "market"); // your existing function
+      });
+    });
+  } catch (err) {
+    console.error("❌ Search error:", err);
+    productGrid.innerHTML = "<p>Failed to search products. Try again.</p>";
+  }
+}
 
 /// ==========================
 //  UNIOSUN MARKETPLACE JS

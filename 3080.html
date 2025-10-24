@@ -778,6 +778,22 @@ select.grade-select.f9, select.grade-select.f { background-color: #ffe0e0; color
   box-shadow: 0 1px 5px rgba(0,0,0,0.05);
 }
 
+.favorites-btn {
+  background: #fff;
+  color: #006400;
+  border: 1px solid #006400;
+  padding: 10px 16px;
+  border-radius: 6px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: 0.3s;
+}
+
+.favorites-btn:hover {
+  background: #006400;
+  color: #fff;
+}
+
   /* COUNTER SECTION */
   .stats-section { background:var(--uni-green); color:#fff; padding:50px 20px; text-align:center; }
   .stats-container { display:flex; flex-wrap:wrap; justify-content:center; max-width:1000px; margin:auto; gap:30px; }
@@ -1602,6 +1618,10 @@ select.grade-select.f9, select.grade-select.f { background-color: #ffe0e0; color
       class="market-search"
       oninput="filterProducts(this.value)">
   </div>
+  
+<!-- ❤️ View Favorites Button -->
+  <button class="favorites-btn" onclick="showFavorites()">❤️ View Favorites</button>
+</div>
 
   <div id="productGrid" class="product-grid"></div>
   <p class="no-products" id="noProducts" style="display:none;">No products found</p>

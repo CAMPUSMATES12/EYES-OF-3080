@@ -361,267 +361,242 @@ select.grade-select.f9, select.grade-select.f { background-color: #ffe0e0; color
   from { opacity: 0; transform: translateY(-10px); }
   to { opacity: 1; transform: translateY(0); }
 }
-/* ===============================
-   UNIOSUN MARKETPLACE STYLES
-=============================== */
+/* ============================
+   🌿 EYES OF 3080 MARKETPLACE STYLES (Scoped to Marketplace Only)
+============================ */
 
-#marketplace {
-  padding: 16px;
-  background: #f8fff8;
-  max-width: 900px;
-  margin: 0 auto;
+/* ====== General Layout ====== */
+#marketplace.page-section,
+#productDetails.page-section {
+  padding: 30px 20px;
+  background: #f8fdf8;
+  font-family: "Poppins", Arial, sans-serif;
+  color: #222;
 }
 
-/* ====== SECTION TITLE ====== */
-.section-title {
-  font-size: 20px;
-  font-weight: bold;
-  color: #0b6d0b;
+/* ====== Header ====== */
+#marketplace .marketplace-header {
   text-align: center;
+  margin-bottom: 20px;
+}
+
+#marketplace .marketplace-header .section-title {
+  font-size: 1.8rem;
+  color: #006400;
   margin-bottom: 8px;
 }
 
-#marketplace p {
-  text-align: center;
-  font-size: 14px;
+#marketplace .marketplace-header .section-subtitle {
   color: #444;
-  margin-bottom: 8px;
+  font-size: 0.95rem;
+  max-width: 600px;
+  margin: 0 auto;
+  line-height: 1.5;
 }
 
-/* ===== REGISTER BUTTON (Smaller & Clean) ===== */
-.register-btn {
-  display: inline-block;
-  background: #0b6d0b;
-  color: white;
-  padding: 6px 12px;
+/* ====== Top bar ====== */
+#marketplace .marketplace-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+#marketplace .register-btn {
+  background: #006400;
+  color: #fff;
+  padding: 10px 18px;
   border-radius: 6px;
   text-decoration: none;
-  font-weight: 500;
-  margin: 8px auto;
-  display: block;
-  width: fit-content;
-  font-size: 13px;
-  transition: background 0.3s ease;
-}
-
-.register-btn:hover {
-  background: #094c09;
-}
-
-/* ===== “VIEW PRODUCTS” TEXT ===== */
-.view-products-text {
-  font-size: 13px;
-  color: #0b6d0b;
   font-weight: 600;
-  text-align: center;
-  margin: 8px 0 4px;
+  transition: background 0.3s;
 }
 
-/* ===== PRODUCT SLIDER (VERTICAL LAYOUT) ===== */
-.product-slider {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-  padding: 8px 0;
+#marketplace .register-btn:hover {
+  background: #004d00;
 }
 
-/* ===== PRODUCT CARD ===== */
-.product-card {
-  display: flex;
-  align-items: center;
-  background: #ffffff;
+/* ====== Search Input ====== */
+#marketplace .market-search {
+  flex: 1;
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  font-size: 0.95rem;
+  background: white;
+  transition: 0.3s;
+}
+
+#marketplace .market-search:focus {
+  border-color: #006400;
+  outline: none;
+}
+
+/* ====== Product Grid ====== */
+#marketplace .product-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 20px;
+  padding-top: 10px;
+}
+
+/* ====== Product Card ====== */
+#marketplace .product-card {
+  background: white;
+  border: 1px solid #e0e0e0;
   border-radius: 10px;
-  padding: 8px;
-  box-shadow: 0 1.5px 5px rgba(0,0,0,0.08);
-  transition: transform 0.2s, box-shadow 0.2s;
+  padding: 12px;
+  text-align: center;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+  transition: all 0.25s ease;
   cursor: pointer;
 }
 
-.product-card:hover {
-  transform: scale(1.02);
-  box-shadow: 0 3px 8px rgba(0,0,0,0.12);
+#marketplace .product-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.08);
 }
 
-/* ===== PRODUCT CARD IMAGE ===== */
-.product-card img {
-  width: 80px;
-  height: 80px;
+#marketplace .product-card img {
+  width: 100%;
+  height: 180px;
   object-fit: cover;
   border-radius: 8px;
-  margin-right: 12px;
 }
 
-/* ===== CARD INFO TEXT ===== */
-.card-info {
-  flex: 1;
-}
-
-.card-info h4 {
-  color: #0b6d0b;
-  font-size: 15px;
-  margin-bottom: 4px;
+#marketplace .product-card h4 {
+  margin: 10px 0 5px;
+  font-size: 1rem;
+  color: #006400;
   font-weight: 600;
 }
 
-.card-info p {
+#marketplace .product-card p {
+  color: #555;
+  font-size: 0.9rem;
+  margin: 4px 0;
+}
+
+#marketplace .price-tag {
+  color: #008000;
   font-weight: bold;
-  color: #333;
-  font-size: 13.5px;
-  margin: 1px 0;
+  font-size: 1.05rem;
+  margin: 6px 0;
 }
 
-/* ===== SMALL CLICK HINT ===== */
-.click-tip {
-  display: block;
-  font-size: 11px;
-  color: #777;
-  margin-top: 3px;
-}
-
-/* ===== PRODUCT DETAILS PAGE ===== */
-#productDetails {
-  display: none;
-  padding: 16px;
-  background: #fff;
-  border-radius: 10px;
-  box-shadow: 0 1px 6px rgba(0,0,0,0.08);
-  max-width: 850px;
-  margin: 0 auto;
-}
-
-/* ===== BACK BUTTON ===== */
-.back-btn {
-  background: transparent;
-  color: #0b6d0b;
+/* ====== Contact Button ====== */
+#marketplace .contact-btn {
+  background: #006400;
+  color: white;
   border: none;
-  font-size: 17px;
+  padding: 8px 12px;
+  border-radius: 6px;
   cursor: pointer;
-  font-weight: 600;
-  margin-bottom: 8px;
+  width: 100%;
+  margin-top: 8px;
+  transition: 0.3s;
+  font-weight: 500;
 }
 
-/* ===== PRODUCT DETAILS CONTENT ===== */
-#detailsContent {
+#marketplace .contact-btn:hover {
+  background: #004d00;
+}
+
+/* ====== Back Button ====== */
+#productDetails .back-btn {
+  background: #006400;
+  color: white;
+  border: none;
+  padding: 8px 14px;
+  border-radius: 6px;
+  cursor: pointer;
+  margin-bottom: 15px;
+  font-weight: 600;
+  transition: background 0.3s;
+}
+
+#productDetails .back-btn:hover {
+  background: #004d00;
+}
+
+/* ====== Product Details Page ====== */
+#productDetails .product-details {
   text-align: center;
 }
 
-/* ===== DETAILS IMAGE STYLE ===== */
-#detailsContent img {
-  width: 88%;
-  max-width: 360px;
-  height: auto;
+#productDetails .product-detail-card {
+  max-width: 500px;
+  margin: 0 auto;
+  background: white;
   border-radius: 10px;
-  margin: 10px auto;
-  display: block;
-  object-fit: cover;
-  box-shadow: 0 1px 6px rgba(0,0,0,0.1);
+  padding: 20px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
 }
 
-/* ===== DETAILS HEADINGS ===== */
-#detailsContent h2 {
-  color: #0b6d0b;
-  font-size: 18px;
-  margin-bottom: 6px;
+#productDetails .product-detail-card img {
+  width: 100%;
+  max-width: 350px;
+  height: auto;
+  border-radius: 8px;
+  margin-bottom: 15px;
 }
 
-#detailsContent p {
-  color: #444;
-  line-height: 1.5;
-  font-size: 14px;
+#productDetails .product-detail-card h3 {
+  color: #006400;
+  font-size: 1.3rem;
   margin-bottom: 8px;
 }
 
-.details-price {
-  font-size: 15px;
-  font-weight: bold;
-  color: #0b6d0b;
-  margin-top: 6px;
+#productDetails .product-detail-card p {
+  color: #444;
+  font-size: 0.95rem;
+  line-height: 1.6;
 }
 
-/* ===== BUY NOW BUTTON (WhatsApp) ===== */
-.whatsapp-btn {
-  display: inline-block;
-  background: #25d366;
-  color: white;
-  padding: 7px 13px;
-  border-radius: 6px;
-  text-decoration: none;
-  font-weight: 600;
-  font-size: 13.5px;
-  margin-top: 8px;
-  transition: background 0.3s ease;
+/* ====== Chatbox Styles ====== */
+#chatBox {
+  animation: fadeIn 0.3s ease-in-out;
+  font-family: "Poppins", Arial, sans-serif;
 }
 
-.whatsapp-btn:hover {
-  background: #1ebe5d;
+#chatBox textarea {
+  font-family: inherit;
+  resize: none;
 }
 
-.whatsapp-btn i {
-  margin-right: 6px;
+#chatBox button {
+  transition: 0.3s;
 }
 
-/* ===== AUTO SLIDER IMAGES (PRODUCT GALLERY) ===== */
-.carousel-container {
-  overflow: hidden;
-  position: relative;
-  width: 100%;
-  max-width: 380px;
-  margin: 0 auto 10px;
-  border-radius: 10px;
-  box-shadow: 0 1px 6px rgba(0,0,0,0.1);
+/* ====== No Products Message ====== */
+#marketplace .no-products {
+  text-align: center;
+  color: #555;
+  margin-top: 15px;
+  font-size: 0.95rem;
 }
 
-.carousel-slider {
-  display: flex;
-  transition: transform 0.8s ease-in-out;
-}
-
-.carousel-slider img {
-  min-width: 100%;
-  border-radius: 10px;
-  object-fit: cover;
-}
-
-/* ===== SMALL SCREEN RESPONSIVENESS ===== */
-@media (max-width: 600px) {
-  .product-card {
-    padding: 7px;
-  }
-
-  .product-card img {
-    width: 70px;
-    height: 70px;
-    margin-right: 10px;
-  }
-
-  .card-info h4 {
-    font-size: 14px;
-  }
-
-  .card-info p {
-    font-size: 12.5px;
-  }
-
-  #detailsContent img {
-    width: 92%;
-    max-width: 320px;
-  }
-
-  .whatsapp-btn {
-    font-size: 13px;
-    padding: 6px 12px;
-  }
-}
-
-/* ===== SMOOTH FADE-IN ANIMATION (OPTIONAL) ===== */
+/* ====== Fade Animation ====== */
 @keyframes fadeIn {
-  from { opacity: 0; transform: scale(0.98); }
-  to { opacity: 1; transform: scale(1); }
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
 }
 
-.product-card,
-#productDetails {
-  animation: fadeIn 0.3s ease;
+/* ====== Mobile Adjustments ====== */
+@media (max-width: 600px) {
+  #marketplace .marketplace-top {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  #marketplace .register-btn {
+    width: 100%;
+    text-align: center;
+  }
+  #marketplace .market-search {
+    width: 100%;
+  }
 }
 
   /* COUNTER SECTION */
@@ -1423,29 +1398,60 @@ select.grade-select.f9, select.grade-select.f { background-color: #ffe0e0; color
 }
 </style>
 
-  <!-- MARKETPLACE SECTION -->
+  <!-- ============================
+     🛍️ UNIOSUN MARKETPLACE (Eyes of 3080)
+============================ -->
 <section id="marketplace" class="page-section">
-  <h2 class="section-title">🛍️ UNIOSUN MARKETPLACE</h2>
-  <p>Shop campus essentials, merch & e-books right here on <b>Eyes of 3080</b>.</p>
-
-  <p>Want to sell your products?</p>
-  <a href="https://wa.me/2347063123719?text=Hello%2C%20I%20want%20to%20register%20my%20goods%20on%20UNIOSUN%20Marketplace"
-     target="_blank" 
-     class="register-btn">Register Your Product</a>
-
-  <!-- Small text under register -->
-  <p class="view-products-text">🛒 <b>VIEW PRODUCTS</b></p>
-
-  <div id="productGrid" class="product-grid">
-    <div id="productSlider" class="product-slider"></div>
+  <div class="marketplace-header">
+    <h2 class="section-title">🛍️ UNIOSUN MARKETPLACE</h2>
+    <p class="section-subtitle">
+      Shop verified campus essentials, merch, gadgets & digital materials — powered by <b>Eyes of 3080</b>.
+    </p>
   </div>
+
+  <div class="marketplace-top">
+    <a href="https://wa.me/2347063123719?text=Hello%2C%20I%20want%20to%20register%20my%20goods%20on%20UNIOSUN%20Marketplace"
+       target="_blank" 
+       class="register-btn">
+      Register Your Product
+    </a>
+
+    <input 
+      type="text" 
+      id="marketSearch" 
+      placeholder="🔍 Search products, category, or seller..."
+      class="market-search"
+      oninput="filterProducts(this.value)">
+  </div>
+
+  <div id="productGrid" class="product-grid"></div>
+  <p class="no-products" id="noProducts" style="display:none;">😔 No products found</p>
 </section>
 
-<!-- PRODUCT DETAILS PAGE -->
+
+<!-- ============================
+     PRODUCT DETAILS PAGE
+============================ -->
 <section id="productDetails" class="page-section" style="display:none;">
-  <button class="back-btn" onclick="showMarketplace()">← Back</button>
-  <div id="detailsContent"></div>
+  <button class="back-btn" onclick="showMarketplace()">← Back to Marketplace</button>
+  <div id="detailsContent" class="product-details"></div>
 </section>
+
+
+<!-- ============================
+     BUYER CHAT POPUP (Message Seller)
+============================ -->
+<div id="chatBox" style="display:none; position:fixed; bottom:80px; right:20px; background:white; border:1px solid #ccc; border-radius:10px; box-shadow:0 4px 10px rgba(0,0,0,0.1); width:300px; z-index:9999;">
+  <div style="background:#006400; color:white; padding:10px; border-radius:10px 10px 0 0;">
+    <strong>💬 Message Seller</strong>
+  </div>
+  <div style="padding:10px;">
+    <textarea id="buyerMessage" placeholder="Type your message..." style="width:100%; height:70px; border:1px solid #ccc; border-radius:6px; padding:8px;"></textarea>
+    <button onclick="sendMessage()" style="background:#006400; color:white; border:none; padding:8px 12px; border-radius:6px; margin-top:8px; width:100%; cursor:pointer;">Send Message</button>
+    <button onclick="closeChat()" style="background:#ccc; color:#333; border:none; padding:6px 10px; border-radius:6px; margin-top:5px; width:100%; cursor:pointer;">Close</button>
+  </div>
+</div>
+
 
   
 

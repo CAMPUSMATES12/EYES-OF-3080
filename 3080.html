@@ -773,6 +773,11 @@ select.grade-select.f9, select.grade-select.f { background-color: #ffe0e0; color
   background: #004d00; /* ✅ same hover as submit */
 }
 
+#favoritesSection .product-card {
+  border: 1px solid #e0e0e0;
+  box-shadow: 0 1px 5px rgba(0,0,0,0.05);
+}
+
   /* COUNTER SECTION */
   .stats-section { background:var(--uni-green); color:#fff; padding:50px 20px; text-align:center; }
   .stats-container { display:flex; flex-wrap:wrap; justify-content:center; max-width:1000px; margin:auto; gap:30px; }
@@ -1611,7 +1616,21 @@ select.grade-select.f9, select.grade-select.f { background-color: #ffe0e0; color
   <div id="detailsContent" class="product-details"></div>
 </section>
 
+<!-- ============================
+     ❤️ FAVORITES PAGE
+============================ -->
+<section id="favoritesSection" class="page-section" style="display:none;">
+  <button class="back-btn" onclick="showMarketplace()">← Back to Marketplace</button>
+  <div class="marketplace-header">
+    <h2 class="section-title">My Favorites</h2>
+    <p class="section-subtitle">
+      All the products you’ve loved are saved here for easy access.
+    </p>
+  </div>
 
+  <div id="favoritesGrid" class="product-grid"></div>
+  <p class="no-products" id="noFavorites" style="display:none;">You haven’t added any favorites yet </p>
+</section>
 
 <!-- ============================
      ⚠️ REPORT PRODUCT MODAL

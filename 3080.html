@@ -1936,24 +1936,47 @@ counters.forEach(counter => {
   const breadcrumbContainer = document.getElementById('breadcrumb');
   if (!breadcrumbContainer) return;
 
-  // Get current URL path
-  const path = window.location.pathname; // e.g., /products/electronics/phone
-  const segments = path.split('/').filter(Boolean); // remove empty segments
+  // Detect GitHub Pages base path (repo name)
+  const pathName = window.location.pathname;
+  const basePath = pathName.split('/')[1] || '';
+  const segments = pathName.split('/').filter(Boolean);
 
-  // Start with Home link
-  let breadcrumbHTML = `<a href="/">Home</a>`;
+  // Remove default filenames (index.html, default.html, etc.)
+  if (segments.length && segments[segments.length - 1].match(/^(index|default)\./i)) {
+    segments.pop();
+  }
 
-  // Build breadcrumb links
+  // Handle root path
+  const siteRoot = basePath ? `/${basePath}` : '';
+  let breadcrumbHTML = `<a href="${siteRoot}/">Home</a>`;
   let accumulatedPath = '';
+
   segments.forEach((segment, index) => {
     accumulatedPath += `/${segment}`;
-    // Capitalize first letter and replace dashes with spaces
-    const name = segment.replace(/-/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
-    // Last item is not clickable
-    if (index === segments.length - 1) {
-      breadcrumbHTML += ` &gt; <span>${name}</span>`;
+
+    // Clean name: remove extensions, replace -/_ with space, capitalize
+    let name = segment
+      .replace(/\.[^/.]+$/, '') // remove .html
+      .replace(/[-_]/g, ' ')
+      .replace(/\b\w/g, l => l.toUpperCase());
+
+    const isLast = index === segments.length - 1;
+
+    // Try to use actual page <h1> or <title> for last segment
+    if (isLast) {
+      const pageHeading = document.querySelector('h1, .page-title');
+      const pageTitle = pageHeading ? pageHeading.textContent.trim() : document.title;
+
+      if (pageTitle && pageTitle.toLowerCase() !== name.toLowerCase()) {
+        name = pageTitle;
+      }
+    }
+
+    // Add to breadcrumb
+    if (isLast) {
+      breadcrumbHTML += `<span class="divider">/</span><span class="current">${name}</span>`;
     } else {
-      breadcrumbHTML += ` &gt; <a href="${accumulatedPath}">${name}</a>`;
+      breadcrumbHTML += `<span class="divider">/</span><a href="${siteRoot}${accumulatedPath}/">${name}</a>`;
     }
   });
 

@@ -1932,56 +1932,50 @@ counters.forEach(counter => {
   // Stop confetti after 30 seconds to save resources
   setTimeout(() => clearInterval(confettiInterval), 30000);
 
-(function() {
-  const breadcrumbContainer = document.getElementById('breadcrumb');
-  if (!breadcrumbContainer) return;
+// ===============================
+// 🧭 DYNAMIC BREADCRUMB SYSTEM
+// ===============================
+const breadcrumb = document.getElementById("breadcrumb");
 
-  // Detect GitHub Pages base path (repo name)
-  const pathName = window.location.pathname;
-  const basePath = pathName.split('/')[1] || '';
-  const segments = pathName.split('/').filter(Boolean);
-
-  // Remove default filenames (index.html, default.html, etc.)
-  if (segments.length && segments[segments.length - 1].match(/^(index|default)\./i)) {
-    segments.pop();
-  }
-
-  // Handle root path
-  const siteRoot = basePath ? `/${basePath}` : '';
-  let breadcrumbHTML = `<a href="${siteRoot}/">Home</a>`;
-  let accumulatedPath = '';
-
-  segments.forEach((segment, index) => {
-    accumulatedPath += `/${segment}`;
-
-    // Clean name: remove extensions, replace -/_ with space, capitalize
-    let name = segment
-      .replace(/\.[^/.]+$/, '') // remove .html
-      .replace(/[-_]/g, ' ')
-      .replace(/\b\w/g, l => l.toUpperCase());
-
-    const isLast = index === segments.length - 1;
-
-    // Try to use actual page <h1> or <title> for last segment
+// Initialize breadcrumb
+function setBreadcrumb(pathArray) {
+  if (!breadcrumb) return;
+  let html = `<a href="#" onclick="goHome()">Home</a>`;
+  pathArray.forEach((item, index) => {
+    const isLast = index === pathArray.length - 1;
+    html += ` <span class="divider">/</span> `;
     if (isLast) {
-      const pageHeading = document.querySelector('h1, .page-title');
-      const pageTitle = pageHeading ? pageHeading.textContent.trim() : document.title;
-
-      if (pageTitle && pageTitle.toLowerCase() !== name.toLowerCase()) {
-        name = pageTitle;
-      }
-    }
-
-    // Add to breadcrumb
-    if (isLast) {
-      breadcrumbHTML += `<span class="divider">/</span><span class="current">${name}</span>`;
+      html += `<span class="current">${item}</span>`;
     } else {
-      breadcrumbHTML += `<span class="divider">/</span><a href="${siteRoot}${accumulatedPath}/">${name}</a>`;
+      html += `<a href="#" onclick="navigateTo('${item}')">${item}</a>`;
     }
   });
+  breadcrumb.innerHTML = html;
+}
 
-  breadcrumbContainer.innerHTML = breadcrumbHTML;
-})();
+// Example functions for navigation (you can replace these)
+function goHome() {
+  setBreadcrumb([]); // reset breadcrumb
+  // Show your home content logic here
+  document.getElementById("content").innerHTML = "<h1>🏠 Home Section</h1>";
+}
+
+function navigateTo(section) {
+  // Example: simulate switching content
+  if (section === "News") {
+    document.getElementById("content").innerHTML = "<h1>📰 News Section</h1>";
+    setBreadcrumb(["News"]);
+  } else if (section === "Games") {
+    document.getElementById("content").innerHTML = "<h1>🎮 Games Section</h1>";
+    setBreadcrumb(["Games"]);
+  } else if (section === "Eyes Of 3080") {
+    document.getElementById("content").innerHTML = "<h1>👁️ Eyes of 3080 Headline</h1>";
+    setBreadcrumb(["Games", "Eyes Of 3080"]);
+  }
+}
+
+// Set initial breadcrumb
+setBreadcrumb([]);
 
 /* ============================
    MENU + DARK MODE

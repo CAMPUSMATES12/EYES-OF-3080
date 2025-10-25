@@ -803,41 +803,37 @@ select.grade-select.f9, select.grade-select.f { background-color: #ffe0e0; color
  
 
 /* ============================
-   🧭 DYNAMIC BREADCRUMB STYLES
+   🧭 BREADCRUMB STYLE
 ============================ */
-.breadcrumb {
-  display: flex;
-  align-items: center;
-  flex-wrap: wrap;
-  font-family: "Poppins", Arial, sans-serif;
+#breadcrumb {
+  font-family: "Poppins", sans-serif;
   font-size: 0.9rem;
-  margin: 10px 0 20px;
-  background: #f9f9f9;
-  padding: 8px 14px;
-  border-radius: 6px;
-  border: 1px solid #e0e0e0;
+  color: #444;
+  background: #f7f7f7;
+  padding: 8px 16px;
+  border-bottom: 1px solid #e5e5e5;
 }
 
-.breadcrumb a {
+#breadcrumb a {
   color: #006400;
   text-decoration: none;
   font-weight: 500;
-  transition: 0.2s;
 }
 
-.breadcrumb a:hover {
+#breadcrumb a:hover {
   text-decoration: underline;
 }
 
-.breadcrumb .divider {
-  color: #777;
+#breadcrumb .divider {
+  color: #888;
   margin: 0 6px;
 }
 
-.breadcrumb .current {
-  color: #333;
+#breadcrumb .current {
+  color: #000;
   font-weight: 600;
 }
+
 
   /* FOOTER */
   footer { background:var(--uni-green); color:#fff; padding:30px 16px; text-align:center; }
@@ -1932,50 +1928,71 @@ counters.forEach(counter => {
   // Stop confetti after 30 seconds to save resources
   setTimeout(() => clearInterval(confettiInterval), 30000);
 
-// ===============================
-// 🧭 DYNAMIC BREADCRUMB SYSTEM
-// ===============================
-const breadcrumb = document.getElementById("breadcrumb");
-
-// Initialize breadcrumb
-function setBreadcrumb(pathArray) {
+// ============================
+// 🧭 CLICKABLE BREADCRUMB SYSTEM (SPA VERSION)
+// ============================
+(function () {
+  const breadcrumb = document.getElementById("breadcrumb");
   if (!breadcrumb) return;
-  let html = `<a href="#" onclick="goHome()">Home</a>`;
-  pathArray.forEach((item, index) => {
-    const isLast = index === pathArray.length - 1;
-    html += ` <span class="divider">/</span> `;
-    if (isLast) {
-      html += `<span class="current">${item}</span>`;
-    } else {
-      html += `<a href="#" onclick="navigateTo('${item}')">${item}</a>`;
+
+  // ✅ Render breadcrumb HTML
+  function renderTrail(trail = []) {
+    let html = `<a href="#" onclick="navigateTo('home');return false;">Home</a>`;
+    trail.forEach((t, i) => {
+      const id = t.toLowerCase().replace(/\s+/g, '');
+      html += ` <span class="divider">›</span> `;
+      if (i === trail.length - 1) {
+        html += `<span class="current">${t}</span>`;
+      } else {
+        html += `<a href="#" onclick="navigateTo('${id}');return false;">${t}</a>`;
+      }
+    });
+    breadcrumb.innerHTML = html;
+  }
+
+  // ✅ Global function for manual updates
+  window.setBreadcrumbTrail = function (trail) {
+    renderTrail(trail);
+  };
+
+  // ✅ Observe visible section for auto updates
+  const observer = new MutationObserver(() => {
+    const visible = [...document.querySelectorAll(".page-section")].find(
+      s => s.style.display !== "none"
+    );
+    if (visible) {
+      const title =
+        visible.dataset.title ||
+        visible.querySelector("h2,h1")?.textContent?.trim() ||
+        visible.id;
+      renderTrail([title]);
     }
   });
-  breadcrumb.innerHTML = html;
-}
 
-// Example functions for navigation (you can replace these)
-function goHome() {
-  setBreadcrumb([]); // reset breadcrumb
-  // Show your home content logic here
-  document.getElementById("content").innerHTML = "<h1>🏠 Home Section</h1>";
-}
+  document.querySelectorAll(".page-section").forEach(s => {
+    observer.observe(s, { attributes: true, attributeFilter: ["style"] });
+  });
 
-function navigateTo(section) {
-  // Example: simulate switching content
-  if (section === "News") {
-    document.getElementById("content").innerHTML = "<h1>📰 News Section</h1>";
-    setBreadcrumb(["News"]);
-  } else if (section === "Games") {
-    document.getElementById("content").innerHTML = "<h1>🎮 Games Section</h1>";
-    setBreadcrumb(["Games"]);
-  } else if (section === "Eyes Of 3080") {
-    document.getElementById("content").innerHTML = "<h1>👁️ Eyes of 3080 Headline</h1>";
-    setBreadcrumb(["Games", "Eyes Of 3080"]);
+  renderTrail([]); // Default Home
+})();
+
+// ============================
+// 🧭 SPA SECTION NAVIGATION HANDLER
+// ============================
+function navigateTo(sectionId) {
+  document.querySelectorAll(".page-section").forEach(sec => (sec.style.display = "none"));
+  const target = document.getElementById(sectionId);
+  if (target) target.style.display = "block";
+
+  // Update breadcrumb trail when navigating manually
+  if (window.setBreadcrumbTrail) {
+    const formatted = sectionId.charAt(0).toUpperCase() + sectionId.slice(1);
+    window.setBreadcrumbTrail([formatted]);
   }
-}
 
-// Set initial breadcrumb
-setBreadcrumb([]);
+  // Optionally scroll to top
+  window.scrollTo({ top: 0, behavior: "smooth" });
+}
 
 /* ============================
    MENU + DARK MODE
@@ -2373,9 +2390,8 @@ function renderCard(post, table) {
   `;
 }
 
-
 /* ============================
-   OPEN FULL POST (With Author + Shareable URL)
+   📰 OPEN FULL POST (With Author + Breadcrumb + Share)
 ============================ */
 async function openPost(id, table = "home") {
   try {
@@ -2391,12 +2407,14 @@ async function openPost(id, table = "home") {
       return;
     }
 
-    const author = post.author || "Eyes of 3080 Admin"; // fallback author
+    const author = post.author || "Eyes of 3080 Admin";
     const date = post.date ? new Date(post.date).toLocaleDateString() : "";
     const container = document.getElementById("post-modal");
     container.style.display = "block";
 
-    // ✅ Update browser URL (without reloading)
+    
+
+    // ✅ Update browser URL (no reload)
     history.pushState(null, "", `?post=${id}`);
 
     container.innerHTML = `
@@ -2409,7 +2427,7 @@ async function openPost(id, table = "home") {
         position:relative;
       ">
         <!-- Close Button -->
-        <button onclick="closePostModal()" 
+        <button onclick="closePostModal('${table}')" 
                 style="
                   position:absolute; 
                   top:10px; 
@@ -2488,25 +2506,58 @@ async function openPost(id, table = "home") {
     loadComments(post.id);
   } catch (err) {
     console.error("❌ Error while opening post:", err);
-    alert("Something went wrong while opening this post. Check the console for details.");
+    alert("Something went wrong while opening this post. Check console for details.");
   }
-}
-/* ============================
-   CLOSE POST MODAL
-============================ */
-function closePostModal() {
-  const container = document.getElementById("post-modal");
-  container.style.display = "none";
-  container.innerHTML = ""; // clear content
-  history.pushState(null, "", window.location.pathname); // reset URL
 }
 
 /* ============================
-   SHARE POST FUNCTION
+   🧭 BREADCRUMB SYSTEM
+============================ */
+function setBreadcrumbTrail(items) {
+  let breadcrumb = document.getElementById("breadcrumb");
+  if (!breadcrumb) {
+    breadcrumb = document.createElement("div");
+    breadcrumb.id = "breadcrumb";
+    breadcrumb.style.cssText = `
+      margin: 15px auto; 
+      max-width: 850px; 
+      padding: 8px 12px; 
+      background: #f9f9f9; 
+      border-radius: 6px; 
+      font-size: 0.9rem;
+      color: #333;
+    `;
+    document.body.insertBefore(breadcrumb, document.body.firstChild);
+  }
+
+  breadcrumb.innerHTML = `
+    <a href="#" onclick="showHome()" style="color:#006400;text-decoration:none;font-weight:600;">🏠 Home</a>
+    ${items.map((item, i) =>
+      item.onclick
+        ? ` › <a href="#" onclick="(${item.onclick})()" style="color:#006400;text-decoration:none;">${item.label}</a>`
+        : ` › <span>${item.label}</span>`
+    ).join("")}
+  `;
+}
+
+/* ============================
+   🏠 CLOSE POST MODAL
+============================ */
+function closePostModal(table = "home") {
+  const container = document.getElementById("post-modal");
+  container.style.display = "none";
+  container.innerHTML = "";
+  history.pushState(null, "", window.location.pathname);
+
+  // ✅ Reset breadcrumb to section only
+  setBreadcrumbTrail([{ label: table.charAt(0).toUpperCase() + table.slice(1), onclick: () => showSection(table) }]);
+}
+
+/* ============================
+   🔗 SHARE POST FUNCTION
 ============================ */
 function sharePost(id, table = "home") {
   const postUrl = `${window.location.origin}${window.location.pathname}?post=${id}`;
-
   if (navigator.share) {
     navigator.share({
       title: "Eyes of 3080 Post",
@@ -2520,7 +2571,7 @@ function sharePost(id, table = "home") {
 }
 
 /* ============================
-   LOAD COMMENTS
+   💬 LOAD COMMENTS
 ============================ */
 async function loadComments(postId) {
   const { data: comments, error } = await supabase
@@ -2545,7 +2596,7 @@ async function loadComments(postId) {
 }
 
 /* ============================
-   SUBMIT COMMENT
+   💭 SUBMIT COMMENT
 ============================ */
 async function submitComment(postId) {
   const input = document.getElementById(`comment-input-${postId}`);
@@ -2554,7 +2605,6 @@ async function submitComment(postId) {
 
   const { data: userData } = await supabase.auth.getUser();
   const user = userData?.user;
-
   if (!user) return alert("You must be logged in to comment");
 
   const { error } = await supabase
@@ -2571,13 +2621,25 @@ async function submitComment(postId) {
 }
 
 /* ============================
-   AUTO OPEN POST IF ?post=ID IS IN URL
+   🚀 AUTO OPEN POST IF URL CONTAINS ?post=
 ============================ */
 window.addEventListener("DOMContentLoaded", async () => {
   const urlParams = new URLSearchParams(window.location.search);
   const postId = urlParams.get("post");
   if (postId) openPost(postId, "home");
 });
+
+/* ============================
+   🧩 HELPER FOR SECTION SWITCH
+============================ */
+function showSection(sectionId) {
+  document.querySelectorAll(".page-section").forEach(s => (s.style.display = "none"));
+  document.getElementById(sectionId).style.display = "block";
+}
+function showHome() {
+  showSection("home");
+  setBreadcrumbTrail([]);
+}
 
 /* ============================
    LOAD POSTS INTO GRID

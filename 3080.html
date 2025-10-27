@@ -2391,7 +2391,7 @@ function renderCard(post, table) {
 }
 
 /* ============================
-   📰 OPEN FULL POST (With Author + Breadcrumb + Share)
+   📰 OPEN FULL POST (With Author + Breadcrumb + Share + Smart Text)
 ============================ */
 async function openPost(id, table = "home") {
   try {
@@ -2412,11 +2412,51 @@ async function openPost(id, table = "home") {
     const container = document.getElementById("post-modal");
     container.style.display = "block";
 
-    
+    // ✅ Update breadcrumb dynamically
+    if (typeof setBreadcrumbTrail === "function") {
+      setBreadcrumbTrail([
+        table.charAt(0).toUpperCase() + table.slice(1),
+        post.title || "Untitled"
+      ]);
+    }
 
     // ✅ Update browser URL (no reload)
     history.pushState(null, "", `?post=${id}`);
 
+    // ============================
+    // 🔗 Auto-Linkify Function
+    // ============================
+    function autoLinkify(text) {
+      if (!text) return "";
+      return text
+        // 🌐 Detect URLs
+        .replace(
+          /(\bhttps?:\/\/[^\s]+)/gi,
+          '<a href="$1" target="_blank" style="color:#006400;text-decoration:underline;">$1</a>'
+        )
+        // 📧 Detect Emails
+        .replace(
+          /([a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,})/gi,
+          '<a href="mailto:$1" style="color:#006400;text-decoration:underline;">$1</a>'
+        )
+        // 📞 Detect Phone Numbers
+        .replace(
+          /(\+?\d[\d\s().-]{7,}\d)/g,
+          '<a href="tel:$1" style="color:#006400;text-decoration:underline;">$1</a>'
+        )
+        // 🔠 Make ALL CAPS bold
+        .replace(/\b([A-Z]{2,})\b/g, '<b style="font-weight:600;">$1</b>');
+    }
+
+    // ✅ Auto-format content (paragraphs, links, caps)
+    const formattedContent = post.content
+      ? post.content
+          .split(/\n+/)
+          .map(line => `<p style="line-height:1.6;color:#333;">${autoLinkify(line.trim())}</p>`)
+          .join("")
+      : "<p>No content available.</p>";
+
+    // ✅ Render Post
     container.innerHTML = `
       <div style="
         background:white; 
@@ -2451,8 +2491,19 @@ async function openPost(id, table = "home") {
           ${date ? ` • <span>${date}</span>` : ""}
         </p>
 
+        <!-- Image -->
+        ${
+          post.image_url
+            ? `<div style="position:relative;display:block;max-width:100%;margin:10px 0;">
+                <img src="${post.image_url}" style="width:100%;border-radius:6px;">
+                <img src="https://vtpsruejncfykiazrfsx.supabase.co/storage/v1/object/public/PRODUCTS/EYES%20OF%203080%20logo" 
+                     style="position:absolute;bottom:10px;right:10px;width:25%;max-width:200px;opacity:0.9;pointer-events:none;">
+               </div>`
+            : ""
+        }
+
         <!-- Content -->
-        <p style="margin-bottom:10px; line-height:1.6; color:#333;">${post.content}</p>
+        <div style="margin-bottom:10px;">${formattedContent}</div>
 
         <!-- SHARE -->
         <div style="margin-top:15px;">
@@ -2483,8 +2534,7 @@ async function openPost(id, table = "home") {
                       margin-top:5px; 
                       border:1px solid #006400; 
                       border-radius:5px;
-                    ">
-          </textarea>
+                    "></textarea>
 
           <button style="
                     background:#006400; 

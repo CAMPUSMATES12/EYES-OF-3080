@@ -2403,22 +2403,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const editBio = document.getElementById("editBio");
   const editEmail = document.getElementById("editEmail");
 
-  // ==========================
-  // 🟢 HEADER PROFILE ICON HANDLER
-  // ==========================
-  if (headerProfileIcon) {
-    headerProfileIcon.addEventListener("click", () => {
-      // Hide all other sections
-      document.querySelectorAll("section").forEach((sec) => (sec.style.display = "none"));
-
-      // Show profile section
-      const profileSection = document.getElementById("profileSection");
-      if (profileSection) profileSection.style.display = "block";
-
-      // Smooth scroll
-      window.scrollTo({ top: 0, behavior: "smooth" });
-    });
-  }
+ 
 
   // ==========================
   // 🟢 Load user info from Supabase

@@ -2418,9 +2418,10 @@ document.addEventListener("DOMContentLoaded", () => {
     const userId = user.id;
 
     // Populate visible info
-    if (profileName) profileName.textContent = user.user_metadata?.full_name || "User";
-    if (profileEmail) profileEmail.textContent = user.email;
-    if (profileBio) profileBio.textContent = user.user_metadata?.bio || "";
+    // Correct for input/textarea fields
+if (profileName) profileName.value = user.user_metadata?.full_name || "User";
+if (profileEmail) profileEmail.value = user.email;
+if (profileBio) profileBio.value = user.user_metadata?.bio || "";
     if (profileCreated)
       profileCreated.textContent = `Member since: ${new Date(user.created_at).toLocaleDateString()}`;
 

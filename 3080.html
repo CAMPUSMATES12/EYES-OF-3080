@@ -1307,6 +1307,14 @@ select.grade-select.f9, select.grade-select.f { background-color: #ffe0e0; color
     <p>Once you delete your account, there is no going back. Please be certain.</p>
     <button class="delete-btn" onclick="deleteAccount()">Delete Account</button>
   </div>
+    <!-- SIGN OUT ICON + LABEL -->
+  <div style="margin-top:10px;display:flex;align-items:center;gap:8px;">
+    <img src="https://cdn-icons-png.flaticon.com/512/1828/1828479.png"
+         alt="Sign Out"
+         style="width:24px;height:24px;cursor:pointer;"
+         onclick="signOutUser()">
+    <span style="cursor:pointer;color:#006400;font-weight:600;" onclick="signOutUser()">Sign Out</span>
+  </div>
 </section>
 
 
@@ -2579,7 +2587,7 @@ function acknowledgeWarning() {
   if (photoUpload) photoUpload.click();
 }
 
-// ============================
+ // ============================
 // 🗑️ DELETE ACCOUNT
 // ============================
 async function deleteAccount() {
@@ -2589,10 +2597,23 @@ async function deleteAccount() {
   try {
     await supabase.auth.signOut();
     alert("🗑️ Account deleted or signed out successfully.");
-    window.location.href = "/";
+    window.location.href = "index.html";
   } catch (err) {
     console.error("❌ Error deleting account:", err);
     alert("Failed to delete account.");
+  }
+}
+
+// ============================
+// 🚪 SIGN OUT USER
+// ============================
+async function signOutUser() {
+  try {
+    await supabase.auth.signOut();
+    window.location.href = "index.html"; // redirect to home/login page
+  } catch (err) {
+    console.error("❌ Sign out error:", err);
+    alert("Failed to sign out.");
   }
 }
 

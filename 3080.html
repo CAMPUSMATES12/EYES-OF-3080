@@ -1419,173 +1419,579 @@ Contact support on WhatsApp: +2349043855915
 
 
 
-<!-- 🎮 GAMING ZONE -->
+<!-- ============================
+     🎮 EYES OF 3080 GAMING SECTION
+============================ -->
 <section id="gaming" class="page-section" style="display:none;">
-  <h2 class="section">🎮 Gaming Zone</h2>
+  <h2 class="page-title">Eyes of 3080 Games</h2>
 
-  <style>
-    /* ===== Gaming Zone Styles ===== */
-    #gaming {
-      padding: 20px;
-      background: #f9f9f9;
-      border-radius: 8px;
-    }
 
-    #gaming h2.section {
-      color: var(--uni-green);
-      text-align: center;
-      margin-bottom: 25px;
-    }
+  <!-- ============================
+     🪙 Dashboard: Coins & Stats
+============================ -->
+<div id="dashboard">
 
-    #gaming .grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-      gap: 20px;
-    }
+  <!-- 🪙 Eye Points Box -->
+  <div class="coins-box">
+    <div class="coins-inner">
+      <div class="coins-left">
+        <div class="coins-icon">🪙</div>
+        <div class="coins-label">Your Eye Points</div>
+      </div>
+      <div class="coins-right">
+        <div class="coins-value" id="dashboardEP">0 <span>EP</span></div>
+        <div class="coins-note">Play games to earn more EP!</div>
+      </div>
+    </div>
+  </div>
 
-    #gaming .card {
-      background: #fff;
-      border-radius: 10px;
-      padding: 20px;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.08);
-      transition: transform 0.2s ease;
-    }
+  <!-- 📊 Player Stats -->
+  <div class="stats-list">
+    <div class="stat-card stat-level">
+      <div class="stat-icon">🏆</div>
+      <div class="stat-number" id="dashboardLevel">0</div>
+      <div class="stat-text">Overall Level</div>
+    </div>
 
-    #gaming .card:hover {
-      transform: translateY(-3px);
-    }
+    <div class="stat-card stat-games">
+      <div class="stat-icon">🎮</div>
+      <div class="stat-number" id="dashboardGamesPlayed">0</div>
+      <div class="stat-text">Games Played</div>
+    </div>
 
-    #gaming .card h3 {
-      margin: 10px 0;
-      color: var(--uni-green);
-    }
+    <div class="stat-card stat-score">
+      <div class="stat-icon">🎯</div>
+      <div class="stat-number" id="dashboardTotalScore">0</div>
+      <div class="stat-text">Total Score</div>
+    </div>
 
-    #gaming form input {
-      flex: 1;
-      padding: 10px;
-      border-radius: 8px;
-      border: 1px solid #ccc;
-    }
+    <!-- ⚡ Best Streak - optional, remove if not tracking -->
+    <div class="stat-card stat-streak" style="display:none;">
+      <div class="stat-icon">⚡</div>
+      <div class="stat-number" id="dashboardStreak">0</div>
+      <div class="stat-text">Best Streak</div>
+    </div>
+  </div>
 
-    #gaming form button {
-      padding: 10px 15px;
-      border-radius: 8px;
-      border: none;
-      background: var(--uni-green);
-      color: #fff;
-      cursor: pointer;
-      transition: background 0.3s;
-    }
+  <!-- 🎲 Games List -->
+  <div class="games-list">
+    <!-- JS will populate cards here dynamically -->
+  </div>
 
-    #gaming form button:hover {
-      background: var(--uni-green-2);
-    }
+</div>
 
-    /* Username button style (Option 2) */
-    #gaming ul {
-      margin-top: 12px;
-      padding-left: 0;
-      list-style: none;
-      display: flex;
-      flex-wrap: wrap;
-      gap: 8px;
-    }
+<!-- ============================
+     🎯 ACTIVE GAME SECTION
+============================ -->
+<section id="activeGameSection" class="active-game" style="display:none;">
 
-    #gaming ul li {
-      display: inline-block;
-    }
+  <!-- 🎮 Top Bar -->
+  <div class="game-topbar">
+    <!-- Back to Games -->
+    <button class="back-btn" onclick="exitGame()">← Back to Games</button>
 
-    #gaming ul li span {
-      background: var(--uni-green);
-      color: #fff;
-      padding: 6px 12px;
-      border-radius: 6px;
-      font-size: 14px;
-      cursor: pointer;
-      transition: background 0.3s ease;
-      display: inline-block;
-    }
+    <!-- Score + Question Counter -->
+    <div class="game-status">
+      <span id="gameScore">Score: 0</span>
+      <span id="gameQuestion">Q1 / 5</span>
+    </div>
 
-    #gaming ul li span:hover {
-      background: var(--uni-green-2);
-    }
+    <!-- Controls: Sound + Restart -->
+    <div class="game-controls">
+      <!-- 🔊 Sound Toggle -->
+      <button class="sound-btn" onclick="toggleSound()">
+        <img
+          id="soundIcon"
+          src="https://cdn-icons-png.flaticon.com/512/727/727240.png"
+          alt="Sound On"
+          class="icon-btn"
+        />
+      </button>
 
-    /* Responsive tweaks */
-    @media (max-width: 600px) {
-      #gaming .grid {
-        grid-template-columns: 1fr;
-      }
-    }
-  </style>
+      <!-- 🔁 Restart -->
+      <button class="restart-btn" onclick="restartCurrentGame()">
+        <img
+          src="https://cdn-icons-png.flaticon.com/512/1828/1828919.png"
+          alt="Restart"
+          class="icon-btn"
+        />
+      </button>
+    </div>
+  </div>
 
-  <section class="grid">
-    
-    <!-- eFootball -->
-    <article class="card" style="text-align:center;">
-      <img src="https://vtpsruejncfykiazrfsx.supabase.co/storage/v1/object/public/PRODUCTS/E-football%20logo" 
-           alt="eFootball Logo" style="max-width:120px; margin-bottom:10px;">
-      <h3>eFootball</h3>
-      <p>Share your Konami ID / Username to connect with fellow players.</p>
-      <form onsubmit="addGamertag(event, 'efootball')" style="display:flex;gap:10px;flex-wrap:wrap;">
-        <input type="text" id="efootballInput" placeholder="Enter your username" required />
-        <button type="submit">Share</button>
-      </form>
-      <ul id="efootballList"></ul>
-    </article>
+  <!-- 📖 Game Container -->
+<div class="game-container">
+  <!-- ✅ Game Title -->
+  <h3 id="currentGameTitle" class="game-title">Game Title</h3>
 
-    <!-- Free Fire -->
-    <article class="card" style="text-align:center;">
-      <img src="https://vtpsruejncfykiazrfsx.supabase.co/storage/v1/object/public/PRODUCTS/Free%20fire%20logo" 
-           alt="Free Fire Logo" style="max-width:120px; margin-bottom:10px;">
-      <h3>Free Fire</h3>
-      <p>Drop your Free Fire ID or nickname.</p>
-      <form onsubmit="addGamertag(event, 'freefire')" style="display:flex;gap:10px;flex-wrap:wrap;">
-        <input type="text" id="freefireInput" placeholder="Enter your Free Fire ID" required />
-        <button type="submit">Share</button>
-      </form>
-      <ul id="freefireList"></ul>
-    </article>
+  <!-- 🧠 Current Question -->
+  <h2 id="gameQuestionText">Loading question...</h2>
 
-    <!-- CODM -->
-    <article class="card" style="text-align:center;">
-      <img src="https://vtpsruejncfykiazrfsx.supabase.co/storage/v1/object/public/PRODUCTS/cod%20logo" 
-           alt="COD Mobile Logo" style="max-width:120px; margin-bottom:10px;">
-      <h3>Call of Duty Mobile</h3>
-      <p>Share your Call of Duty Mobile username to team up.</p>
-      <form onsubmit="addGamertag(event, 'codm')" style="display:flex;gap:10px;flex-wrap:wrap;">
-        <input type="text" id="codmInput" placeholder="Enter your CODM username" required />
-        <button type="submit">Share</button>
-      </form>
-      <ul id="codmList"></ul>
-    </article>
+  <!-- 📝 Options -->
+  <div id="gameOptions" class="options-grid"></div>
+</div>
+  <!-- 🏁 Result Screen -->
+  <div id="gameResult" class="game-result" style="display:none;">
+    <h2>🎉 Quiz Complete!</h2>
+    <p>You’ve earned <strong id="earnedPoints">0</strong> EP</p>
+    <div class="result-buttons">
+      <button class="play-again" onclick="restartCurrentGame()">Play Again</button>
+      <button class="collect" onclick="collectCoins()">Collect Coins</button>
+    </div>
+  </div>
+</section>
 
-<!-- DLS -->
-    <article class="card" style="text-align:center;">
-      <img src="https://vtpsruejncfykiazrfsx.supabase.co/storage/v1/object/public/PRODUCTS/DLS%20LOGO" 
-           alt="Dream League Soccer Logo" style="max-width:120px; margin-bottom:10px;">
-      <h3>Dream League Soccer</h3>
-      <p>Share your DLS username to connect with friends.</p>
-      <form onsubmit="addGamertag(event, 'dls')" style="display:flex;gap:10px;flex-wrap:wrap;">
-        <input type="text" id="dlsInput" placeholder="Enter your DLS username" required />
-        <button type="submit">Share</button>
-      </form>
-      <ul id="dlsList"></ul>
-    </article>
-    
-    
-  <!-- BLOOD STRIKE -->
-<article class="card" style="text-align:center;">
-  <img src="https://vtpsruejncfykiazrfsx.supabase.co/storage/v1/object/public/PRODUCTS/Blood%20strike%20.jpeg" 
-       alt="blood strike Logo" style="max-width:120px; margin-bottom:10px;">
-  <h3>BLOOD STRIKE</h3>
-  <p>Share your Blood Strike username to connect with friends.</p>
-  <form onsubmit="addGamertag(event, 'blood strike')" style="display:flex;gap:10px;flex-wrap:wrap;">
-    <input type="text" id="bloodstrikeInput" placeholder="Enter your Blood Strike username" required />
-    <button type="submit">Share</button>
-  </form>
-  <ul id="bloodstrikeList"></ul>
-</article>
 
+
+ <style>
+/* ===============================
+   🎮 UniGames Styling
+=============================== */
+/* Container */
+.uni-games {
+  max-width: 480px;
+  margin: 26px auto;
+  padding: 12px;
+  background: #f6fdf7; /* subtle green background */
+  font-family: "Poppins", system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+  color: #222;
+}
+
+.game-title {
+  text-align: center;
+  font-size: 1.2rem;
+  color: #006400;
+  font-weight: 600;
+  margin-top: 10px;
+}
+
+/* Title */
+.page-title {
+  color: #0a5b2d;
+  font-size: 20px;
+  font-weight: 700;
+  margin: 8px 0 14px;
+  padding-left: 6px;
+}
+
+/* ===== UniCoins Box (large) ===== */
+.coins-box {
+  background: linear-gradient(180deg, #fff7d9, #fff2c9);
+  border: 1px solid #f6e39a;
+  border-radius: 14px;
+  padding: 18px;
+  margin-bottom: 18px;
+  box-shadow: 0 6px 18px rgba(2, 48, 10, 0.04);
+}
+
+.coins-inner {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.coins-left {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+}
+.coins-icon {
+  width: 56px;
+  height: 56px;
+  border-radius: 12px;
+  background: rgba(0, 100, 0, 0.06);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 22px;
+  color: #b67b00;
+  box-shadow: inset 0 -3px 0 rgba(0,0,0,0.02);
+}
+.coins-label {
+  font-weight: 700;
+  color: #3f3a00;
+  font-size: 14px;
+}
+
+/* right side (big number) */
+.coins-right {
+  text-align: right;
+  min-width: 150px;
+}
+.coins-value {
+  font-size: 36px;
+  font-weight: 800;
+  color: #b56d00;
+  line-height: 1;
+}
+.coins-value span {
+  font-size: 14px;
+  font-weight: 700;
+  color: #634e00;
+  margin-left: 6px;
+}
+.coins-note {
+  font-size: 13px;
+  color: #445542;
+  margin-top: 4px;
+}
+
+/* ===== Stats list (stacked full-width cards) ===== */
+.stats-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-bottom: 18px;
+}
+
+/* each stat card */
+.stat-card {
+  background: #fff;
+  border-radius: 12px;
+  padding: 18px 14px;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.04);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+}
+
+/* icon (big, centered) */
+.stat-icon {
+  width: 44px;
+  height: 44px;
+  border-radius: 10px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-size: 20px;
+  background: rgba(0,0,0,0.02);
+  color: #057a3b;
+}
+
+/* number (big) */
+.stat-number {
+  font-size: 36px;
+  font-weight: 800;
+  color: #111;
+  line-height: 1;
+  margin-top: 2px;
+}
+
+/* caption under number */
+.stat-text {
+  font-size: 14px;
+  color: #60705f;
+  font-weight: 600;
+  margin-bottom: 2px;
+}
+
+/* slight color variations per card (optional; just like screenshot small icon color) */
+.stat-level .stat-icon { background: rgba(128, 0, 128, 0.05); color: #6b1fa6; }
+.stat-games .stat-icon { background: rgba(0, 123, 0, 0.04); color: #0b7a3b; }
+.stat-score .stat-icon { background: rgba(0, 120, 0, 0.03); color: #00793a; }
+.stat-streak .stat-icon { background: rgba(255, 120, 0, 0.03); color: #ff7a15; }
+
+/* ===== Games list styling (cards) ===== */
+.games-list {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  margin-bottom: 30px;
+}
+
+.game-card {
+  background: #fff;
+  border-radius: 12px;
+  padding: 16px;
+  box-shadow: 0 6px 18px rgba(0,0,0,0.04);
+  border: 1px solid rgba(0,0,0,0.03);
+}
+
+/* header row: title + level tag on the right */
+.game-head {
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  gap:8px;
+}
+.game-head h3 {
+  margin:0;
+  font-size: 16px;
+  color: #063f23;
+}
+.level-tag {
+  background: #eef5ff;
+  color: #0c5bbd;
+  padding:6px 10px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+/* subtitle / small text */
+.subtitle {
+  color:#495a48;
+  margin: 8px 0 12px;
+  font-size: 14px;
+}
+
+/* coin range badge */
+.coin-level {
+  display:flex;
+  justify-content:flex-start;
+  gap:10px;
+  align-items:center;
+  margin-bottom:12px;
+}
+.coin-range {
+  background: #fff6d9;
+  color: #7b5f00;
+  padding:6px 10px;
+  border-radius: 10px;
+  font-weight:700;
+  font-size: 13px;
+}
+
+/* Play button (big green rounded) */
+.play-btn {
+  display:block;
+  width:100%;
+  background: linear-gradient(180deg,#0b7c3f,#007a33);
+  color:#fff;
+  border:none;
+  padding:14px 12px;
+  border-radius: 12px;
+  font-size: 15px;
+  font-weight: 700;
+  cursor:pointer;
+  transition: transform .12s ease, box-shadow .12s ease;
+  box-shadow: 0 6px 12px rgba(3,80,32,0.12);
+}
+.play-btn:hover { transform: translateY(-2px); box-shadow: 0 10px 22px rgba(3,80,32,0.14); }
+
+/* Responsive tweaks */
+@media (min-width: 540px) {
+  .uni-games { max-width: 560px; padding: 18px; }
+  .coins-right { min-width: 180px; }
+  .stat-number { font-size: 40px; }
+  .coins-value { font-size: 40px; }
+}
+
+
+
+
+
+/* ============================
+   🎮 ACTIVE GAME STYLING
+============================ */
+.active-game {
+  padding: 20px;
+  max-width: 700px;
+  margin: 40px auto;
+  font-family: "Poppins", sans-serif;
+  background: #f9f9f9;
+  border-radius: 12px;
+  box-shadow: 0 6px 18px rgba(0,0,0,0.12);
+}
+
+/* ============================
+   🧭 TOP BAR
+============================ */
+.game-topbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: #006400; /* site green */
+  color: #fff;
+  padding: 10px 15px;
+  border-radius: 10px;
+  margin-bottom: 20px;
+  gap: 10px;
+}
+
+.game-status {
+  display: flex;
+  gap: 15px;
+  font-size: 0.95rem;
+  align-items: center;
+}
+
+/* ============================
+   🔊 SOUND BUTTON (CIRCULAR)
+============================ */
+.sound-btn {
+  background: #fff;
+  color: #006400;
+  border-radius: 50%;
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.1rem;
+  cursor: pointer;
+  border: 2px solid #006400;
+  transition: all 0.3s ease;
+}
+.sound-btn:hover {
+  background: #e9fce9;
+}
+
+/* ============================
+   ⏩ BACK & RESTART (FLAT ICONS)
+============================ */
+.back-btn, .restart-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: #fff;
+  font-size: 1rem;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  transition: transform 0.2s ease, opacity 0.2s ease;
+}
+
+.back-btn:hover, .restart-btn:hover {
+  transform: scale(1.1);
+  opacity: 0.8;
+}
+
+/* ============================
+   🧩 GAME CONTAINER
+============================ */
+.game-container {
+  background: #fff;
+  padding: 25px;
+  border-radius: 12px;
+  text-align: center;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+}
+
+.game-container h2 {
+  font-size: 1.4rem;
+  color: #222;
+  margin-bottom: 20px;
+}
+
+/* ============================
+   🟩 OPTIONS GRID (VERTICAL)
+============================ */
+.options-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  margin-top: 15px;
+}
+
+.option {
+  background: #f2f2f2;
+  border: 2px solid #ddd;
+  border-radius: 10px;
+  padding: 16px 20px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.25s ease;
+  text-align: left;
+  font-size: 1rem;
+}
+.option:hover {
+  background: #e9fce9;
+  border-color: #008a45;
+}
+
+/* ============================
+   🏁 RESULT SCREEN
+============================ */
+.game-result {
+  text-align: center;
+  background: #fff;
+  padding: 25px;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+  margin-top: 25px;
+}
+
+.game-result h2 {
+  font-size: 1.5rem;
+  color: #006400;
+  margin-bottom: 10px;
+}
+
+.result-buttons {
+  display: flex;
+  justify-content: center;
+  gap: 20px;
+  margin-top: 25px;
+}
+
+/* 🎮 Play Again */
+.play-again {
+  background: #ccc;
+  color: #333;
+  border: none;
+  padding: 14px 28px;
+  border-radius: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  font-size: 1rem;
+  transition: all 0.3s ease;
+}
+.play-again:hover {
+  background: #bdbdbd;
+}
+
+/* 🪙 Collect Coins */
+.collect {
+  background: #006400; /* site green */
+  color: #fff;
+  border: none;
+  padding: 14px 28px;
+  border-radius: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  font-size: 1rem;
+  transition: all 0.3s ease;
+}
+.collect:hover {
+  background: #008a45;
+}
+
+/* ============================
+   📱 RESPONSIVE
+============================ */
+@media (max-width: 500px) {
+  .active-game {
+    padding: 15px;
+  }
+
+  .options-grid .option {
+    font-size: 0.95rem;
+    padding: 12px 16px;
+  }
+
+  .result-buttons {
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .play-again, .collect {
+    width: 100%;
+  }
+}
+
+/* ============================
+   🎨 ICON STYLE
+============================ */
+.icon-btn {
+  width: 22px;
+  height: 22px;
+  vertical-align: middle;
+}
+</style>
 
   </section>
 </section>
@@ -4484,100 +4890,296 @@ document.addEventListener("change", function(e) {
   }
 });
 
-/* ============================
-   GAMERS CONNECTIONS
-============================ */
-async function addGamertag(event, game) {
-  event.preventDefault();
-  const input = document.getElementById(game + "Input");
-  const list = document.getElementById(game + "List");
-  if (!input || !list) return;
 
-  const username = input.value.trim();
-  if (!username) return;
+// ============================
+// 🌍 Global Variables
+// ============================
+let currentGame = null;
+let currentQuestions = [];
+let currentQuestionIndex = 0;
+let currentScore = 0;
+let earnedEP = 0;
+let soundEnabled = true;
 
-  const { error } = await supabase.from("gamers").insert([
-    { "Game": game, "Username": username }
-  ]);
+// ============================
+// 🎯 DOM Elements
+// ============================
+const dashboard = document.getElementById("dashboard");
+const activeGameSection = document.getElementById("activeGameSection");
+const questionText = document.getElementById("gameQuestionText");
+const optionsGrid = document.getElementById("gameOptions");
+const scoreDisplay = document.getElementById("gameScore");
+const questionDisplay = document.getElementById("gameQuestion");
+const resultScreen = document.getElementById("gameResult");
+const earnedPointsDisplay = document.getElementById("earnedPoints");
 
-  if (error) {
-    console.error("❌ Error saving gamertag:", error.message);
-    alert("❌ Error saving gamertag: " + error.message);
+// ============================
+// 🧩 Load All Games Dynamically
+// ============================
+async function loadGamesList() {
+  console.log("🎮 Loading games from Supabase...");
+  const { data: games, error } = await supabase.from("games").select("*");
+  if (error) return console.error("Error loading games:", error);
+
+  let gamesContainer = document.querySelector("#dashboard .games-list");
+  if (!gamesContainer) {
+    gamesContainer = document.createElement("div");
+    gamesContainer.classList.add("games-list");
+    dashboard.appendChild(gamesContainer);
+  }
+
+  if (!games || games.length === 0) {
+    console.warn("⚠️ No games found — keeping static HTML cards.");
     return;
   }
 
-  renderGamertag(username, game, list);
-  input.value = "";
-}
+  gamesContainer.innerHTML = "";
 
-function renderGamertag(username, game, list) {
-  const li = document.createElement("li");
-  const span = document.createElement("span");
-  span.textContent = username;
-
-  span.style.cursor = "pointer";
-  span.style.background = "var(--uni-green)";
-  span.style.color = "#fff";
-  span.style.padding = "6px 12px";
-  span.style.borderRadius = "6px";
-  span.style.fontSize = "14px";
-  span.style.transition = "background 0.3s ease";
-
-  span.onmouseover = () => { span.style.background = "var(--uni-green-2)"; };
-  span.onmouseout = () => { span.style.background = "var(--uni-green)"; };
-
-  span.onclick = () => {
-    const g = game.toLowerCase();
-
-    if (g === "codm") {
-      navigator.clipboard.writeText(username);
-      alert(`${username}'s CODM ID has been copied! Attempting to open CODM...`);
-      window.open(`codm://joinroom?code=ROOM_CODE_HERE`, "_blank");
-
-    } else if (g === "bloodstrike") {
-      navigator.clipboard.writeText(username);
-      alert(`${username}'s Blood Strike ID has been copied! Open Blood Strike and paste to connect.`);
-
-    } else {
-      const connect = confirm(
-        `Do you want to connect with ${username} on ${game.toUpperCase()}?\nClick OK to copy their ID.`
-      );
-      if (connect) {
-        navigator.clipboard.writeText(username);
-        alert(`${username}'s ID has been copied! Open ${game.toUpperCase()} to add them.`);
-      }
-    }
-  };
-
-  li.appendChild(span);
-  list.appendChild(li);
-}
-
-function normalizeGameName(game) {
-  return game.toLowerCase().replace(/\s/g, "");
-}
-
-async function loadGamertags() {
-  const { data, error } = await supabase
-    .from("gamers")
-    .select("*")
-    .order("id", { ascending: false });
-
-  if (error) {
-    console.error("❌ Error loading gamertags:", error.message);
-    return;
-  }
-
-  data.forEach((gamer) => {
-    const gameId = normalizeGameName(gamer.Game) + "List";
-    const list = document.getElementById(gameId);
-    if (list) {
-      renderGamertag(gamer.Username, gamer.Game, list);
-    }
+  games.forEach((game) => {
+    const card = document.createElement("div");
+    card.className = "game-card";
+    card.innerHTML = `
+      <h3>${game.name}</h3>
+      <p class="subtitle">${game.description}</p>
+      <div class="coin-level">
+        <span class="coin-range">${game.reward_min}-${game.reward_max} EP</span>
+        <span class="level-tag">Level ${game.level}</span>
+      </div>
+      <button class="play-btn" data-id="${game.id}">Play Now</button>
+    `;
+    gamesContainer.appendChild(card);
   });
 }
 
-document.addEventListener("DOMContentLoaded", loadGamertags);
+// ============================
+// ▶️ Start Game
+// ============================
+async function startGame(gameId) {
+  console.log("▶️ Starting game ID:", gameId);
+
+  const { data: game, error: gameErr } = await supabase
+    .from("games")
+    .select("*")
+    .eq("id", gameId)
+    .single();
+
+  if (gameErr || !game) return alert("Game not found!");
+  currentGame = game;
+  currentScore = 0;
+  currentQuestionIndex = 0;
+
+  // Load questions safely
+  const { data: questions, error: qErr } = await supabase
+    .from("questions")
+    .select("*")
+    .eq("game_id", gameId);
+
+  currentQuestions = (questions || []).map(q => {
+    let opts = [];
+    try {
+      opts = typeof q.options === "string" ? JSON.parse(q.options) : q.options;
+      if (!Array.isArray(opts)) opts = [];
+    } catch {
+      opts = [];
+    }
+    return { ...q, options: opts, correct_answer: q.correct_answer?.trim() || "" };
+  }).filter(q => q.options.length > 0);
+
+  if (!currentQuestions.length) return alert("No valid questions found for this game.");
+
+  // ✅ Hide dashboard & show active game only
+  dashboard.style.display = "none";
+  activeGameSection.style.display = "block";
+  resultScreen.style.display = "none";
+  activeGameSection.querySelector(".game-container").style.display = "block";
+
+  const titleEl = document.getElementById("currentGameTitle");
+titleEl.textContent = game.name || "Game";
+
+  playSound("start");
+  showQuestion();
+}
+
+
+// ============================
+// ❓ Show Question
+// ============================
+function showQuestion() {
+  const q = currentQuestions[currentQuestionIndex];
+  if (!q) return finishGame();
+
+  activeGameSection.querySelector(".game-container").style.display = "block";
+
+  questionText.textContent = q.questions || "No question text available";
+
+  // Top bar info
+  questionDisplay.textContent = `Q${currentQuestionIndex + 1} / ${currentQuestions.length}`;
+  scoreDisplay.textContent = `Score: ${currentScore}`;
+
+  // Clear previous options
+  optionsGrid.innerHTML = "";
+
+  // Ensure options array
+  const opts = Array.isArray(q.options) ? q.options : JSON.parse(q.options || "[]");
+
+  opts.forEach((opt) => {
+    const btn = document.createElement("button");
+    btn.className = "option";
+    btn.textContent = opt;
+
+    btn.onclick = () => selectAnswer(opt, q.correct_answer, btn);
+
+    optionsGrid.appendChild(btn);
+  });
+
+  playSound("start");
+}
+
+
+
+// ============================
+// 🧠 Answer Logic (Highlight Correct / Wrong)
+// ============================
+function selectAnswer(selected, correct, btn) {
+  const buttons = Array.from(optionsGrid.children);
+
+  buttons.forEach((b) => {
+    if (b.textContent === correct) {
+      b.style.backgroundColor = "#4CAF50"; // green
+      b.style.color = "#fff";
+    } else if (b === btn) {
+      b.style.backgroundColor = "#F44336"; // red
+      b.style.color = "#fff";
+    } else {
+      b.style.backgroundColor = "#f2f2f2";
+      b.style.color = "#000";
+    }
+    b.disabled = true; // prevent multiple clicks
+  });
+
+  if (selected === correct) currentScore += 20;
+  playSound(selected === correct ? "correct" : "wrong");
+
+  currentQuestionIndex++;
+
+  setTimeout(() => {
+    if (currentQuestionIndex < currentQuestions.length) {
+      showQuestion();
+    } else {
+      finishGame();
+    }
+  }, 800);
+}
+
+// ============================
+// 🏁 Finish Game
+// ============================
+async function finishGame() {
+  activeGameSection.querySelector(".game-container").style.display = "none";
+  resultScreen.style.display = "block";
+
+  earnedEP = Math.floor(
+    currentGame.reward_min +
+      Math.random() * (currentGame.reward_max - currentGame.reward_min)
+  );
+  earnedPointsDisplay.textContent = earnedEP;
+
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return;
+
+  const { data: existing } = await supabase
+    .from("user_stats")
+    .select("*")
+    .eq("user_id", user.id)
+    .single();
+
+  const newStats = {
+    user_id: user.id,
+    full_name: user.user_metadata?.full_name || "Player",
+    coins: (existing?.coins || 0) + earnedEP,
+    total_score: (existing?.total_score || 0) + currentScore,
+    games_played: (existing?.games_played || 0) + 1,
+    last_played: new Date().toISOString(),
+  };
+
+  await supabase.from("user_stats").upsert(newStats, { onConflict: "user_id" });
+}
+
+// ============================
+// 🔁 Restart / Exit / Collect
+// ============================
+function restartCurrentGame() {
+  currentQuestionIndex = 0;
+  currentScore = 0;
+  resultScreen.style.display = "none";
+  activeGameSection.querySelector(".game-container").style.display = "block";
+  showQuestion();
+  playSound("restart");
+}
+
+function exitGame() {
+  playSound("exit");
+  activeGameSection.style.display = "none";
+  dashboard.style.display = "block";
+}
+
+function collectCoins() {
+  playSound("collect");
+  alert(`✅ ${earnedEP} EP added to your balance!`);
+  exitGame();
+}
+
+// ============================
+// 🔊 Sounds
+// ============================
+function playSound(type) {
+  if (!soundEnabled) return;
+  const sounds = {
+    start: "sounds/start.mp3",
+    correct: "https://vtpsruejncfykiazrfsx.supabase.co/storage/v1/object/public/uploads/mixkit-winning-a-coin-video-game-2069%20(online-audio-converter.com).mp3",
+    wrong: "https://vtpsruejncfykiazrfsx.supabase.co/storage/v1/object/public/uploads/mixkit-player-losing-or-failing-2042.mp3",
+    restart: "sounds/restart.mp3",
+    collect: "https://vtpsruejncfykiazrfsx.supabase.co/storage/v1/object/public/uploads/mixkit-winning-a-coin-video-game-2069%20(online-audio-converter.com).mp3",
+    exit: "https://vtpsruejncfykiazrfsx.supabase.co/storage/v1/object/public/uploads/mixkit-game-level-completed-2059.mp3",
+  };
+  const audio = new Audio(sounds[type]);
+  audio.play().catch(() => {});
+}
+
+
+
+
+// ============================
+// ⚡ Delegated Button Handler
+// ============================
+document.addEventListener("click", (e) => {
+  if (e.target.classList.contains("play-btn")) {
+    const gameId = e.target.dataset.id;
+    startGame(gameId);
+  }
+});
+
+// ============================
+// 🎚️ Toggle Sound (Flaticon version)
+// ============================
+function toggleSound() {
+  soundEnabled = !soundEnabled;
+  const icon = document.getElementById("soundIcon");
+
+  icon.src = soundEnabled
+    ? "https://cdn-icons-png.flaticon.com/512/727/727269.png" // sound on
+    : "https://cdn-icons-png.flaticon.com/512/727/727240.png"; // sound off
+
+}
+
+
+// ============================
+// 🚀 Initialize on Load
+// ============================
+document.addEventListener("DOMContentLoaded", () => {
+  loadGamesList();
+  console.log("✅ Game JS loaded successfully.");
+});
 
 /* ============================
    INIT

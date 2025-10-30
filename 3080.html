@@ -5072,7 +5072,7 @@ function selectAnswer(selected, correct, btn) {
 }
 
 // ============================
-// 🏁 Finish Game
+// 🏁 Finish Game (final version)
 // ============================
 async function finishGame() {
   activeGameSection.querySelector(".game-container").style.display = "none";
@@ -5103,6 +5103,10 @@ async function finishGame() {
   };
 
   await supabase.from("user_stats").upsert(newStats, { onConflict: "user_id" });
+
+  // ✅ Update dashboard immediately
+  updateDashboardDom(newStats);
+  playSound("collect");
 }
 
 // ============================

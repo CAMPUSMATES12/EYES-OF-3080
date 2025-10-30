@@ -5072,27 +5072,32 @@ function selectAnswer(selected, correct, btn) {
 }
 
 // ============================
-// 🏁 Finish Game (final version)
+// 🏁 Finish Game (updated)
 // ============================
 async function finishGame() {
+  // Hide game container and show result screen
   activeGameSection.querySelector(".game-container").style.display = "none";
   resultScreen.style.display = "block";
 
+  // Calculate earned points randomly within game's reward range
   earnedEP = Math.floor(
     currentGame.reward_min +
       Math.random() * (currentGame.reward_max - currentGame.reward_min)
   );
   earnedPointsDisplay.textContent = earnedEP;
 
+  // Get logged-in user
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return;
 
+  // Fetch existing stats from user_stats table
   const { data: existing } = await supabase
     .from("user_stats")
     .select("*")
     .eq("user_id", user.id)
     .single();
 
+  // Prepare updated stats
   const newStats = {
     user_id: user.id,
     full_name: user.user_metadata?.full_name || "Player",
@@ -5102,10 +5107,13 @@ async function finishGame() {
     last_played: new Date().toISOString(),
   };
 
+  // Upsert into user_stats
   await supabase.from("user_stats").upsert(newStats, { onConflict: "user_id" });
 
-  // ✅ Update dashboard immediately
+  // ✅ Update dashboard DOM immediately
   updateDashboardDom(newStats);
+
+  // Play collect sound
   playSound("collect");
 }
 

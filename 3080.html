@@ -47,15 +47,69 @@
   body.dark footer { background:#111; }
 
   /* HEADER */
-  .topbar { background:var(--uni-green); color:#fff; padding:16px; display:flex; justify-content:space-between; align-items:center; }
-  .brand { display:flex; align-items:center; gap:12px; }
-  .brand img { width:50px; height:50px; border-radius:50%; background:#fff; }
-  .brand h1 { margin:0; font-size:22px; }
+.topbar {
+  background: var(--uni-green);
+  color: #fff;
+  padding: 12px 16px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: nowrap; /* prevent wrapping */
+}
 
-  .actions { display:flex; gap:10px; align-items:center; }
-  .hamburger { display:flex; flex-direction:column; gap:4px; cursor:pointer; }
-  .hamburger span { width:24px; height:3px; background:#fff; border-radius:2px; }
-  .mode-toggle { background:#fff; color:var(--uni-green); border:none; border-radius:6px; padding:6px 10px; cursor:pointer; }
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0; /* allows text to shrink */
+}
+
+.brand img {
+  width: 40px; /* smaller logo */
+  height: 40px;
+  border-radius: 50%;
+  background: #fff;
+}
+
+.brand h1 {
+  margin: 0;
+  font-size: 18px; /* smaller text */
+  white-space: nowrap; /* prevent wrapping */
+  overflow: hidden;
+  text-overflow: ellipsis; /* truncate if too long */
+}
+
+.actions {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  flex-shrink: 0; /* prevent icons from shrinking */
+}
+
+.hamburger {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  cursor: pointer;
+}
+
+.hamburger span {
+  width: 24px;
+  height: 3px;
+  background: #fff;
+  border-radius: 2px;
+}
+
+.mode-toggle {
+  background: #fff;
+  color: var(--uni-green);
+  border: none;
+  border-radius: 6px;
+  padding: 5px 8px; /* slightly smaller */
+  cursor: pointer;
+  font-size: 14px;
+}
+
 
   /* NAVIGATION */
   nav { background:#eee; }
@@ -263,26 +317,29 @@ select.grade-select.c3, select.grade-select.c { background-color: #fff3d4; color
 select.grade-select.f9, select.grade-select.f { background-color: #ffe0e0; color: #b00000; font-weight: 600; }
 
 
-/* Profile icon in header */
+/* Profile Icon in Header */
 .profile-icon-btn {
   background: transparent;
   border: none;
   cursor: pointer;
-  margin-right: 10px;
   display: flex;
   align-items: center;
+  justify-content: center;
+  padding: 0;
+  margin-left: 6px; /* 👈 small spacing from other icons (not too close, not far) */
 }
 
 .profile-icon-btn img {
-  width: 32px;
-  height: 32px;
+  width: 34px;
+  height: 34px;
   border-radius: 50%;
-  border: 2px solid #39b54a; /* green accent border */
+  border: 2px solid #39b54a;
   transition: all 0.3s ease;
+  display: block;
 }
 
 .profile-icon-btn:hover img {
-  transform: scale(1.1);
+  transform: scale(1.08);
   border-color: #2e8b3a;
 }
 
@@ -290,7 +347,8 @@ select.grade-select.f9, select.grade-select.f { background-color: #ffe0e0; color
 .topbar .actions {
   display: flex;
   align-items: center;
-  gap: 10px;
+  justify-content: flex-end;
+  gap: 8px; /* balanced spacing between all icons */
 }
 
 
@@ -1186,6 +1244,10 @@ select.grade-select.f9, select.grade-select.f { background-color: #ffe0e0; color
     <button id="openProfileBtn" class="profile-icon-btn" title="View Profile">
       <img src="https://cdn-icons-png.flaticon.com/512/847/847969.png" alt="Profile Icon">
     </button>
+    <!-- Chat Icon -->
+  <button id="openChatBtn" class="chat-icon-btn" title="Open Chat">
+    <img src="https://cdn-icons-png.flaticon.com/512/2462/2462719.png" alt="Chat Icon">
+  </button>
 
     <!-- Dark Mode Button -->
     <button class="mode-toggle" onclick="toggleDarkMode()">🌙</button>

@@ -1,4 +1,4 @@
-<l html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="utf-8" />
@@ -883,7 +883,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const roomAvatar = document.getElementById("roomAvatar");
   const messagesEl = document.getElementById("messages");
   const backBtn = document.getElementById("backToUsers");
-  const messageInput = document.getElementById("messageInput");
+  const messageInput = document.getElementById("msgInput");
   const sendBtn = document.getElementById("sendBtn");
 
   let activeUser = null;
@@ -955,7 +955,6 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   });
 
-  // Close modal when clicked outside
   window.addEventListener("click", (e) => {
     if (e.target === modal) {
       modal.style.display = "none";
@@ -1049,12 +1048,13 @@ document.addEventListener("DOMContentLoaded", () => {
   function addMessageToDOM(msg, sent) {
     const div = document.createElement("div");
     div.className = sent ? "message sent" : "message received";
+    div.dataset.id = msg.id || Date.now();
     let ticks = "";
     if (sent) {
       ticks = msg.read ? `<span class="tick read">✔✔</span>` : `<span class="tick">✔</span>`;
     }
     div.innerHTML = `
-      <div class="msg-bubble">
+      <div class="msg-bubble" data-id="${div.dataset.id}">
         <p>${msg.text}</p>
         <span class="msg-time">${new Date(msg.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
         ${ticks}
@@ -1064,14 +1064,14 @@ document.addEventListener("DOMContentLoaded", () => {
     messagesEl.scrollTop = messagesEl.scrollHeight;
   }
 
-  // --- SEND MESSAGE ---
+  // ==== SEND MESSAGE ====
   sendBtn?.addEventListener("click", sendMessage);
-  msgInput?.addEventListener("keypress", (e) => {
+  messageInput?.addEventListener("keypress", (e) => {
     if (e.key === "Enter") sendMessage();
   });
 
   async function sendMessage() {
-    const txt = msgInput.value.trim();
+    const txt = messageInput.value.trim();
     if (!txt || !activeUser) return;
 
     const { data: { user } } = await supabase.auth.getUser();
@@ -1085,14 +1085,123 @@ document.addEventListener("DOMContentLoaded", () => {
       created_at: new Date()
     };
 
-    const { error } = await supabase.from("messages").insert([message]);
+    const { data, error } = await supabase.from("messages").insert([message]).select();
     if (error) return console.error("Message send error:", error);
 
-    addMessageToDOM(message, true);
-    msgInput.value = "";
+    addMessageToDOM(data[0], true);
+    messageInput.value = "";
   }
 
-  
+  // ==== MESSAGE MENU ====
+  const msgMenu = document.getElementById("msgMenu");
+  const copyBtn = document.getElementById("copyMsg");
+  const editBtn = document.getElementById("editMsg");
+  const deleteMeBtn = document.getElementById("deleteMe");
+  const deleteEveryoneBtn = document.getElementById("deleteEveryone");
+  const pinBtn = document.getElementById("pinMsg");
+  const clearChatBtn = document.getElementById("clearChat");
+  const deleteConvBtn = document.getElementById("deleteConv");
+
+  let selectedMsg = null;
+  let selectedMsgId = null;
+
+  messagesEl.addEventListener("contextmenu", (e) => {
+    const msgBubble = e.target.closest(".msg-bubble");
+    if (!msgBubble) return;
+    e.preventDefault();
+    selectedMsgId = msgBubble.dataset.id;
+    selectedMsg = msgBubble;
+    msgMenu.style.display = "block";
+    msgMenu.style.left = e.pageX + "px";
+    msgMenu.style.top = e.pageY + "px";
+  });
+
+  document.addEventListener("click", (e) => {
+    if (!msgMenu.contains(e.target)) msgMenu.style.display = "none";
+  });
+
+  copyBtn.addEventListener("click", () => {
+    if (!selectedMsg) return;
+    const text = selectedMsg.querySelector("p").textContent;
+    navigator.clipboard.writeText(text);
+    alert("Message copied ✅");
+    msgMenu.style.display = "none";
+  });
+
+  editBtn.addEventListener("click", async () => {
+    if (!selectedMsgId) return;
+    const oldText = selectedMsg.querySelector("p").textContent;
+    const newText = prompt("Edit your message:", oldText);
+    if (newText === null || newText.trim() === "") return;
+
+    const { error } = await supabase.from("messages").update({ text: newText }).eq("id", selectedMsgId);
+    if (error) {
+      console.error(error);
+      alert("Failed to edit message.");
+      return;
+    }
+
+    selectedMsg.querySelector("p").textContent = newText;
+    msgMenu.style.display = "none";
+  });
+
+  deleteMeBtn.addEventListener("click", () => {
+    if (!selectedMsgId) return;
+    selectedMsg.remove();
+    msgMenu.style.display = "none";
+  });
+
+  deleteEveryoneBtn.addEventListener("click", async () => {
+    if (!selectedMsgId) return;
+    const { error } = await supabase.from("messages").delete().eq("id", selectedMsgId);
+    if (error) {
+      console.error(error);
+      alert("Failed to delete for everyone.");
+      return;
+    }
+    selectedMsg.remove();
+    msgMenu.style.display = "none";
+  });
+
+  pinBtn.addEventListener("click", () => {
+    if (!selectedMsg) return;
+    selectedMsg.classList.toggle("pinned");
+    if (selectedMsg.classList.contains("pinned")) {
+      selectedMsg.style.border = "2px solid gold";
+      alert("Message pinned 📌");
+    } else {
+      selectedMsg.style.border = "none";
+    }
+    msgMenu.style.display = "none";
+  });
+
+  clearChatBtn.addEventListener("click", () => {
+    if (!confirm("Are you sure you want to clear this chat?")) return;
+    messagesEl.innerHTML = "";
+    msgMenu.style.display = "none";
+  });
+
+  deleteConvBtn.addEventListener("click", async () => {
+    if (!activeUser) return;
+    if (!confirm("Delete this conversation completely?")) return;
+
+    const { data: { user } } = await supabase.auth.getUser();
+
+    const { error } = await supabase
+      .from("messages")
+      .delete()
+      .or(`and(sender_id.eq.${user.id},receiver_id.eq.${activeUser.user_id}),and(sender_id.eq.${activeUser.user_id},receiver_id.eq.${user.id})`);
+
+    if (error) {
+      console.error(error);
+      alert("Failed to delete conversation.");
+      return;
+    }
+
+    messagesEl.innerHTML = "";
+    alert("Conversation deleted.");
+    msgMenu.style.display = "none";
+  });
 
   // ==== UNREAD COUNTS ====
   async function updateUnreadCounts() {
@@ -1140,6 +1249,7 @@ document.addEventListener("DOMContentLoaded", () => {
   // ==== INITIALIZE ====
   fetchUsers();
 });
+
 </script>
 </body>
 </html>

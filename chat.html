@@ -1196,18 +1196,12 @@ window.addEventListener("click", (e) => {
 // ==== SEND MESSAGE ====
 
 document.addEventListener("DOMContentLoaded", () => {
-  const sendBtn = document.getElementById("sendBtn");
-  const messageInput = document.getElementById("msgInput");
-
-  if (!sendBtn) {
-    alert("❌ Send button not found in DOM!");
-    return;
-  }
-
-  sendBtn.addEventListener("click", () => {
-    alert("✅ Button clicked!");
+  const btn = document.getElementById("sendBtn");
+  btn?.addEventListener("click", () => {
+    alert("✅ Working!");
   });
 });
+
 
 
 

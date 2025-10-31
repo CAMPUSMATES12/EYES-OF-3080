@@ -2773,24 +2773,7 @@ const SUPABASE_URL = "https://vtpsruejncfykiazrfsx.supabase.co";
 const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZ0cHNydWVqbmNmeWtpYXpyZnN4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTY3NDA5NzQsImV4cCI6MjA3MjMxNjk3NH0.UV55gbsSAgnyolxJhIYTaJUpvoJFsJn0_-LMNwhwAK0";
 const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-document.getElementById("openChatBtn").addEventListener("click", async function () {
-  // Get current user ID from Supabase Auth
-  const currentUser = supabase.auth.user();
-  if (!currentUser) return alert("Not logged in");
-
-  // Fetch unread message count for this user
-  const { count, error } = await supabase
-    .from("messages")
-    .select("id", { count: "exact" })
-    .eq("user_id", currentUser.id)   // messages directed to me
-    .eq("read", false)
-    .neq("sender_id", currentUser.id); // exclude my own messages
-
-  if (error) return console.error(error);
-
-  // Optionally, store unread count in localStorage or sessionStorage
-  localStorage.setItem("unreadCount", count);
-
+document.getElementById("openChatBtn").addEventListener("click", function () {
   // Navigate to chat page
   window.location.href = "chat.html";
 });

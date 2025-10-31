@@ -901,66 +901,75 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   });
 
-  // ==== ADD USER MODAL ====
-  const addBtn = document.getElementById("addUserBtn");
-  const modal = document.getElementById("addUserModal");
-  const cancelAdd = document.getElementById("cancelAdd");
-  const form = document.getElementById("addUserForm");
+// ===== ADD USER MODAL (simple: adds directly to user_campus) =====
+const addBtn = document.getElementById("addUserBtn");
+const modal = document.getElementById("addUserModal");
+const cancelAdd = document.getElementById("cancelAdd");
+const form = document.getElementById("addUserForm");
 
-  addBtn?.addEventListener("click", () => {
-    modal.style.display = "flex";
-  });
+addBtn?.addEventListener("click", () => {
+  modal.style.display = "flex";
+});
 
-  cancelAdd?.addEventListener("click", () => {
+cancelAdd?.addEventListener("click", () => {
+  modal.style.display = "none";
+  form.reset();
+});
+
+form?.addEventListener("submit", async (e) => {
+  e.preventDefault();
+
+  const name = document.getElementById("userName")?.value?.trim();
+  const email = document.getElementById("userEmail")?.value?.trim();
+  const campus = document.getElementById("userCampus")?.value;
+
+  if (!name || !email || !campus) {
+    return alert("Please fill in all fields before adding a user.");
+  }
+
+  try {
+    // Check if user already exists by email
+    const { data: existing, error: checkError } = await supabase
+      .from("user_campus")
+      .select("*")
+      .eq("email", email)
+      .maybeSingle();
+
+    if (checkError) throw checkError;
+
+    if (existing) {
+      alert("User already exists in user_campus.");
+      modal.style.display = "none";
+      form.reset();
+      return;
+    }
+
+    // Insert new record
+    const { error: insertError } = await supabase
+      .from("user_campus")
+      .insert([{ name, email, campus }]);
+
+    if (insertError) throw insertError;
+
+    alert("User added successfully!");
     modal.style.display = "none";
     form.reset();
-  });
 
-  form?.addEventListener("submit", async (e) => {
-    e.preventDefault();
-    const name = document.getElementById("userName")?.value?.trim();
-    const email = document.getElementById("userEmail")?.value?.trim();
-    const campus = document.getElementById("userCampus")?.value;
+    // Refresh user list if available
+    if (typeof fetchUsers === "function") fetchUsers();
+  } catch (err) {
+    console.error("Add user error:", err);
+    alert("Something went wrong. Please try again.");
+  }
+});
 
-    if (!name || !email || !campus) return alert("Please fill all fields.");
-
-    try {
-      const { data: existing, error: checkError } = await supabase
-        .from("user_campus")
-        .select("*")
-        .eq("email", email)
-        .maybeSingle();
-
-      if (checkError) throw checkError;
-      if (existing) {
-        alert("User already exists in user_campus.");
-        modal.style.display = "none";
-        form.reset();
-        return;
-      }
-
-      const { error: insertError } = await supabase
-        .from("user_campus")
-        .insert([{ name, email, campus }]);
-
-      if (insertError) throw insertError;
-
-      alert("✅ User added successfully!");
-      modal.style.display = "none";
-      form.reset();
-      fetchUsers();
-    } catch (err) {
-      console.error("Add user error:", err);
-      alert("Something went wrong: " + (err.message || "Unknown error"));
-    }
-  });
-
-  window.addEventListener("click", (e) => {
-    if (e.target === modal) {
-      modal.style.display = "none";
-      form.reset();
-    }
-  });
+// Optional: close modal when user clicks outside
+window.addEventListener("click", (e) => {
+  if (e.target === modal) {
+    modal.style.display = "none";
+    form.reset();
+  }
+});
 
   // ==== CAMPUS LOGOS ====
   const campusLogos = {

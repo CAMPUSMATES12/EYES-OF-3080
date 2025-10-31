@@ -1,4 +1,4 @@
-<!doctype html>
+<l html>
 <html lang="en">
 <head>
 <meta charset="utf-8" />
@@ -871,120 +871,99 @@ section.active {
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 
 const SUPABASE_URL = "https://vtpsruejncfykiazrfsx.supabase.co";
-const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZ0cHNydWVqbmNmeWtpYXpyZnN4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTY3NDA5NzQsImV4cCI6MjA3MjMxNjk3NH0.UV55gbsSAgnyolxJhIYTaJUpvoJFsJn0_-LMNwhwAK0"; // 🔹 Not service key!
+const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZ0cHNydWVqbmNmeWtpYXpyZnN4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTY3NDA5NzQsImV4cCI6MjA3MjMxNjk3NH0.UV55gbsSAgnyolxJhIYTaJUpvoJFsJn0_-LMNwhwAK0";
 const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
 document.addEventListener("DOMContentLoaded", () => {
 
-  // --- ELEMENTS ---
+  // ==== ELEMENTS ====
   const userListContainer = document.getElementById("userList");
   const chatRoom = document.querySelector(".chat-room");
   const roomName = document.getElementById("roomName");
   const roomAvatar = document.getElementById("roomAvatar");
   const messagesEl = document.getElementById("messages");
   const backBtn = document.getElementById("backToUsers");
-  const msgInput = document.getElementById("msgInput");
+  const messageInput = document.getElementById("messageInput");
   const sendBtn = document.getElementById("sendBtn");
 
   let activeUser = null;
   let users = [];
 
-// --- NAVIGATION ---
-const navItems = document.querySelectorAll(".nav-item");
-const sections = document.querySelectorAll("main section");
-navItems.forEach(item => {
-  item.addEventListener("click", () => {
-    navItems.forEach(btn => btn.classList.remove("active"));
-    sections.forEach(sec => sec.classList.remove("active"));
-    item.classList.add("active");
-    document.getElementById(item.dataset.target).classList.add("active");
+  // ==== NAVIGATION ====
+  const navItems = document.querySelectorAll(".nav-item");
+  const sections = document.querySelectorAll("main section");
+  navItems.forEach(item => {
+    item.addEventListener("click", () => {
+      navItems.forEach(btn => btn.classList.remove("active"));
+      sections.forEach(sec => sec.classList.remove("active"));
+      item.classList.add("active");
+      document.getElementById(item.dataset.target).classList.add("active");
+    });
   });
-});
 
-// 
+  // ==== ADD USER MODAL ====
+  const addBtn = document.getElementById("addUserBtn");
+  const modal = document.getElementById("addUserModal");
+  const cancelAdd = document.getElementById("cancelAdd");
+  const form = document.getElementById("addUserForm");
 
-// === ADD USER MODAL ELEMENTS ===
-// ===== ADD USER MODAL (simple: adds directly to user_campus) =====
-const addBtn = document.getElementById("addUserBtn");
-const modal = document.getElementById("addUserModal");
-const cancelAdd = document.getElementById("cancelAdd");
-const form = document.getElementById("addUserForm");
+  addBtn?.addEventListener("click", () => {
+    modal.style.display = "flex";
+  });
 
-addBtn?.addEventListener("click", () => {
-  modal.style.display = "flex";
-});
+  cancelAdd?.addEventListener("click", () => {
+    modal.style.display = "none";
+    form.reset();
+  });
 
-cancelAdd?.addEventListener("click", () => {
-  modal.style.display = "none";
-  form.reset();
-});
+  form?.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const name = document.getElementById("userName")?.value?.trim();
+    const email = document.getElementById("userEmail")?.value?.trim();
+    const campus = document.getElementById("userCampus")?.value;
 
-form?.addEventListener("submit", async (e) => {
-  e.preventDefault();
+    if (!name || !email || !campus) return alert("Please fill all fields.");
 
-  const name = document.getElementById("userName")?.value?.trim();
-  const email = document.getElementById("userEmail")?.value?.trim();
-  const campus = document.getElementById("userCampus")?.value;
+    try {
+      const { data: existing, error: checkError } = await supabase
+        .from("user_campus")
+        .select("*")
+        .eq("email", email)
+        .maybeSingle();
 
-  if (!name || !email || !campus) {
-    return alert("Please fill in all fields before adding a user.");
-  }
+      if (checkError) throw checkError;
+      if (existing) {
+        alert("User already exists in user_campus.");
+        modal.style.display = "none";
+        form.reset();
+        return;
+      }
 
-  try {
-    // --- Step 1: Check if user already exists ---
-    const { data: existing, error: checkError } = await supabase
-      .from("user_campus")
-      .select("*")
-      .eq("email", email)
-      .maybeSingle();
+      const { error: insertError } = await supabase
+        .from("user_campus")
+        .insert([{ name, email, campus }]);
 
-    if (checkError) {
-      console.error("Check existing error:", checkError);
-      alert("Error checking user: " + checkError.message);
-      return;
-    }
+      if (insertError) throw insertError;
 
-    if (existing) {
-      alert("User already exists in user_campus.");
+      alert("✅ User added successfully!");
       modal.style.display = "none";
       form.reset();
-      return;
+      fetchUsers();
+    } catch (err) {
+      console.error("Add user error:", err);
+      alert("Something went wrong: " + (err.message || "Unknown error"));
     }
+  });
 
-    // --- Step 2: Insert new record ---
-    const { data, error: insertError } = await supabase
-      .from("user_campus")
-      .insert([{ name, email, campus }])
-      .select();
-
-    if (insertError) {
-      console.error("Insert error details:", insertError);
-      alert("Insert failed: " + insertError.message);
-      return;
+  // Close modal when clicked outside
+  window.addEventListener("click", (e) => {
+    if (e.target === modal) {
+      modal.style.display = "none";
+      form.reset();
     }
+  });
 
-    console.log("Inserted row:", data);
-    alert("✅ User added successfully!");
-    modal.style.display = "none";
-    form.reset();
-
-    if (typeof fetchUsers === "function") fetchUsers();
-  } catch (err) {
-    console.error("Unexpected error:", err);
-    alert("⚠️ Unexpected error: " + (err.message || JSON.stringify(err)));
-  }
-});
-
-// Optional: close modal when user clicks outside
-window.addEventListener("click", (e) => {
-  if (e.target === modal) {
-    modal.style.display = "none";
-    form.reset();
-  }
-});
-
-
-  // ====== CAMPUS LOGOS MAP ======
+  // ==== CAMPUS LOGOS ====
   const campusLogos = {
     "Osogbo (CHS)": "https://vtpsruejncfykiazrfsx.supabase.co/storage/v1/object/public/uploads/9e8df984-270a-4e27-a31b-f2bb6f6aa2d2.jpeg",
     "Osogbo (CSET)": "https://vtpsruejncfykiazrfsx.supabase.co/storage/v1/object/public/uploads/668df17a-7bba-4a18-be0b-6c96feada4a1.jpeg",
@@ -995,7 +974,7 @@ window.addEventListener("click", (e) => {
     "Ipetu-Ijesa": "https://vtpsruejncfykiazrfsx.supabase.co/storage/v1/object/public/uploads/IMG_1248.jpeg"
   };
 
-  // --- FETCH USERS ---
+  // ==== FETCH USERS ====
   async function fetchUsers() {
     try {
       const { data, error } = await supabase.from("user_campus").select("*");
@@ -1007,107 +986,155 @@ window.addEventListener("click", (e) => {
     }
   }
 
-// --- RENDER USERS ---
-function renderUsers() {
-  userListContainer.innerHTML = "";
-
-  users.forEach(u => {
-    const card = document.createElement("div");
-    card.className = "user-card";
-
-    // Campus logo (optional)
-    const campusLogo = campusLogos[u.campus] || "";
-
-    card.innerHTML = `
-      <img src="${u.avatar_url || "https://cdn-icons-png.flaticon.com/512/3135/3135715.png"}" 
-           alt="avatar" class="avatar">
-
-      <div class="user-info">
-        <span class="user-name">${u.name}</span>
-      </div>
-
-      ${campusLogo ? `<img src="${campusLogo}" class="campus-logo" alt="${u.campus} logo">` : ""}
-    `;
-
-    card.onclick = () => openChat(u);
-    userListContainer.appendChild(card);
-  });
-}
-
-// --- OPEN CHAT ---
-async function openChat(u) {
-  activeUser = u;
-
-  // Only show the user's name in header (no campus text)
-  roomName.textContent = u.name;
-  roomAvatar.src = u.avatar_url || "https://cdn-icons-png.flaticon.com/512/3135/3135715.png";
-
-  chatRoom.style.display = "block";
-  userListContainer.parentElement.style.display = "none";
-
-  // Add the campus logo badge in chat header
-  const header = document.querySelector(".chat-header");
-  const existingBadge = header.querySelector(".campus-badge");
-  if (existingBadge) existingBadge.remove();
-
-  const campusLogo = campusLogos[u.campus] || "";
-  if (campusLogo) {
-    const badge = document.createElement("img");
-    badge.src = campusLogo;
-    badge.className = "campus-badge";
-    header.appendChild(badge);
+  // ==== RENDER USERS ====
+  function renderUsers() {
+    userListContainer.innerHTML = "";
+    users.forEach(u => {
+      const card = document.createElement("div");
+      card.className = "user-card";
+      const campusLogo = campusLogos[u.campus] || "";
+      card.innerHTML = `
+        <div class="user-info">
+          <span class="user-name">${u.name}</span>
+        </div>
+        ${campusLogo ? `<img src="${campusLogo}" class="campus-logo" alt="${u.campus} logo">` : ""}
+      `;
+      card.onclick = () => openChat(u);
+      userListContainer.appendChild(card);
+    });
   }
 
-  // Get current logged-in user
-  const { data: { user: currentUser } } = await supabase.auth.getUser();
-  if (!currentUser) {
-    alert("Please log in first.");
-    window.location.href = "index.html";
-    return;
+  // ==== OPEN CHAT ====
+  async function openChat(u) {
+    activeUser = u;
+    roomName.textContent = `${u.name}`;
+    roomAvatar.src = campusLogos[u.campus] || "https://cdn-icons-png.flaticon.com/512/3135/3135715.png";
+    chatRoom.style.display = "block";
+    userListContainer.parentElement.style.display = "none";
+    messagesEl.innerHTML = "";
+
+    const { data: { user: currentUser } } = await supabase.auth.getUser();
+    if (!currentUser) {
+      alert("Please log in first.");
+      window.location.href = "index.html";
+      return;
+    }
+
+    const { data: msgs, error } = await supabase
+      .from("messages")
+      .select("*")
+      .or(
+        `and(sender_id.eq.${currentUser.id},receiver_id.eq.${u.user_id || u.id}),and(sender_id.eq.${u.user_id || u.id},receiver_id.eq.${currentUser.id})`
+      )
+      .order("created_at", { ascending: true });
+
+    if (error) {
+      console.error("Fetch chat error:", error);
+      return;
+    }
+
+    msgs.forEach(msg => addMessageToDOM(msg, msg.sender_id === currentUser.id));
+
+    await supabase
+      .from("messages")
+      .update({ read: true })
+      .eq("sender_id", u.user_id || u.id)
+      .eq("receiver_id", currentUser.id)
+      .eq("read", false);
+
+    updateUnreadCounts();
   }
 
-  // Fetch messages between both users
-  const { data: msgs, error } = await supabase
-    .from("messages")
-    .select("*")
-    .or(`sender_id.eq.${u.user_id},user_id.eq.${u.user_id}`)
-    .order("created_at", { ascending: true });
-
-  if (error) {
-    console.error(error);
-    return;
-  }
-
-  messagesEl.innerHTML = "";
-  msgs.forEach(msg => addMessageToDOM(msg, msg.sender_id === currentUser.id));
-}
-
-  // --- ADD MESSAGE ---
+  // ==== ADD MESSAGE TO DOM ====
   function addMessageToDOM(msg, sent) {
     const div = document.createElement("div");
-    div.className = sent ? "msg sent" : "msg received";
-    div.innerHTML = `<div class="bubble">${msg.text}</div>`;
+    div.className = sent ? "message sent" : "message received";
+    let ticks = "";
+    if (sent) {
+      ticks = msg.read ? `<span class="tick read">✔✔</span>` : `<span class="tick">✔</span>`;
+    }
+    div.innerHTML = `
+      <div class="msg-bubble">
+        <p>${msg.text}</p>
+        <span class="msg-time">${new Date(msg.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
+        ${ticks}
+      </div>
+    `;
     messagesEl.appendChild(div);
+    messagesEl.scrollTop = messagesEl.scrollHeight;
   }
 
-  // --- SEND MESSAGE ---
-  sendBtn.addEventListener("click", async () => {
-    const txt = msgInput.value.trim();
-    if (!txt || !activeUser) return;
-
-    const { data: { user } } = await supabase.auth.getUser();
-    if (!user) return alert("You must log in.");
-
-    const { error } = await supabase.from("messages").insert([
-      { sender_id: user.id, user_id: activeUser.user_id, text: txt }
-    ]);
-    if (error) return console.error(error);
-
-    addMessageToDOM({ text: txt }, true);
-    msgInput.value = "";
+  // ==== SEND MESSAGE ====
+  sendBtn?.addEventListener("click", sendMessage);
+  messageInput?.addEventListener("keypress", (e) => {
+    if (e.key === "Enter") sendMessage();
   });
 
-  // --- BACK BUTTON ---
+  async function sendMessage() {
+    const text = messageInput.value.trim();
+    if (!text || !activeUser) return;
+
+    const { data: { user: currentUser }, error: userError } = await supabase.auth.getUser();
+    if (userError || !currentUser) {
+      alert("You must be logged in to send messages.");
+      window.location.href = "index.html";
+      return;
+    }
+
+    const message = {
+      sender_id: currentUser.id,
+      receiver_id: activeUser.user_id || activeUser.id,
+      text,
+      read: false,
+      created_at: new Date()
+    };
+
+    const { error } = await supabase.from("messages").insert([message]);
+    if (error) {
+      console.error("Send message error:", error);
+      alert("Something went wrong. Try again.");
+      return;
+    }
+
+    addMessageToDOM(message, true);
+    messageInput.value = "";
+  }
+
+  // ==== UNREAD COUNTS ====
+  async function updateUnreadCounts() {
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) return;
+
+    const { data: unreadMessages, error } = await supabase
+      .from("messages")
+      .select("sender_id, read")
+      .eq("read", false)
+      .neq("sender_id", user.id);
+
+    if (error) return console.error(error);
+
+    document.querySelectorAll(".unread-badge").forEach(b => {
+      b.style.display = "none";
+      b.textContent = "";
+    });
+
+    const counts = unreadMessages.reduce((acc, msg) => {
+      acc[msg.sender_id] = (acc[msg.sender_id] || 0) + 1;
+      return acc;
+    }, {});
+
+    Object.entries(counts).forEach(([senderId, count]) => {
+      const badge = document.getElementById(`unread-${senderId}`);
+      if (badge) {
+        badge.textContent = count;
+        badge.style.display = "flex";
+      }
+    });
+  }
+
+  setInterval(updateUnreadCounts, 5000);
+
+  // ==== BACK BUTTON ====
   if (backBtn) {
     backBtn.onclick = () => {
       chatRoom.style.display = "none";
@@ -1116,73 +1143,9 @@ async function openChat(u) {
     };
   }
 
-// ===== ADD MESSAGE TO DOM =====
-function addMessageToDOM(msg, sent) {
-  const div = document.createElement("div");
-  div.className = sent ? "message sent" : "message received";
-  
-  // checkmark icons for sent messages
-  let ticks = "";
-  if (sent) {
-    ticks = msg.read
-      ? `<span class="tick read">✔✔</span>`
-      : `<span class="tick">✔</span>`;
-  }
-
-  div.innerHTML = `
-    <div class="msg-bubble">
-      <p>${msg.text}</p>
-      <span class="msg-time">${new Date(msg.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
-      ${ticks}
-    </div>
-  `;
-
-  messagesEl.appendChild(div);
-  messagesEl.scrollTop = messagesEl.scrollHeight;
-}
-
-// ===== UNREAD COUNTS =====
-async function updateUnreadCounts() {
-  const { data: { user } } = await supabase.auth.getUser();
-  if (!user) return;
-
-  const { data: unreadMessages, error } = await supabase
-    .from("messages")
-    .select("sender_id, read")
-    .eq("read", false)
-    .neq("sender_id", user.id);
-
-  if (error) return console.error(error);
-
-  // reset all badges
-  document.querySelectorAll(".unread-badge").forEach(b => {
-    b.style.display = "none";
-    b.textContent = "";
-  });
-
-  // count per sender
-  const counts = unreadMessages.reduce((acc, msg) => {
-    acc[msg.sender_id] = (acc[msg.sender_id] || 0) + 1;
-    return acc;
-  }, {});
-
-  // update badge numbers
-  Object.entries(counts).forEach(([senderId, count]) => {
-    const badge = document.getElementById(`unread-${senderId}`);
-    if (badge) {
-      badge.textContent = count;
-      badge.style.display = "flex";
-    }
-  });
-}
-
-// auto-refresh unread counts every 5s
-setInterval(updateUnreadCounts, 5000);
-
-  // --- INITIALIZE ---
+  // ==== INITIALIZE ====
   fetchUsers();
 });
-
 </script>
 </body>
 </html>

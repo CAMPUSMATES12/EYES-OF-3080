@@ -797,11 +797,11 @@ section.active {
 </nav>
 
 <!-- ===== ADD USER MODAL ===== -->
-<div class="modal" id="addUserModal">
+<div class="modal" id="addUserModal" style="display:none;">
   <div class="modal-content">
     <h3>Start New Chat</h3>
     <form id="addUserForm">
-      <!-- Removed Full Name input since we'll fetch it from Auth -->
+      <input type="text" id="userName" placeholder="Full Name" required>
       <input type="email" id="userEmail" placeholder="User Email Address" required>
 
       <select id="userCampus" required>
@@ -821,7 +821,6 @@ section.active {
     </form>
   </div>
 </div>
-
 
 
 
@@ -1045,55 +1044,77 @@ fetchUpdates();
   }
 
   // --- ADD USER MODAL ---
-const addBtn = document.getElementById("addUserBtn"); // header plus button
-const modal = document.getElementById("addUserModal"); // modal container
-const cancelAdd = document.getElementById("cancelAdd"); // cancel button inside modal
-const form = document.getElementById("addUserForm"); // form inside modal
+const addBtn = document.getElementById("addUserBtn"); // ➕ button in header
+const modal = document.getElementById("addUserModal");
+const cancelAdd = document.getElementById("cancelAdd");
+const form = document.getElementById("addUserForm");
 
-// Open modal when header plus is clicked
+// Open modal
 addBtn.addEventListener("click", () => {
   modal.style.display = "flex";
 });
 
-// Close modal when cancel is clicked
+// Close modal
 cancelAdd.addEventListener("click", () => {
   modal.style.display = "none";
 });
 
-// Handle form submission (add user)
+// Handle form submit
 form.addEventListener("submit", async (e) => {
   e.preventDefault();
 
+  const name = document.getElementById("userName").value.trim();
   const email = document.getElementById("userEmail").value.trim();
   const campus = document.getElementById("userCampus").value;
 
-  if (!email || !campus) return alert("Email and campus are required");
+  if (!name || !email || !campus) return alert("All fields are required.");
 
   try {
-    // Check if user exists in Supabase Auth
-    const { data: authUser, error: authError } = await supabase.auth.admin.getUserByEmail(email);
-    if (authError || !authUser) return alert("User does not exist in Supabase Auth");
+    // ✅ Check if user exists in Supabase Auth
+    const { data: result, error } = await supabase.auth.admin.getUserByEmail(email);
+    if (error || !result?.user) {
+      alert("User not found in our system. Ask them to register first.");
+      window.location.href = "index.html"; // redirect to signup/login
+      return;
+    }
 
-    // Add campus info in 'user_campus' table
-    const { data, error } = await supabase.from("user_campus").upsert({
-      user_id: authUser.id,
-      campus
-    });
+    const userId = result.user.id;
 
-    if (error) return console.error(error);
+    // ✅ Check if this user already exists in user_campus
+    const { data: existingUsers, error: fetchError } = await supabase
+      .from("user_campus")
+      .select("user_id")
+      .eq("user_id", userId)
+      .maybeSingle();
 
-    fetchUsers(); // refresh the user list
-    modal.style.display = "none"; // close modal
-    form.reset(); // reset form
+    if (fetchError) throw fetchError;
+
+    if (existingUsers) {
+      alert("User already added.");
+      modal.style.display = "none";
+      form.reset();
+      return;
+    }
+
+    // ✅ If not exists, insert new record
+    const { data, error: insertError } = await supabase
+      .from("user_campus")
+      .insert({
+        user_id: userId,
+        name,
+        campus
+      });
+
+    if (insertError) throw insertError;
+
+    alert("User added successfully!");
+    modal.style.display = "none";
+    form.reset();
+    fetchUsers(); // refresh user list
   } catch (err) {
     console.error(err);
-    alert("Something went wrong.");
+    alert("Something went wrong. Please try again later.");
   }
-});
-
-// Optional: close modal when clicking outside content
-window.addEventListener("click", (e) => {
-  if (e.target === modal) modal.style.display = "none";
 });
 
 document.addEventListener("DOMContentLoaded", () => {

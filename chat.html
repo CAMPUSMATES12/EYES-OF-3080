@@ -1198,58 +1198,22 @@ window.addEventListener("click", (e) => {
   }
 
 // ==== SEND MESSAGE ====
+
 document.addEventListener("DOMContentLoaded", () => {
   const sendBtn = document.getElementById("sendBtn");
   const messageInput = document.getElementById("msgInput");
 
-  // Listen for click or Enter key
-  sendBtn?.addEventListener("click", sendMessage);
-  messageInput?.addEventListener("keypress", (e) => {
-    if (e.key === "Enter") sendMessage();
-  });
-
-  async function sendMessage() {
-    const txt = messageInput.value.trim();
-    if (!txt || !activeUser) return;
-
-    try {
-      // Get logged-in user
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) {
-        alert("You must log in.");
-        return;
-      }
-
-      // Build message data
-      const message = {
-        sender_id: user.id,
-        receiver_id: activeUser.id,
-        text: txt,
-        read: false,
-        created_at: new Date(),
-      };
-
-      // Insert message
-      const { data, error } = await supabase
-        .from("messages")
-        .insert([message])
-        .select();
-
-      if (error) {
-        console.error("Message send error:", error);
-        alert("Something went wrong sending the message.");
-        return;
-      }
-
-      // Add to DOM instantly
-      addMessageToDOM(data[0], true);
-      messageInput.value = "";
-    } catch (err) {
-      console.error("Send message failed:", err);
-      alert("Unexpected error occurred.");
-    }
+  if (!sendBtn) {
+    alert("❌ Send button not found in DOM!");
+    return;
   }
+
+  sendBtn.addEventListener("click", () => {
+    alert("✅ Button clicked!");
+  });
 });
+
+
 
   // ==== MESSAGE MENU ====
   const msgMenu = document.getElementById("msgMenu");

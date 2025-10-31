@@ -1064,41 +1064,35 @@ document.addEventListener("DOMContentLoaded", () => {
     messagesEl.scrollTop = messagesEl.scrollHeight;
   }
 
-  // ==== SEND MESSAGE ====
+  // --- SEND MESSAGE ---
   sendBtn?.addEventListener("click", sendMessage);
-  messageInput?.addEventListener("keypress", (e) => {
+  msgInput?.addEventListener("keypress", (e) => {
     if (e.key === "Enter") sendMessage();
   });
 
   async function sendMessage() {
-    const text = messageInput.value.trim();
-    if (!text || !activeUser) return;
+    const txt = msgInput.value.trim();
+    if (!txt || !activeUser) return;
 
-    const { data: { user: currentUser }, error: userError } = await supabase.auth.getUser();
-    if (userError || !currentUser) {
-      alert("You must be logged in to send messages.");
-      window.location.href = "index.html";
-      return;
-    }
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) return alert("You must log in.");
 
     const message = {
-      sender_id: currentUser.id,
-      receiver_id: activeUser.user_id || activeUser.id,
-      text,
+      sender_id: user.id,
+      receiver_id: activeUser.id,
+      text: txt,
       read: false,
       created_at: new Date()
     };
 
     const { error } = await supabase.from("messages").insert([message]);
-    if (error) {
-      console.error("Send message error:", error);
-      alert("Something went wrong. Try again.");
-      return;
-    }
+    if (error) return console.error("Message send error:", error);
 
     addMessageToDOM(message, true);
-    messageInput.value = "";
+    msgInput.value = "";
   }
+
+  
 
   // ==== UNREAD COUNTS ====
   async function updateUnreadCounts() {

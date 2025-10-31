@@ -454,32 +454,28 @@ section.active {
   font-size: 14px;
 }
 
+/* Send button */
 .send-btn {
-  background: #25d366; /* WhatsApp-style green */
+  background: #25d366;
   border: none;
-  width: 46px;
-  height: 46px;
+  width: 44px;
+  height: 44px;
   border-radius: 50%;
   display: flex;
   justify-content: center;
   align-items: center;
   cursor: pointer;
-  flex-shrink: 0;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.15);
-  transition: background 0.25s ease, transform 0.15s ease;
+  margin-left: 8px;
+  z-index: 10001;           /* ensure it’s tappable */
 }
 
-.send-btn:hover {
-  background: #1ebe5d;
-  transform: scale(1.05);
-}
-
+/* Send icon */
 .send-btn img {
   width: 22px;
   height: 22px;
-  filter: brightness(0) invert(1); /* makes icon white */
-  pointer-events: none;
+  filter: invert(1);
 }
+
 
 /* Footer */
 .chat-footer {
@@ -793,7 +789,7 @@ section.active {
   </div>
   <div class="header-actions">
     <button id="addUserBtn"><img src="https://cdn-icons-png.flaticon.com/512/992/992651.png" alt="+" /></button>
-<button class="btn-back" onclick="window.location.href='main.html'">Back</button>
+<button class="btn-back" onclick="window.location.href='3080.html'">Back</button>
   </div>
 </header>
 

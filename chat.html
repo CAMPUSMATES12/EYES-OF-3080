@@ -177,61 +177,98 @@ section.active {
    💬 Chat UI (WhatsApp Style)
 ====================== */
 
-/* User list vertical */
+/* User list container */
 #userList {
   display: flex;
   flex-direction: column;
-  padding: 0;
+  padding: 10px 0;
   margin: 0;
   overflow-y: auto;
   height: 100%;
+  background: #f8f8f8;
 }
 
+/* Individual user card */
 .user-card {
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-  padding: 12px 16px;
-  border-bottom: 1px solid #f0f0f0;
-  cursor: pointer;
-  transition: background 0.2s, transform 0.1s;
+  gap: 14px;
+  padding: 14px 16px;
+  margin: 6px 10px; /* space between cards */
+  border-radius: 14px;
   background: #fff;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+  transition: all 0.25s ease;
+  cursor: pointer;
 }
 
 .user-card:hover {
-  background: #f9f9f9;
-  transform: translateY(-1px);
+  background: #f1f1f1;
+  transform: translateY(-2px);
 }
 
+/* Avatar image */
 .user-card img.avatar {
-  width: 48px;
-  height: 48px;
+  width: 56px;
+  height: 56px;
   border-radius: 50%;
   object-fit: cover;
   flex-shrink: 0;
+  border: 1px solid #ddd;
 }
 
+/* Info block */
 .user-info {
   flex: 1;
   display: flex;
   flex-direction: column;
+  justify-content: center;
   min-width: 0;
 }
 
+/* User name */
 .user-name {
   font-weight: 600;
-  font-size: 15.5px;
-  color: #333;
+  font-size: 16px;
+  color: #111;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
 }
 
+/* Campus name */
 .campus-name {
-  font-size: 13px;
-  color: #777;
-  margin-top: 2px;
+  font-size: 13.5px;
+  color: #666;
+  margin-top: 3px;
+}
+
+/* Campus logo (right side) */
+.campus-logo {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  object-fit: cover;
+  margin-left: 12px;
+  flex-shrink: 0;
+  border: 1px solid #eee;
+  background: #fff;
+  transition: transform 0.2s ease;
+}
+
+/* Slight hover animation */
+.user-card:hover .campus-logo {
+  transform: scale(1.08);
+}
+
+/* Scrollbar */
+#userList::-webkit-scrollbar {
+  width: 6px;
+}
+
+#userList::-webkit-scrollbar-thumb {
+  background: rgba(0,0,0,0.15);
+  border-radius: 3px;
 }
 
 .unread-badge {

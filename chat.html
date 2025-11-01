@@ -1257,10 +1257,70 @@ async function openChat(u) {
 // ==== SEND MESSAGE ====
 
 document.addEventListener("DOMContentLoaded", () => {
-  const btn = document.getElementById("sendBtn");
-  btn?.addEventListener("click", () => {
-    alert("✅ Working!");
+  const sendBtn = document.getElementById("sendBtn");
+  const messageInput = document.getElementById("msgInput");
+  const messagesContainer = document.querySelector(".messages");
+
+  // Optional: if you track current chat user
+  let activeUser = window.activeUser || null; 
+
+  // Event listeners
+  sendBtn?.addEventListener("click", sendMessage);
+  messageInput?.addEventListener("keypress", (e) => {
+    if (e.key === "Enter") sendMessage();
   });
+
+  async function sendMessage() {
+    const txt = messageInput.value.trim();
+    if (!txt) return; // Prevent empty messages
+
+    try {
+      // Optional: If using Supabase authentication
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) {
+        alert("Please log in before sending messages.");
+        return;
+      }
+
+      // Create message object
+      const message = {
+        sender_id: user.id,
+        receiver_id: activeUser ? activeUser.id : "general",
+        text: txt,
+        read: false,
+        created_at: new Date()
+      };
+
+      // Save message to Supabase (optional)
+      const { data, error } = await supabase
+        .from("messages")
+        .insert([message])
+        .select();
+
+      if (error) {
+        console.error("Message send error:", error);
+        return;
+      }
+
+      // Add to chat instantly
+      addMessageToDOM(data?.[0] || message, true);
+
+      // Clear input
+      messageInput.value = "";
+
+    } catch (err) {
+      console.error("Unexpected error:", err);
+    }
+  }
+
+  // Function to add a message bubble to chat
+  function addMessageToDOM(message, isSentByMe = false) {
+    const msgDiv = document.createElement("div");
+    msgDiv.classList.add("msg", isSentByMe ? "sent" : "received");
+    msgDiv.textContent = message.text;
+    messagesContainer.appendChild(msgDiv);
+    messagesContainer.scrollTop = messagesContainer.scrollHeight;
+  }
 });
 
 

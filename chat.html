@@ -1133,46 +1133,70 @@ window.addEventListener("click", (e) => {
   }
 
   // ==== OPEN CHAT ====
-  async function openChat(u) {
+async function openChat(u) {
+  try {
+    // Store the selected user
     activeUser = u;
-    roomName.textContent = `${u.name}`;
-    roomAvatar.src = campusLogos[u.campus] || "https://cdn-icons-png.flaticon.com/512/3135/3135715.png";
-    chatRoom.style.display = "block";
-    userListContainer.parentElement.style.display = "none";
+
+    // Update header info
+    roomName.textContent = u.name || "Unknown User";
+    roomAvatar.src =
+      campusLogos[u.campus] ||
+      u.avatar ||
+      "https://cdn-icons-png.flaticon.com/512/3135/3135715.png";
+
+    // Show chat room, hide user list
+    chatRoom.style.display = "flex";
+    userListView.style.display = "none"; // consistent naming
     messagesEl.innerHTML = "";
 
-    const { data: { user: currentUser } } = await supabase.auth.getUser();
-    if (!currentUser) {
+    // Ensure logged-in user exists
+    const { data: { user: currentUser }, error: authError } =
+      await supabase.auth.getUser();
+    if (authError || !currentUser) {
       alert("Please log in first.");
-      window.location.href = "index.html";
+      window.location.href = "main.html";
       return;
     }
 
+    // ✅ Fetch messages ONLY between these two users
     const { data: msgs, error } = await supabase
       .from("messages")
       .select("*")
       .or(
-        `and(sender_id.eq.${currentUser.id},receiver_id.eq.${u.user_id || u.id}),and(sender_id.eq.${u.user_id || u.id},receiver_id.eq.${currentUser.id})`
+        `and(sender_id.eq.${currentUser.id},receiver_id.eq.${u.id}),and(sender_id.eq.${u.id},receiver_id.eq.${currentUser.id})`
       )
       .order("created_at", { ascending: true });
 
     if (error) {
-      console.error("Fetch chat error:", error);
+      console.error("❌ Fetch chat error:", error);
       return;
     }
 
-    msgs.forEach(msg => addMessageToDOM(msg, msg.sender_id === currentUser.id));
+    // ✅ Show messages on screen
+    msgs.forEach((msg) => addMessageToDOM(msg, msg.sender_id === currentUser.id));
 
+    // ✅ Mark all received messages as read
     await supabase
       .from("messages")
       .update({ read: true })
-      .eq("sender_id", u.user_id || u.id)
+      .eq("sender_id", u.id)
       .eq("receiver_id", currentUser.id)
       .eq("read", false);
 
-    updateUnreadCounts();
-  }
+    // ✅ Refresh unread counts if needed
+    if (typeof updateUnreadCounts === "function") {
+      updateUnreadCounts();
+    }
 
+    // ✅ Focus message input automatically
+    const messageInput = document.getElementById("msgInput");
+    if (messageInput) messageInput.focus();
+
+  } catch (err) {
+    console.error("Unexpected chat open error:", err);
+  }
+}
   // ==== ADD MESSAGE TO DOM ====
   function addMessageToDOM(msg, sent) {
     const div = document.createElement("div");

@@ -2,7 +2,7 @@
   "name": "EYES OF 3080",
   "short_name": "EYES3080",
   "description": "Latest news, course PDFs and CBT practice for students",
-  "start_url": "/index.html",
+  "start_url": "/news.html",
   "scope": "/",
   "display": "standalone",
   "background_color": "#f4f6f5",

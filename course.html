@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Course Materials | EYES OF 3080</title>
+
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:Segoe UI,Tahoma,sans-serif;background:#f4f6f5;color:#222}
+
+/* HEADER */
+header{
+  background:linear-gradient(135deg,#2d5016,#4a7c2a);
+  color:#fff;
+  position:sticky;
+  top:0;
+  z-index:1000;
+}
+.header-container{
+  max-width:1200px;
+  margin:auto;
+  padding:15px 20px;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+}
+.logo-wrap{display:flex;align-items:center;gap:10px;text-decoration:none}
+.logo-img{width:38px;height:38px}
+.logo-text{font-size:1.4rem;font-weight:bold;color:#fff}
+
+.hamburger{background:none;border:none;cursor:pointer;display:flex;flex-direction:column;gap:5px}
+.hamburger span{width:28px;height:3px;background:#fff;border-radius:3px}
+
+/* SIDEBAR */
+.sidebar{
+  position:fixed;top:0;right:-300px;width:300px;height:100vh;
+  background:#2d5016;transition:.3s;z-index:2000
+}
+.sidebar.active{right:0}
+.sidebar-header{
+  display:flex;justify-content:space-between;align-items:center;
+  padding:20px;color:#fff;border-bottom:1px solid rgba(255,255,255,.2)
+}
+.close-btn{background:none;border:none;color:#fff;font-size:2rem;cursor:pointer}
+.nav-menu{list-style:none}
+.nav-menu a{display:block;padding:15px 20px;color:#fff;text-decoration:none}
+.nav-menu a:hover{background:rgba(255,255,255,.1)}
+
+.overlay{
+  position:fixed;inset:0;background:rgba(0,0,0,.5);
+  display:none;z-index:1500
+}
+.overlay.active{display:block}
+
+/* MAIN */
+.container{max-width:900px;margin:25px auto;padding:0 16px}
+
+.course-card{
+  background:#fff;border-radius:12px;padding:20px;
+  box-shadow:0 2px 8px rgba(0,0,0,.1);margin-bottom:20px
+}
+.course-title{font-size:1.6rem;color:#2d5016}
+.course-desc{color:#555;margin-top:6px}
+
+/* ACCORDION */
+.accordion-header{
+  background:#2d5016;color:#fff;padding:14px 16px;
+  border-radius:8px;display:flex;justify-content:space-between;
+  cursor:pointer;margin-top:15px
+}
+.accordion-content{display:none;margin-top:10px}
+
+/* INFO BOX */
+.info-box{
+  background:#fff3cd;
+  color:#664d03;
+  padding:12px;
+  border-left:5px solid #ffc107;
+  border-radius:6px;
+  margin-bottom:15px;
+  font-size:.9rem;
+}
+
+/* FILE CARD */
+.file-card{
+  background:white;
+  border-radius:10px;
+  padding:14px;
+  box-shadow:0 2px 6px rgba(0,0,0,.08);
+  margin-bottom:12px;
+}
+.file-title{
+  color:#2d5016;
+  font-weight:600;
+  margin-bottom:6px;
+  font-size:1.1rem;
+}
+.file-date{
+  font-size:.85rem;
+  color:#777;
+  margin-bottom:10px;
+}
+.file-actions{
+  display:flex;
+  gap:10px;
+}
+.btn{
+  padding:10px 20px;
+  border-radius:6px;
+  font-size:.85rem;
+  cursor:pointer;
+  border:none;
+  text-decoration:none;
+  display:inline-block;
+  font-weight:500;
+}
+.copy{
+  background:#e6f2ef;
+  color:#2d5016;
+}
+.download{
+  background:#2d5016;
+  color:#fff;
+}
+
+</style>
+</head>
+
+<body>
+
+<header>
+  <div class="header-container">
+    <a href="index.html" class="logo-wrap">
+      <img src="https://zvnovocoayqomdilidte.supabase.co/storage/v1/object/public/uploads/6a8f3e57-3d27-47f5-9b5e-22a7070fc442.jpeg" class="logo-img">
+      <span class="logo-text">EYES OF 3080</span>
+    </a>
+    <button class="hamburger" id="hamburger"><span></span><span></span><span></span></button>
+  </div>
+</header>
+
+<nav class="sidebar" id="sidebar">
+  <div class="sidebar-header">
+    <h3>Menu</h3>
+    <button class="close-btn" id="closeBtn">&times;</button>
+  </div>
+  <ul class="nav-menu">
+    <li><a href="news.html">Home</a></li>
+    <li><a href="cbt.html">CBT</a></li>
+    <li><a href="pdf.html">PDFs</a></li>
+ <li><a href="marketplace.html">Marketplace</a></li>
+  </ul>
+</nav>
+
+<div class="overlay" id="overlay"></div>
+
+<div class="container">
+
+  <!-- COURSE CARD -->
+  <div class="course-card">
+    <div class="course-title" id="courseTitle">Loading…</div>
+    <div class="course-desc" id="courseDesc"></div>
+  </div>
+
+  <!-- ACCORDION -->
+  <div class="accordion">
+
+    <div class="accordion-header" onclick="toggleAccordion(this)">
+      Course Files <span>⌄</span>
+    </div>
+
+    <div class="accordion-content">
+
+      <!-- INFO BOX -->
+      <div class="info-box">
+        These are the documents related to this course.
+        If download fails, copy the link and open it in your browser.
+      </div>
+
+      <!-- FILES -->
+      <div id="filesContainer"></div>
+
+    </div>
+  </div>
+
+</div>
+
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+
+  /* ================= SUPABASE ================= */
+  const supabase = window.supabase.createClient(
+    "https://zvnovocoayqomdilidte.supabase.co",
+    "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inp2bm92b2NvYXlxb21kaWxpZHRlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjQwMDM2OTgsImV4cCI6MjA3OTU3OTY5OH0.PcpwASQ3RBRoQVIglxKz-yM3iuYMZMtyQJBh8QNHad8"
+  );
+
+  /* ================= PARAM ================= */
+  const params = new URLSearchParams(location.search);
+  const courseCode = params.get("course"); // ✅ CONSISTENT NAME
+
+  if(!courseCode){
+    console.error("No course code in URL");
+    return;
+  }
+
+  /* ================= LOAD COURSE ================= */
+async function loadCourse(){
+  const { data, error } = await supabase
+    .from("courses")
+    .select("*")
+    .eq("course_code", courseCode)
+    .single();
+
+  if(error){
+    console.error(error);
+    document.getElementById("courseTitle").textContent = "Course not found";
+    return;
+  }
+
+  document.getElementById("courseTitle").textContent = `${data.course_code}: ${data.course_title}`;
+  document.getElementById("courseDesc").textContent = data.description || "";
+}
+
+/* ================= LOAD FILES ================= */
+async function loadFiles(){
+  const { data, error } = await supabase
+    .from("course_files")
+    .select("*")
+    .eq("course_code", courseCode)
+    .order("created_at", { ascending: false });
+
+  if(error){
+    console.error(error);
+    return;
+  }
+
+  const box = document.getElementById("filesContainer");
+  box.innerHTML = "";
+
+  if(!data || data.length === 0){
+    box.innerHTML = "<p>No files uploaded for this course yet.</p>";
+    return;
+  }
+
+  data.forEach(f => {
+    const date = new Date(f.created_at).toLocaleString();
+
+    box.innerHTML += `
+      <div class="file-card">
+        <div class="file-title">${f.title}</div>
+        <div class="file-date">${date}</div>
+
+        <div class="file-actions">
+          <button class="btn copy" onclick="copyLink('${f.file_url}')">
+            Copy Link
+          </button>
+          <a class="btn download" href="${f.file_url}" target="_blank">
+            Download
+          </a>
+        </div>
+      </div>
+    `;
+  });
+}
+
+
+  /* ================= COPY LINK ================= */
+  window.copyLink = function(url){
+    navigator.clipboard.writeText(url);
+    alert("Link copied to clipboard");
+  };
+
+/* ================= ACCORDION ================= */
+  window.toggleAccordion = function(header){
+    const content = header.nextElementSibling;
+    const icon = header.querySelector("span");
+
+    const isOpen = content.style.display === "block";
+
+    document.querySelectorAll(".accordion-content")
+      .forEach(c => c.style.display = "none");
+    document.querySelectorAll(".accordion-header span")
+      .forEach(i => i.textContent = "⌄");
+
+    if(!isOpen){
+      content.style.display = "block";
+      icon.textContent = "⌃";
+    }
+  };
+
+  /* ================= MENU ================= */
+  const hamburger = document.getElementById("hamburger");
+  const sidebar   = document.getElementById("sidebar");
+  const overlay   = document.getElementById("overlay");
+  const closeBtn  = document.getElementById("closeBtn");
+
+  function toggleMenu(){
+    sidebar.classList.toggle("active");
+    overlay.classList.toggle("active");
+  }
+
+  hamburger.addEventListener("click", toggleMenu);
+  closeBtn.addEventListener("click", toggleMenu);
+  overlay.addEventListener("click", toggleMenu);
+
+
+  /* ================= INIT ================= */
+  loadCourse();
+  loadFiles();
+
+});
+</script>
+
+</body>
+</html>

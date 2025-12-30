@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Courses | EYES OF 3080</title>
+
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+
+body{
+  font-family:Segoe UI,Tahoma,sans-serif;
+  background:#f4f6f5;
+}
+
+/* ================= HEADER ================= */
+header{
+  background:linear-gradient(135deg,#2d5016,#4a7c2a);
+  color:#fff;
+  position:sticky;
+  top:0;
+  z-index:1000;
+}
+
+.header-container{
+  max-width:1200px;
+  margin:auto;
+  padding:15px 20px;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+}
+
+.logo-wrap{
+  display:flex;
+  align-items:center;
+  gap:10px;
+  text-decoration:none;
+}
+
+.logo-img{
+  width:38px;
+  height:38px;
+  object-fit:contain;
+}
+
+.logo-text{
+  font-size:1.4rem;
+  font-weight:bold;
+  color:#fff;
+}
+
+.hamburger{
+  border:none;
+  background:none;
+  cursor:pointer;
+  display:flex;
+  flex-direction:column;
+  gap:5px;
+}
+.hamburger span{
+  width:28px;
+  height:3px;
+  background:#fff;
+  border-radius:3px;
+}
+
+/* ================= SIDEBAR ================= */
+.sidebar{
+  position:fixed;
+  top:0;
+  right:-300px;
+  width:300px;
+  height:100vh;
+  background:#2d5016;
+  transition:.3s;
+  z-index:2000;
+}
+.sidebar.active{right:0}
+
+.sidebar-header{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  padding:20px;
+  color:#fff;
+  border-bottom:1px solid rgba(255,255,255,.2);
+}
+
+.close-btn{
+  background:none;
+  border:none;
+  color:#fff;
+  font-size:2rem;
+  cursor:pointer;
+}
+
+.nav-menu{
+  list-style:none;
+}
+.nav-menu a{
+  display:block;
+  padding:15px 20px;
+  color:#fff;
+  text-decoration:none;
+}
+.nav-menu a:hover{
+  background:rgba(255,255,255,.1);
+}
+
+.overlay{
+  position:fixed;
+  inset:0;
+  background:rgba(0,0,0,.5);
+  display:none;
+  z-index:1500;
+}
+.overlay.active{display:block}
+
+.course-card{
+  background:#ffffff;
+  padding:12px 14px;
+  border-radius:8px;
+  margin-bottom:10px;
+  border-left:4px solid #2d5016;
+  box-shadow:0 1px 4px rgba(0,0,0,.06);
+  cursor:pointer;
+  transition:all .2s ease;
+  max-width:420px;
+}
+
+.course-card:hover{
+  transform:translateY(-2px);
+  box-shadow:0 4px 10px rgba(0,0,0,.12);
+}
+
+.course-code{
+  font-size:.95rem;
+  font-weight:700;
+  color:#2d5016;
+}
+
+.course-desc{
+  font-size:.8rem;
+  color:#666;
+  margin-top:2px;
+}
+</style>
+</head>
+
+<body>
+
+<header>
+  <div class="header-container">
+    <a href="index.html" class="logo-wrap">
+      <img src="https://zvnovocoayqomdilidte.supabase.co/storage/v1/object/public/uploads/6a8f3e57-3d27-47f5-9b5e-22a7070fc442.jpeg" class="logo-img">
+      <span class="logo-text">EYES OF 3080</span>
+    </a>
+    <button class="hamburger" id="hamburger">
+      <span></span><span></span><span></span>
+    </button>
+  </div>
+</header>
+
+<nav class="sidebar" id="sidebar">
+  <div class="sidebar-header">
+    <h3>Menu</h3>
+    <button class="close-btn" id="closeBtn">&times;</button>
+  </div>
+  <ul class="nav-menu">
+    <li><a href="news.html">Home</a></li>
+    <li><a href="pdf.html">PDFs</a></li>
+    <li><a href="cbt.html">CBT Practice</a></li>
+    <li><a href="marketplace.html">Marketplace</a></li>
+  </ul>
+</nav>
+
+<div class="container">
+  <h2 id="title"></h2>
+  <div id="courses"></div>
+</div>
+
+<!-- Supabase JS -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+
+  /* ================= SUPABASE ================= */
+  const supabase = window.supabase.createClient(
+    "https://zvnovocoayqomdilidte.supabase.co",
+    "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inp2bm92b2NvYXlxb21kaWxpZHRlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjQwMDM2OTgsImV4cCI6MjA3OTU3OTY5OH0.PcpwASQ3RBRoQVIglxKz-yM3iuYMZMtyQJBh8QNHad8"
+  );
+
+  /* ================= PAGE PARAMS ================= */
+  const params = new URLSearchParams(window.location.search);
+  const level = params.get("level");
+
+  const titleEl = document.getElementById("title");
+  const container = document.getElementById("courses");
+
+  if(level){
+    titleEl.innerText = `${level} Level Courses`;
+  }
+
+  /* ================= LOAD COURSES ================= */
+  async function loadCourses(){
+    const { data, error } = await supabase
+      .from("courses")
+      .select("*")
+      .eq("level", Number(level))
+      .order("course_code", { ascending: true });
+
+    if(error){
+      console.error(error);
+      container.innerHTML = "<p>Failed to load courses.</p>";
+      return;
+    }
+
+    if(!data || data.length === 0){
+      container.innerHTML = "<p>No courses found for this level.</p>";
+      return;
+    }
+
+    container.innerHTML = "";
+
+    data.forEach(c => {
+      const div = document.createElement("div");
+      div.className = "course-card";
+      div.innerHTML = `
+        <div class="course-code">${c.course_code}</div>
+        <div class="course-desc">
+          ${c.description || "Tap to view course materials"}
+        </div>
+      `;
+      div.addEventListener("click", () => {
+        window.location.href = `course.html?course=${c.course_code}&level=${level}`;
+      });
+      container.appendChild(div);
+    });
+  }
+
+  loadCourses();
+
+
+
+  /* ================= HAMBURGER MENU ================= */
+  const hamburger = document.getElementById("hamburger");
+  const sidebar   = document.getElementById("sidebar");
+  const overlay   = document.getElementById("overlay");
+  const closeBtn  = document.getElementById("closeBtn");
+
+  function toggleMenu(){
+    sidebar.classList.toggle("active");
+    overlay.classList.toggle("active");
+  }
+
+  hamburger.addEventListener("click", toggleMenu);
+  closeBtn.addEventListener("click", toggleMenu);
+  overlay.addEventListener("click", toggleMenu);
+
+});
+</script>
+</body>
+</html>

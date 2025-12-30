@@ -1,0 +1,27 @@
+{
+  "name": "EYES OF 3080",
+  "short_name": "EYES3080",
+  "description": "Latest news, PDFs, and CBT questions for students",
+  "start_url": "/index.html",
+  "display": "standalone",
+  "background_color": "#f4f6f5",
+  "theme_color": "#003c94",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "icons/icon-72x72.png",
+      "sizes": "72x72",
+      "type": "image/png"
+    },
+    {
+      "src": "icons/icon-192x192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "icons/icon-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}

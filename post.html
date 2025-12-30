@@ -1,0 +1,342 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Post | EYES OF 3080</title>
+
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{
+font-family:Segoe UI,Tahoma,Geneva,Verdana,sans-serif;
+background:#f5f5f5;
+color:#333;
+}
+
+/* ================= HEADER ================= */
+header{
+    background:linear-gradient(135deg,#2d5016,#4a7c2a);
+    color:#fff;
+    position:sticky;
+    top:0;
+    z-index:1000;
+}
+
+.header-container{
+    max-width:1200px;
+    margin:auto;
+    padding:15px 20px;
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+}
+
+.logo-wrap {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  text-decoration: none;
+}
+
+.logo-img {
+  width: 38px;
+  height: 38px;
+  object-fit: contain;
+}
+
+.logo-text {
+  font-size: 1.5rem;
+  font-weight: bold;
+  color: white;
+}
+
+/* Hamburger */
+.hamburger{
+    border:none;
+    background:none;
+    cursor:pointer;
+    display:flex;
+    flex-direction:column;
+    gap:5px;
+}
+.hamburger span{
+    width:28px;
+    height:3px;
+    background:#fff;
+    transition:.3s;
+    border-radius:3px;
+}
+.hamburger.active span:nth-child(1){
+    transform:rotate(45deg) translate(6px,6px)
+}
+.hamburger.active span:nth-child(2){
+    opacity:0
+}
+.hamburger.active span:nth-child(3){
+    transform:rotate(-45deg) translate(6px,-6px)
+}
+
+/* ================= SIDEBAR ================= */
+.sidebar{
+    position:fixed;
+    top:0;
+    right:-300px;
+    width:300px;
+    height:100vh;
+    background:#2d5016;
+    transition:.3s;
+    z-index:2000;
+}
+.sidebar.active{right:0}
+
+.sidebar-header{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    padding:20px;
+    color:#fff;
+    border-bottom:1px solid rgba(255,255,255,.2);
+}
+
+.close-btn{
+    background:none;
+    border:none;
+    color:#fff;
+    font-size:2rem;
+    cursor:pointer;
+}
+
+.nav-menu{
+    list-style:none;
+}
+.nav-menu a{
+    display:block;
+    padding:15px 20px;
+    color:#fff;
+    text-decoration:none;
+}
+.nav-menu a:hover{
+    background:rgba(255,255,255,.1);
+}
+
+/* Overlay */
+.overlay{
+    position:fixed;
+    inset:0;
+    background:rgba(0,0,0,.5);
+    display:none;
+    z-index:1500;
+}
+.overlay.active{display:block}
+
+
+
+/* ================= CONTENT CONTAINER ================= */
+.container {
+  max-width: 800px;
+  margin: 30px auto;
+  padding: 0 20px;
+  background: #fff;
+  border-radius: 10px;
+  box-shadow: 0 2px 8px rgba(0,0,0,.1);
+}
+
+/* ================= POST HEADER ================= */
+.post-header {
+  padding: 20px;
+  border-bottom: 1px solid #eee;
+}
+
+.post-title {
+  font-size: 1.8rem;
+  color: #2d5016;
+  margin-bottom: 10px;
+}
+
+.post-meta {
+  font-size: 0.9rem;
+  color: #777;
+  display: flex;
+  justify-content: space-between;
+}
+
+/* ================= POST IMAGE ================= */
+.post-image {
+  width: 100%;               /* Full width of container */
+  max-width: 100%;           /* Ensure it doesn't overflow */
+  height: auto;              /* Preserve aspect ratio */
+  margin-top: 20px;
+  border-radius: 10px;
+  display: block;
+  object-fit: contain;       /* Show full image without cropping */
+}
+
+/* Optional: If you want a max height but still show full image */
+.post-image-wrapper {
+  width: 100%;
+  max-height: 400px;         /* Optional max height */
+  overflow: hidden;          /* Hide anything beyond container */
+  border-radius: 10px;
+  margin-top: 20px;
+}
+
+.post-image-wrapper img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;       /* Contain entire image */
+}
+
+/* ================= POST CONTENT ================= */
+.post-content {
+  padding: 20px;
+  font-size: 1rem;
+  line-height: 1.8;
+  color: #444;
+  white-space: pre-line;
+}
+
+/* ================= FOOTER ================= */
+footer{
+    background:#2d5016;
+    color:#fff;
+    text-align:center;
+    padding:25px;
+    margin-top:50px;
+}
+
+@media(max-width:700px){
+    .post-header{
+        align-items:flex-start;
+    }
+    .post-thumb{
+        width:70px;
+        height:60px;
+    }
+}
+</style>
+</head>
+
+<body>
+
+<header>
+  <div class="header-container">
+    <a href="#" class="logo-wrap">
+      <img src="https://zvnovocoayqomdilidte.supabase.co/storage/v1/object/public/uploads/6a8f3e57-3d27-47f5-9b5e-22a7070fc442.jpeg" alt="Eyes of 3080 Logo" class="logo-img">
+      <span class="logo-text">EYES OF 3080</span>
+    </a>
+
+    <button class="hamburger" id="hamburger">
+      <span></span>
+      <span></span>
+      <span></span>
+    </button>
+  </div>
+</header>
+
+<nav class="sidebar" id="sidebar">
+  <div class="sidebar-header">
+    <h3>Menu</h3>
+    <button class="close-btn" id="closeBtn">&times;</button>
+  </div>
+  <ul class="nav-menu">
+    <li><a href="news.html">Home</a></li>
+    <li><a href="pdf.html">PDFs</a></li>
+    <li><a href="cbt.html">CBT </a></li>
+    <li><a href="marketplace.html">Marketplace</a></li>
+  </ul>
+</nav>
+
+<div class="overlay" id="overlay"></div>
+
+<div class="container">
+<div class="post-header">
+<h1 class="post-title" id="postTitle">Loading...</h1>
+<div class="post-meta">
+<span id="postDate"></span>
+<span id="postViews"></span>
+</div>
+</div>
+
+<img id="postImage" class="post-image" style="display:none">
+
+<div class="post-content" id="postContent">
+Loading content...
+</div>
+</div>
+
+
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+document.addEventListener("DOMContentLoaded", async () => {
+
+  /* ================= SUPABASE ================= */
+  const supabase = window.supabase.createClient(
+    "https://zvnovocoayqomdilidte.supabase.co",
+    "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inp2bm92b2NvYXlxb21kaWxpZHRlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjQwMDM2OTgsImV4cCI6MjA3OTU3OTY5OH0.PcpwASQ3RBRoQVIglxKz-yM3iuYMZMtyQJBh8QNHad8"
+  );
+
+  /* ================= HAMBURGER MENU ================= */
+  const hamburger = document.getElementById("hamburger");
+  const sidebar   = document.getElementById("sidebar");
+  const overlay   = document.getElementById("overlay");
+  const closeBtn  = document.getElementById("closeBtn");
+
+  if(!hamburger || !sidebar || !overlay || !closeBtn){
+    console.error("❌ Hamburger elements missing");
+  } else {
+    function toggleMenu(){
+      console.log("Hamburger toggled"); // Debug
+      hamburger.classList.toggle("active");
+      sidebar.classList.toggle("active");
+      overlay.classList.toggle("active");
+    }
+
+    hamburger.addEventListener("click", toggleMenu);
+    closeBtn.addEventListener("click", toggleMenu);
+    overlay.addEventListener("click", toggleMenu);
+  }
+
+  /* ================= LOAD POST ================= */
+  const params = new URLSearchParams(window.location.search);
+  const postId = params.get("id");
+
+  if(postId){
+    try {
+      const { data, error } = await supabase
+        .from("posts")
+        .select("*")
+        .eq("id", postId)
+        .single();
+
+      if(error || !data){
+        document.getElementById("postTitle").textContent = "Post not found";
+        return;
+      }
+
+      document.getElementById("postTitle").textContent = data.title;
+      document.getElementById("postDate").textContent = new Date(data.created_at).toLocaleDateString();
+      document.getElementById("postViews").textContent = (data.views || 0) + " views";
+      document.getElementById("postContent").textContent = data.content;
+
+      if(data.image_url){
+        const img = document.getElementById("postImage");
+        img.src = data.image_url;
+        img.style.display = "block";
+      }
+
+      // Increment views
+      await supabase
+        .from("posts")
+        .update({ views: (data.views || 0) + 1 })
+        .eq("id", postId);
+
+    } catch(err){
+      console.error("❌ Failed to load post", err);
+    }
+  }
+
+});
+</script>
+</body>
+</html>

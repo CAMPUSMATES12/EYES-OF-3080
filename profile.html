@@ -1,0 +1,379 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>My Profile | EYES OF 3080</title>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+
+body{
+  font-family:Segoe UI,Tahoma,sans-serif;
+  background:#f4f6f5;
+  color:#222;
+}
+
+/* ================= HEADER ================= */
+header{
+    background:linear-gradient(135deg,#2d5016,#4a7c2a);
+    color:#fff;
+    position:sticky;
+    top:0;
+    z-index:1000;
+}
+
+.header-container{
+    max-width:1200px;
+    margin:auto;
+    padding:15px 20px;
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+}
+
+.logo-wrap {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  text-decoration: none;
+}
+
+.logo-img {
+  width: 38px;
+  height: 38px;
+  object-fit: contain;
+}
+
+.logo-text {
+  font-size: 1.5rem;
+  font-weight: bold;
+  color: white;
+}
+
+/* Hamburger */
+.hamburger{
+    border:none;
+    background:none;
+    cursor:pointer;
+    display:flex;
+    flex-direction:column;
+    gap:5px;
+}
+.hamburger span{
+    width:28px;
+    height:3px;
+    background:#fff;
+    transition:.3s;
+    border-radius:3px;
+}
+.hamburger.active span:nth-child(1){
+    transform:rotate(45deg) translate(6px,6px)
+}
+.hamburger.active span:nth-child(2){
+    opacity:0
+}
+.hamburger.active span:nth-child(3){
+    transform:rotate(-45deg) translate(6px,-6px)
+}
+
+/* ================= SIDEBAR ================= */
+.sidebar{
+    position:fixed;
+    top:0;
+    right:-300px;
+    width:300px;
+    height:100vh;
+    background:#2d5016;
+    transition:.3s;
+    z-index:2000;
+}
+.sidebar.active{right:0}
+
+.sidebar-header{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    padding:20px;
+    color:#fff;
+    border-bottom:1px solid rgba(255,255,255,.2);
+}
+
+.close-btn{
+    background:none;
+    border:none;
+    color:#fff;
+    font-size:2rem;
+    cursor:pointer;
+}
+
+.nav-menu{
+    list-style:none;
+}
+.nav-menu a{
+    display:block;
+    padding:15px 20px;
+    color:#fff;
+    text-decoration:none;
+}
+.nav-menu a:hover{
+    background:rgba(255,255,255,.1);
+}
+
+/* Overlay */
+.overlay{
+    position:fixed;
+    inset:0;
+    background:rgba(0,0,0,.5);
+    display:none;
+    z-index:1500;
+}
+.overlay.active{display:block}
+
+
+
+/* CARD */
+.profile-card{
+  max-width:400px;   /* reduced width */
+  margin:70px auto;
+  background:#fff;
+  border-radius:18px;
+  padding:28px 22px;
+  box-shadow:0 12px 30px rgba(0,0,0,.08);
+}
+
+/* IMAGE */
+.profile-img{
+  width:110px;
+  height:110px;
+  border-radius:50%;
+  object-fit:cover;
+  border:4px solid #2d5016;
+  display:block;
+  margin:0 auto 15px;
+}
+
+/* TITLE */
+.profile-title{
+  text-align:center;
+  font-size:1.4rem;
+  font-weight:800;
+  color:#2d5016;
+  margin-bottom:25px;
+}
+
+/* FORM */
+.profile-form{
+  display:flex;
+  flex-direction:column;
+  gap:8px;
+}
+
+.profile-form label{
+  font-size:.85rem;
+  font-weight:600;
+  color:#2d5016;
+}
+
+.profile-field{
+  width:100%;
+  min-height:48px;
+  resize:none;
+  padding:12px 14px;
+  border-radius:12px;
+  border:1.5px solid #dfe7e2;
+  background:#f8fbf9;
+  font-size:.95rem;
+  color:#2d5016;
+  outline:none;
+}
+
+/* DIVIDER */
+.profile-divider{
+  margin:28px 0 18px;
+  height:1px;
+  background:#eee;
+}
+
+/* LOGOUT */
+.logout-btn{
+  width:100%;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:10px;
+  padding:14px;
+  border-radius:14px;
+  background:#fff5f5;
+  border:none;
+  font-size:.95rem;
+  font-weight:600;
+  color:#c0392b;
+  cursor:pointer;
+  transition:.25s ease;
+}
+
+.logout-btn:hover{
+  background:#fdecec;
+}
+
+/* LOGOUT ICON */
+.logout-icon{
+  width:16px;
+  height:16px;
+  border:2px solid #c0392b;
+  border-radius:3px;
+  position:relative;
+}
+
+.logout-icon::after{
+  content:"";
+  position:absolute;
+  top:3px;
+  right:-6px;
+  width:6px;
+  height:6px;
+  border-top:2px solid #c0392b;
+  border-right:2px solid #c0392b;
+  transform:rotate(45deg);
+}
+</style>
+</head>
+
+<body>
+
+<header>
+  <div class="header-container">
+    <a href="#" class="logo-wrap">
+      <img src="https://zvnovocoayqomdilidte.supabase.co/storage/v1/object/public/uploads/6a8f3e57-3d27-47f5-9b5e-22a7070fc442.jpeg" alt="Eyes of 3080 Logo" class="logo-img">
+      <span class="logo-text">EYES OF 3080</span>
+    </a>
+
+    <button class="hamburger" id="hamburger">
+      <span></span>
+      <span></span>
+      <span></span>
+    </button>
+  </div>
+</header>
+
+<nav class="sidebar" id="sidebar">
+  <div class="sidebar-header">
+    <h3>Menu</h3>
+    <button class="close-btn" id="closeBtn">&times;</button>
+  </div>
+  <ul class="nav-menu">
+    <li><a href="news.html">Home</a></li>
+    <li><a href="cbt.html">CBT Practice</a></li>
+    <li><a href="pdf.html">PDFs </a></li>
+    <li><a href="marketplace.html">Marketplace</a></li>
+<li><a href="profile.html">Profiles</a></li>
+  </ul>
+</nav>
+
+<div class="overlay" id="overlay"></div>
+
+<div class="profile-card">
+
+  <img
+    src="https://zvnovocoayqomdilidte.supabase.co/storage/v1/object/public/uploads/6a8f3e57-3d27-47f5-9b5e-22a7070fc442.jpeg"
+    class="profile-img"
+    id="profileImg"
+    alt="Profile Image"
+  >
+
+  <h2 class="profile-title">Profile Information</h2>
+
+  <div class="profile-form">
+
+    <label>Full Name</label>
+    <textarea
+      id="profileName"
+      class="profile-field"
+      readonly
+    >Full Name</textarea>
+
+    <label>Email</label>
+    <textarea
+      id="profileEmail"
+      class="profile-field"
+      readonly
+    >email@example.com</textarea>
+
+  </div>
+
+  <div class="profile-divider"></div>
+
+  <div class="actions">
+    <button class="logout-btn" onclick="logout()">
+      <span class="logout-icon"></span>
+      <span>Sign Out</span>
+    </button>
+  </div>
+
+</div>
+
+
+<script>
+/* ================= SUPABASE ================= */
+const supabaseClient = supabase.createClient(
+  "https://zvnovocoayqomdilidte.supabase.co",
+  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inp2bm92b2NvYXlxb21kaWxpZHRlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjQwMDM2OTgsImV4cCI6MjA3OTU3OTY5OH0.PcpwASQ3RBRoQVIglxKz-yM3iuYMZMtyQJBh8QNHad8"
+);
+
+
+/* ================= HAMBURGER MENU ================= */
+  const hamburger = document.getElementById("hamburger");
+  const sidebar   = document.getElementById("sidebar");
+  const overlay   = document.getElementById("overlay");
+  const closeBtn  = document.getElementById("closeBtn");
+
+  if(!hamburger || !sidebar || !overlay || !closeBtn){
+    console.error("❌ Hamburger elements missing");
+  } else {
+    function toggleMenu(){
+      console.log("Hamburger toggled"); // Debug
+      hamburger.classList.toggle("active");
+      sidebar.classList.toggle("active");
+      overlay.classList.toggle("active");
+    }
+
+    hamburger.addEventListener("click", toggleMenu);
+    closeBtn.addEventListener("click", toggleMenu);
+    overlay.addEventListener("click", toggleMenu);
+  }
+
+/* ================= LOAD PROFILE ================= */
+async function loadProfile(){
+  const { data: { user } } = await supabaseClient.auth.getUser();
+  if(!user){
+    window.location.href = "login.html";
+    return;
+  }
+
+  const { data } = await supabaseClient
+    .from("profiles")
+    .select("full_name")
+    .eq("id", user.id)
+    .single();
+
+  document.getElementById("profileName").textContent =
+    data?.full_name || "student";
+
+  document.getElementById("profileEmail").textContent =
+    user.email;
+}
+
+/* ================= LOGOUT ================= */
+async function logout(){
+  await supabaseClient.auth.signOut();
+  window.location.href = "index.html";
+}
+
+loadProfile();
+</script>
+
+</body>
+</html>

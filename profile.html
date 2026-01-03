@@ -302,6 +302,20 @@ header{
       readonly
     >email@example.com</textarea>
 
+    <label>College</label>
+    <textarea
+      id="profileCollege"
+      class="profile-field"
+      readonly
+    >College</textarea>
+
+    <label>Level</label>
+    <textarea
+      id="profileLevel"
+      class="profile-field"
+      readonly
+    >Level</textarea>
+
   </div>
 
   <div class="profile-divider"></div>
@@ -314,7 +328,6 @@ header{
   </div>
 
 </div>
-
 
 <script>
 /* ================= SUPABASE ================= */
@@ -348,28 +361,40 @@ const supabaseClient = supabase.createClient(
 /* ================= LOAD PROFILE ================= */
 async function loadProfile(){
   const { data: { user } } = await supabaseClient.auth.getUser();
+
   if(!user){
     window.location.href = "login.html";
     return;
   }
 
-  const { data } = await supabaseClient
+  const { data, error } = await supabaseClient
     .from("profiles")
-    .select("full_name")
+    .select("full_name, college, level")
     .eq("id", user.id)
     .single();
 
+  if(error){
+    console.error(error);
+    return;
+  }
+
   document.getElementById("profileName").textContent =
-    data?.full_name || "student";
+    data.full_name || "Student";
 
   document.getElementById("profileEmail").textContent =
     user.email;
+
+  document.getElementById("profileCollege").textContent =
+    data.college || "—";
+
+  document.getElementById("profileLevel").textContent =
+    data.level || "—";
 }
 
 /* ================= LOGOUT ================= */
 async function logout(){
   await supabaseClient.auth.signOut();
-  window.location.href = "index.html";
+  window.location.href = "steve";
 }
 
 loadProfile();

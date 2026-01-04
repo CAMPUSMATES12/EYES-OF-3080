@@ -3,10 +3,10 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>PDF Levels | EYES OF 3080</title>
-
+<title>PDFs | EYES OF 3080</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
-*{margin:0;padding:0;box-sizing:border-box}
+*{margin:0;padding:0;box-sizing:border-box;}
 
 body{
   font-family:Segoe UI,Tahoma,sans-serif;
@@ -14,7 +14,7 @@ body{
   color:#222;
 }
 
-/* ================= HEADER ================= */
+/* HEADER */
 header{
   background:linear-gradient(135deg,#2d5016,#4a7c2a);
   color:#fff;
@@ -42,7 +42,6 @@ header{
 .logo-img{
   width:38px;
   height:38px;
-  object-fit:contain;
 }
 
 .logo-text{
@@ -66,7 +65,7 @@ header{
   border-radius:3px;
 }
 
-/* ================= SIDEBAR ================= */
+/* SIDEBAR */
 .sidebar{
   position:fixed;
   top:0;
@@ -85,7 +84,6 @@ header{
   align-items:center;
   padding:20px;
   color:#fff;
-  border-bottom:1px solid rgba(255,255,255,.2);
 }
 
 .close-btn{
@@ -114,58 +112,105 @@ header{
   inset:0;
   background:rgba(0,0,0,.5);
   display:none;
-  z-index:1500;
 }
 .overlay.active{display:block}
 
-/* ================= MAIN ================= */
-.container{
-  max-width:900px;
-  margin:35px auto;
-  padding:0 20px;
-}
-
-h1{
-  margin-bottom:20px;
-  color:#2d5016;
-}
-
-/* LEVEL CARDS */
-.level-grid{
-  display:grid;
-  grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
-  gap:20px;
-}
-
-.level-card{
-  background:white;
-  padding:30px 20px;
-  border-radius:16px;
-  box-shadow:0 4px 12px rgba(0,0,0,.08);
+/* PDF CARD */
+.pdf-card{
+  max-width:420px;
+  margin:80px auto;
+  background:#fff;
+  border-radius:20px;
+  padding:36px 28px;
   text-align:center;
-  cursor:pointer;
-  transition:.3s;
+  box-shadow:0 14px 35px rgba(0,0,0,.08);
 }
 
-.level-card:hover{
-  transform:translateY(-6px);
-  background:#eef5f0;
+/* LOGO - BIG */
+.pdf-logo{
+  width:150px;
+  height:150px;
+  object-fit:contain;
+  margin-bottom:20px;
+  border-radius:50%;
+  background:#fff;
+  padding:10px;
 }
 
-.level-title{
-  font-size:1.4rem;
-  font-weight:700;
+/* TITLE */
+.pdf-title{
+  font-size:1.55rem;
+  font-weight:800;
   color:#2d5016;
+  margin-bottom:6px;
 }
 
-.level-sub{
-  margin-top:6px;
+.pdf-subtitle{
   font-size:.9rem;
   color:#666;
+  margin-bottom:26px;
+}
+
+/* INFO (VERTICAL) */
+.pdf-info.vertical{
+  display:flex;
+  flex-direction:column;
+  gap:14px;
+  margin-bottom:28px;
+}
+
+.info-block{
+  background:#f0f7f2;
+  padding:14px;
+  border-radius:14px;
+}
+
+.info-label{
+  font-size:.8rem;
+  color:#4a7c2a;
+  font-weight:600;
+  margin-bottom:4px;
+}
+
+.info-value{
+  font-size:1rem;
+  font-weight:800;
+  color:#2d5016;
+}
+
+/* PROGRESS BAR */
+.progress-wrap{
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  gap:12px;
+  width: 100%;
+}
+
+.progress-bar{
+  width: 50%;             /* smaller bar width */
+  max-width: 300px;
+  height:16px;
+  background:#e4efe7;
+  border-radius:10px;
+  overflow:hidden;
+}
+
+.progress-fill{
+  width:0%;
+  height:100%;
+  background:#2d5016;
+  border-radius:10px;
+  
+}
+
+.loading-text{
+  font-size:.85rem;
+  color:#666;
+  margin-top:6px;
 }
 </style>
 </head>
-
 <body>
 
 <header>
@@ -174,9 +219,7 @@ h1{
       <img src="https://zvnovocoayqomdilidte.supabase.co/storage/v1/object/public/uploads/6a8f3e57-3d27-47f5-9b5e-22a7070fc442.jpeg" class="logo-img">
       <span class="logo-text">EYES OF 3080</span>
     </a>
-    <button class="hamburger" id="hamburger">
-      <span></span><span></span><span></span>
-    </button>
+    <button class="hamburger" id="hamburger"><span></span><span></span><span></span></button>
   </div>
 </header>
 
@@ -196,40 +239,111 @@ h1{
 
 <div class="overlay" id="overlay"></div>
 
-<div class="container">
-  <h1>Select Level</h1>
+<div class="pdf-card">
+  <img src="https://zvnovocoayqomdilidte.supabase.co/storage/v1/object/public/uploads/6a8f3e57-3d27-47f5-9b5e-22a7070fc442.jpeg" class="pdf-logo" alt="Logo">
 
-  <div class="level-grid">
-    <div class="level-card" onclick="goLevel(100)">
-      <div class="level-title">100 Level</div>
-      <div class="level-sub">Introductory Courses</div>
+  <h2 class="pdf-title" id="welcomeTitle">Welcome to PDFs </h2>
+
+  <div class="pdf-info vertical">
+    <div class="info-block">
+      <span class="info-label">College</span>
+      <span class="info-value" id="userCollege">—</span>
     </div>
-    <div class="level-card" onclick="goLevel(200)">
-      <div class="level-title">200 Level</div>
-      <div class="level-sub">Intermediate Courses</div>
+    <div class="info-block">
+      <span class="info-label">Level</span>
+      <span class="info-value" id="userLevel">—</span>
     </div>
+  </div>
+
+  <div class="progress-wrap">
+    <div class="progress-bar">
+      <div class="progress-fill" id="progressFill"></div>
     </div>
+    <p class="loading-text" id="loadingText">Redirecting…</p>
   </div>
 </div>
 
 <script>
-const hamburger=document.getElementById("hamburger");
-const sidebar=document.getElementById("sidebar");
-const overlay=document.getElementById("overlay");
-const closeBtn=document.getElementById("closeBtn");
+/* ================= SUPABASE ================= */
+const supabaseClient = supabase.createClient(
+  "https://zvnovocoayqomdilidte.supabase.co",
+  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inp2bm92b2NvYXlxb21kaWxpZHRlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjQwMDM2OTgsImV4cCI6MjA3OTU3OTY5OH0.PcpwASQ3RBRoQVIglxKz-yM3iuYMZMtyQJBh8QNHad8"
+);
+
+/* ================= MENU ================= */
+const hamburger = document.getElementById("hamburger");
+const sidebar = document.getElementById("sidebar");
+const overlay = document.getElementById("overlay");
+const closeBtn = document.getElementById("closeBtn");
 
 function toggleMenu(){
   sidebar.classList.toggle("active");
   overlay.classList.toggle("active");
 }
-hamburger.onclick=toggleMenu;
-closeBtn.onclick=toggleMenu;
-overlay.onclick=toggleMenu;
+hamburger.onclick = closeBtn.onclick = overlay.onclick = toggleMenu;
 
-function goLevel(level){
-  window.location.href=`courses.html?level=${level}`;
+/* ================= DOM ELEMENTS ================= */
+const welcomeTitle = document.getElementById("welcomeTitle");
+const userCollege  = document.getElementById("userCollege");
+const userLevel    = document.getElementById("userLevel");
+const loadingText  = document.getElementById("loadingText");
+const progressFill = document.getElementById("progressFill");
+
+/* ================= AUTO LOAD USER & PROGRESS ================= */
+async function autoRedirect(){
+  try {
+    const { data: { user } } = await supabaseClient.auth.getUser();
+
+    if (!user) {
+      loadingText.textContent = "Please log in to continue";
+      return;
+    }
+
+    const { data: profile, error: profileError } = await supabaseClient
+      .from("profiles")
+      .select("full_name, college, level")
+      .eq("id", user.id)
+      .single();
+
+    if (profileError || !profile) {
+      loadingText.textContent = "Failed to load profile";
+      return;
+    }
+
+    // Update UI
+    welcomeTitle.textContent = `Welcome, ${profile.full_name}`;
+    userCollege.textContent = profile.college || "—";
+    userLevel.textContent = profile.level || "—";
+    loadingText.textContent = "Preparing your course materials…";
+
+    // Animate progress bar smoothly
+    let percent = 0;
+    const duration = 1800; // total duration in ms
+    const intervalTime = 20; // update every 20ms
+    const increment = (intervalTime / duration) * 100; // percent per interval
+
+    const interval = setInterval(() => {
+      percent += increment;
+      if (percent > 100) percent = 100;
+
+      progressFill.style.width = `${percent}%`;
+      loadingText.textContent = `Loading ${Math.floor(percent)}%…`;
+
+      if (percent >= 100) {
+        clearInterval(interval);
+        if (profile.level) {
+          window.location.href = `courses.html?level=${profile.level}`;
+        }
+      }
+    }, intervalTime);
+
+  } catch(err) {
+    console.error("Error loading user:", err);
+    loadingText.textContent = "Something went wrong";
+  }
 }
-</script>
 
+autoRedirect();
+</script>
 </body>
 </html>

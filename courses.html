@@ -170,10 +170,10 @@ header{
   <ul class="nav-menu">
     <li><a href="news.html">Home</a></li>
     <li><a href="pdf.html">PDFs</a></li>
-    <li><a href="cbt.html">CBT</a></li>
+    <li><a href="cbt.html">CBT Practice</a></li>
     <li><a href="marketplace.html">Marketplace</a></li>
-    <li><a href="profile.html">Profile</a></li>
-   </ul>
+   <li><a href="profile.html">Profile</a></li>
+  </ul>
 </nav>
 
 <div class="container">
@@ -192,56 +192,105 @@ document.addEventListener("DOMContentLoaded", () => {
     "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inp2bm92b2NvYXlxb21kaWxpZHRlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjQwMDM2OTgsImV4cCI6MjA3OTU3OTY5OH0.PcpwASQ3RBRoQVIglxKz-yM3iuYMZMtyQJBh8QNHad8"
   );
 
-  /* ================= PAGE PARAMS ================= */
   const params = new URLSearchParams(window.location.search);
-  const level = params.get("level");
+let level = params.get("level");
 
-  const titleEl = document.getElementById("title");
-  const container = document.getElementById("courses");
+const titleEl = document.getElementById("title");
+const container = document.getElementById("courses");
 
-  if(level){
-    titleEl.innerText = `${level} Level Courses`;
+/* ================= GET USER LEVEL ================= */
+async function getUserLevel() {
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) return null;
+
+  const { data, error } = await supabase
+    .from("profiles")
+    .select("level")
+    .eq("id", user.id)
+    .single();
+
+  if (error) return null;
+  return data?.level || null;
+}
+
+/* ================= TITLE ================= */
+function setTitle(level, recommended = false) {
+  if (!level) {
+    titleEl.innerText = "Courses";
+  } else if (level.toLowerCase() === "jupeb") {
+    titleEl.innerText = recommended
+      ? "JUPEB  (Recommended for You)"
+      : "JUPEB ";
+  } else {
+    titleEl.innerText = recommended
+      ? `${level} Level Courses (Recommended for You)`
+      : `${level} Level Courses`;
+  }
+}
+
+/* ================= LOAD COURSES ================= */
+async function loadCourses() {
+  let recommended = false;
+
+  // If level not in URL → use profile level
+  if (!level) {
+    const userLevel = await getUserLevel();
+    if (!userLevel) {
+  container.innerHTML = `
+    <p>
+      Your level is not set yet.<br>
+      Please update your profile to continue.
+    </p>
+  `;
+  return;
+}
+    level = userLevel;
+    recommended = true;
   }
 
-  /* ================= LOAD COURSES ================= */
-  async function loadCourses(){
-    const { data, error } = await supabase
-      .from("courses")
-      .select("*")
-      .eq("level", Number(level))
-      .order("course_code", { ascending: true });
+  setTitle(level, recommended);
 
-    if(error){
-      console.error(error);
-      container.innerHTML = "<p>Failed to load courses.</p>";
-      return;
-    }
+  const { data, error } = await supabase
+    .from("courses")
+    .select("*")
+    .eq("level", level)
+    .order("course_code", { ascending: true });
 
-    if(!data || data.length === 0){
-      container.innerHTML = "<p>No courses found for this level.</p>";
-      return;
-    }
-
-    container.innerHTML = "";
-
-    data.forEach(c => {
-      const div = document.createElement("div");
-      div.className = "course-card";
-      div.innerHTML = `
-        <div class="course-code">${c.course_code}</div>
-        <div class="course-desc">
-          ${c.description || "Tap to view course materials"}
-        </div>
-      `;
-      div.addEventListener("click", () => {
-        window.location.href = `course.html?course=${c.course_code}&level=${level}`;
-      });
-      container.appendChild(div);
-    });
+  if (error) {
+    console.error("❌ Courses error:", error);
+    container.innerHTML = "<p>Failed to load courses.</p>";
+    return;
   }
 
-  loadCourses();
+  if (!data || data.length === 0) {
+    container.innerHTML =
+      "<p>No courses found for this level.</p>";
+    return;
+  }
 
+  container.innerHTML = "";
+
+  data.forEach(course => {
+    const div = document.createElement("div");
+    div.className = "course-card";
+
+    div.innerHTML = `
+      <div class="course-code">${course.course_code}</div>
+      <div class="course-desc">
+        ${course.description || "Tap to view course materials"}
+      </div>
+    `;
+
+    div.onclick = () => {
+      window.location.href =
+        `course.html?course=${course.course_code}&level=${level}`;
+    };
+
+    container.appendChild(div);
+  });
+}
+
+loadCourses();
 
 
   /* ================= HAMBURGER MENU ================= */

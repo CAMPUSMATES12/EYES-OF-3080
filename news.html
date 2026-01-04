@@ -215,6 +215,94 @@ h1{
 }
 .views::before{content:"";}
 
+/* ===== JOIN CARD HEADER ===== */
+.join-header{
+  display:flex;
+  align-items:center;
+  gap:16px;
+  margin-bottom:14px;
+}
+
+.join-logo{
+  width:64px;
+  height:64px;
+  border-radius:12px;
+  object-fit:contain;
+  background:#f0f7f2;
+  padding:6px;
+}
+
+.join-card h3{
+  font-size:1.25rem;
+  font-weight:700;
+  color:#2d5016;
+  margin:0;
+}
+
+/* underline stays aligned */
+.join-card h3::after{
+  content:"";
+  display:block;
+  width:55px;
+  height:3px;
+  background:#4a7c2a;
+  margin-top:6px;
+  border-radius:2px;
+}
+
+/* ================= JOIN CHANNEL – MATCH NEWS ================= */
+.join-card-container{
+  margin:20px auto 30px;
+  max-width:900px;
+  padding:0 15px;
+}
+
+.join-card{
+  background:#ffffff;
+  border-radius:14px;
+  padding:22px;
+  box-shadow:0 6px 14px rgba(0,0,0,0.08);
+  border-left:5px solid #2d5016;
+}
+
+.join-card h3{
+  font-size:1.25rem;
+  font-weight:700;
+  color:#2d5016;
+  margin-bottom:10px;
+}
+
+.join-card h3::after{
+  content:"";
+  display:block;
+  width:60px;
+  height:3px;
+  background:#4a7c2a;
+  margin-top:6px;
+  border-radius:2px;
+}
+
+.join-card p{
+  font-size:.95rem;
+  line-height:1.6;
+  color:#555;
+  margin-bottom:16px;
+}
+
+.join-card a{
+  display:inline-block;
+  padding:10px 18px;
+  background:#2d5016;
+  color:#ffffff;
+  text-decoration:none;
+  border-radius:8px;
+  font-weight:600;
+  font-size:.9rem;
+}
+
+.join-card a:hover{
+  background:#3f6f22;
+}
 
 </style>
 </head>
@@ -251,6 +339,27 @@ h1{
 </nav>
 
 <div class="overlay" id="overlay"></div>
+
+<div class="join-card-container">
+  <div class="join-card">
+
+    <div class="join-header">
+      <img
+        src="https://zvnovocoayqomdilidte.supabase.co/storage/v1/object/public/uploads/6a8f3e57-3d27-47f5-9b5e-22a7070fc442.jpeg"
+        alt="EYES OF 3080"
+        class="join-logo"
+      >
+      <h3>Join Our Channel</h3>
+    </div>
+
+    <p>
+      Stay updated with the latest PDFs, announcements, and important academic
+      resources shared directly with students.
+    </p>
+
+    <a href="https://whatsapp.com/channel/0029VbCGrZX0wajtgI9JvU1n" target="_blank">Join Now</a>
+  </div>
+</div>
 
 <div class="container">
   <h1>Latest News</h1>

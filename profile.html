@@ -330,65 +330,54 @@ header{
 </div>
 
 <script>
+document.addEventListener("DOMContentLoaded", () => {
+
 /* ================= SUPABASE ================= */
 const supabaseClient = supabase.createClient(
   "https://zvnovocoayqomdilidte.supabase.co",
   "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inp2bm92b2NvYXlxb21kaWxpZHRlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjQwMDM2OTgsImV4cCI6MjA3OTU3OTY5OH0.PcpwASQ3RBRoQVIglxKz-yM3iuYMZMtyQJBh8QNHad8"
 );
 
-
 /* ================= HAMBURGER MENU ================= */
-  const hamburger = document.getElementById("hamburger");
-  const sidebar   = document.getElementById("sidebar");
-  const overlay   = document.getElementById("overlay");
-  const closeBtn  = document.getElementById("closeBtn");
+const hamburger = document.getElementById("hamburger");
+const sidebar   = document.getElementById("sidebar");
+const overlay   = document.getElementById("overlay");
+const closeBtn  = document.getElementById("closeBtn");
 
-  if(!hamburger || !sidebar || !overlay || !closeBtn){
-    console.error("❌ Hamburger elements missing");
-  } else {
-    function toggleMenu(){
-      console.log("Hamburger toggled"); // Debug
-      hamburger.classList.toggle("active");
-      sidebar.classList.toggle("active");
-      overlay.classList.toggle("active");
-    }
+function toggleMenu(){
+  hamburger.classList.toggle("active");
+  sidebar.classList.toggle("active");
+  overlay.classList.toggle("active");
+}
 
-    hamburger.addEventListener("click", toggleMenu);
-    closeBtn.addEventListener("click", toggleMenu);
-    overlay.addEventListener("click", toggleMenu);
-  }
+hamburger?.addEventListener("click", toggleMenu);
+closeBtn?.addEventListener("click", toggleMenu);
+overlay?.addEventListener("click", toggleMenu);
 
 /* ================= LOAD PROFILE ================= */
 async function loadProfile(){
-  const { data: { user } } = await supabaseClient.auth.getUser();
+  const { data: { user }, error } = await supabaseClient.auth.getUser();
 
-  if(!user){
+  if(error || !user){
     window.location.href = "login.html";
     return;
   }
 
-  const { data, error } = await supabaseClient
+  const { data, error: profileError } = await supabaseClient
     .from("profiles")
     .select("full_name, college, level")
     .eq("id", user.id)
     .single();
 
-  if(error){
-    console.error(error);
+  if(profileError){
+    console.error("Profile error:", profileError.message);
     return;
   }
 
-  document.getElementById("profileName").textContent =
-    data.full_name || "Student";
-
-  document.getElementById("profileEmail").textContent =
-    user.email;
-
-  document.getElementById("profileCollege").textContent =
-    data.college || "—";
-
-  document.getElementById("profileLevel").textContent =
-    data.level || "—";
+  document.getElementById("profileName").textContent = data.full_name || "Student";
+  document.getElementById("profileEmail").textContent = user.email;
+  document.getElementById("profileCollege").textContent = data.college || "—";
+  document.getElementById("profileLevel").textContent = data.level || "—";
 }
 
 /* ================= LOGOUT ================= */
@@ -396,15 +385,20 @@ async function logout(){
   try {
     const { error } = await supabaseClient.auth.signOut();
     if(error) throw error;
-
-    // Redirect to login page after sign out
     window.location.href = "index.html";
   } catch(err){
     console.error("Logout failed:", err.message);
     alert("Logout failed: " + err.message);
   }
 }
-</script>
 
+/* ✅ CALL PROFILE LOADER */
+loadProfile();
+
+/* Make logout global */
+window.logout = logout;
+
+});
+</script>
 </body>
 </html>

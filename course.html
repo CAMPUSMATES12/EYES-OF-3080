@@ -5,6 +5,11 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Course Materials | EYES OF 3080</title>
 
+<link
+  rel="stylesheet"
+  href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
+/>
+
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
 body{font-family:Segoe UI,Tahoma,sans-serif;background:#f4f6f5;color:#222}
@@ -31,6 +36,45 @@ header{
 
 .hamburger{background:none;border:none;cursor:pointer;display:flex;flex-direction:column;gap:5px}
 .hamburger span{width:28px;height:3px;background:#fff;border-radius:3px}
+
+/* ================= HEADER ACTIONS ================= */
+.header-actions{
+  display:flex;
+  align-items:center;
+  gap:18px;
+}
+
+/* ================= NOTIFICATION ICON ================= */
+.notification-btn{
+  position:relative;
+  color:#fff;
+  text-decoration:none;
+  display:flex;
+  align-items:center;
+}
+
+.notification-btn i{
+  font-size:1.45rem;
+}
+
+/* ================= BADGE ================= */
+.notification-btn .badge{
+  position:absolute;
+  top:-6px;
+  right:-8px;
+  background:#e63946;
+  color:#fff;
+  font-size:.7rem;
+  font-weight:700;
+  padding:3px 6px;
+  border-radius:50%;
+  min-width:18px;
+  height:18px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  line-height:1;
+}
 
 /* SIDEBAR */
 .sidebar{
@@ -131,11 +175,23 @@ header{
 
 <header>
   <div class="header-container">
+
     <a href="index.html" class="logo-wrap">
       <img src="https://zvnovocoayqomdilidte.supabase.co/storage/v1/object/public/uploads/6a8f3e57-3d27-47f5-9b5e-22a7070fc442.jpeg" class="logo-img">
       <span class="logo-text">EYES OF 3080</span>
     </a>
-    <button class="hamburger" id="hamburger"><span></span><span></span><span></span></button>
+
+    <div class="header-actions">
+      <a href="notifications.html" class="notification-btn">
+        <i class="fa-regular fa-bell"></i>
+        <span class="badge" id="notifCount">0</span>
+      </a>
+
+      <button class="hamburger" id="hamburger">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+
   </div>
 </header>
 
@@ -310,6 +366,86 @@ async function loadFiles(){
   /* ================= INIT ================= */
   loadCourse();
   loadFiles();
+
+});
+
+document.addEventListener("DOMContentLoaded", async () => {
+
+  const supabaseClient = supabase.createClient(
+    "https://zvnovocoayqomdilidte.supabase.co",
+    "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inp2bm92b2NvYXlxb21kaWxpZHRlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjQwMDM2OTgsImV4cCI6MjA3OTU3OTY5OH0.PcpwASQ3RBRoQVIglxKz-yM3iuYMZMtyQJBh8QNHad8"
+  );
+
+  let currentUser = null;
+  let lastSeen = "1970-01-01";
+
+  /* ================= AUTH ================= */
+  const { data:{ session } } = await supabaseClient.auth.getSession();
+  if (!session?.user) return;
+
+  currentUser = session.user;
+
+  /* ================= GET LAST SEEN ================= */
+  const { data: profile } = await supabaseClient
+    .from("profiles")
+    .select("last_notification_seen_at")
+    .eq("id", currentUser.id)
+    .maybeSingle();
+
+  lastSeen = profile?.last_notification_seen_at || "1970-01-01";
+
+  /* ================= UPDATE BADGE ================= */
+  async function updateBadge() {
+    const badge = document.getElementById("notifCount");
+    if (!badge) return;
+
+    const { data, error } = await supabaseClient
+      .from("notifications")
+      .select("created_at");
+
+    if (error) return console.error(error);
+
+    const unread = data.filter(n =>
+      new Date(n.created_at) > new Date(lastSeen)
+    ).length;
+
+    if (unread === 0) {
+      badge.style.display = "none";
+    } else {
+      badge.textContent = unread;
+      badge.style.display = "inline-flex";
+    }
+  }
+
+  /* ================= MARK AS SEEN WHEN BELL CLICKED ================= */
+  const bell = document.querySelector(".notification-btn");
+
+  if (bell) {
+    bell.addEventListener("click", async () => {
+      const now = new Date().toISOString();
+      lastSeen = now;
+
+      await supabaseClient
+        .from("profiles")
+        .upsert(
+          { id: currentUser.id, last_notification_seen_at: now },
+          { onConflict: "id" }
+        );
+    });
+  }
+
+  /* ================= REALTIME ================= */
+  supabaseClient
+    .channel("notif-badge")
+    .on(
+      "postgres_changes",
+      { event:"INSERT", schema:"public", table:"notifications" },
+      async () => updateBadge()
+    )
+    .subscribe();
+
+  /* ================= START ================= */
+  updateBadge();
 
 });
 </script>

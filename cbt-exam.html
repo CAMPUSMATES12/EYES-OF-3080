@@ -187,6 +187,7 @@ header{
   text-decoration: none;
   border-radius: 16px;
   font-weight: 700;
+  margin-right: 10px;
 }
 </style>
 </head>
@@ -200,7 +201,7 @@ header{
   </a>
 
   <div>
-    <a href="dashboard.html" title="Profile">
+    <a href="dashboard.html" title="Dashboard">
       <i class="fa fa-user-circle user-icon" style="font-size:1.8rem; color:#fff;"></i>
     </a>
   </div>
@@ -242,6 +243,9 @@ header{
     <h2>CBT Completed </h2>
     <p>Your Score</p>
     <div class="score" id="finalScore"></div>
+    
+    <!-- REVIEW BUTTON -->
+    <button class="dashboard-btn" id="reviewBtn">Review Answers →</button>
     <a href="dashboard.html" class="dashboard-btn" id="dashboardBtn">Go to Dashboard →</a>
   </div>
 
@@ -267,6 +271,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   const finalScore = document.getElementById("finalScore");
   const prevBtn = document.getElementById("prevBtn");
   const nextBtn = document.getElementById("nextBtn");
+  const reviewBtn = document.getElementById("reviewBtn");
   const dashboardBtn = document.getElementById("dashboardBtn");
   const goBackBtn = document.getElementById("goBackBtn");
 
@@ -290,13 +295,13 @@ document.addEventListener("DOMContentLoaded", async () => {
   }
 
   /* ================= PROFILE ================= */
-  const { data: profile, error: profileErr } = await supabaseClient
+  const { data: profile } = await supabaseClient
     .from("profiles")
     .select("full_name, level")
     .eq("id", user.id)
     .single();
 
-  if (profileErr || !profile) {
+  if (!profile) {
     alert("Profile not found");
     return;
   }
@@ -304,94 +309,81 @@ document.addEventListener("DOMContentLoaded", async () => {
   greeting.textContent = `Welcome, ${profile.full_name}`;
   courseTitle.textContent = courseCode;
 
-  /* ================= FETCH QUESTIONS ONLY FOR SELECTED FILE ================= */
-  const { data: questions, error: qErr } = await supabaseClient
+  /* ================= FETCH QUESTIONS ================= */
+  const { data: questions, error } = await supabaseClient
     .from("cbt_questions")
     .select("id, question, option_a, option_b, option_c, option_d, correct_option")
     .eq("course_code", courseCode)
     .eq("level", profile.level)
     .eq("file_title", fileTitle);
 
-  if (qErr) {
-    alert("Error loading questions");
-    console.error(qErr);
-    return;
-  }
-
-  if (!questions || questions.length === 0) {
+  if (error || !questions || questions.length === 0) {
     examCard.style.display = "none";
     noQuestionsCard.style.display = "block";
     return;
   }
 
   let index = 0;
-  let answers = {};
+  let answers = {}; // store selected LETTER
 
   /* ================= RENDER ================= */
-function render() {
-  const q = questions[index];
+  function render() {
+    const q = questions[index];
+    progress.textContent = `Question ${index + 1} of ${questions.length}`;
+    questionText.textContent = q.question;
+    optionsDiv.innerHTML = "";
 
-  progress.textContent = `Question ${index + 1} of ${questions.length}`;
-  questionText.textContent = q.question;
-  optionsDiv.innerHTML = "";
+    ["A", "B", "C", "D"].forEach(letter => {
+      const opt = document.createElement("div");
+      opt.className = "option";
+      opt.textContent = `${letter}. ${q["option_" + letter.toLowerCase()] || ""}`;
 
-  ["A", "B", "C", "D"].forEach(letter => {
-    const opt = document.createElement("div");
-    opt.className = "option";
+      if (answers[q.id] === letter) opt.classList.add("selected");
 
-    const optionText = q["option_" + letter.toLowerCase()] || "";
-    opt.textContent = `${letter}. ${optionText}`;
+      opt.onclick = () => {
+        document.querySelectorAll(".option").forEach(o => o.classList.remove("selected"));
+        opt.classList.add("selected");
+        answers[q.id] = letter;
+      };
 
-    if (answers[q.id] === letter) {
-      opt.classList.add("selected");
+      optionsDiv.appendChild(opt);
+    });
+
+    prevBtn.style.display = index === 0 ? "none" : "inline-block";
+    nextBtn.textContent = index === questions.length - 1 ? "Submit" : "Next";
+  }
+
+  /* ================= CONTROLS ================= */
+  prevBtn.onclick = () => {
+    if (index > 0) {
+      index--;
+      render();
+    }
+  };
+
+  nextBtn.onclick = async () => {
+    if (!answers[questions[index].id]) {
+      alert("Please select an option");
+      return;
     }
 
-    opt.onclick = () => {
-      document.querySelectorAll(".option")
-        .forEach(o => o.classList.remove("selected"));
+    if (index < questions.length - 1) {
+      index++;
+      render();
+      return;
+    }
 
-      opt.classList.add("selected");
-      answers[q.id] = letter;
-    };
-
-    optionsDiv.appendChild(opt);
-  });
-
-  prevBtn.style.display = index === 0 ? "none" : "inline-block";
-  nextBtn.textContent = index === questions.length - 1 ? "Submit" : "Next";
-}
-
-
-/* ================= CONTROLS ================= */
-prevBtn.onclick = () => {
-  if (index > 0) {
-    index--;
-    render();
-  }
-};
-
-nextBtn.onclick = async () => {
-  if (!answers[questions[index].id]) {
-    alert("Please select an option");
-    return;
-  }
-
-  if (index < questions.length - 1) {
-    index++;
-    render();
-  } else {
+    /* ================= SUBMIT & SCORE ================= */
     let score = 0;
+
     questions.forEach(q => {
       const selectedLetter = answers[q.id];
       if (!selectedLetter) return;
 
-      const selectedText = String(
-        q["option_" + selectedLetter.toLowerCase()] || ""
-      ).trim().toLowerCase();
+      const selectedText = q["option_" + selectedLetter.toLowerCase()] || "";
+      const correctText = q.correct_option || "";
 
-      const correctText = String(q.correct_option || "").trim().toLowerCase();
-
-      if (selectedText === correctText) {
+      if (selectedText.trim().toLowerCase() === correctText.trim().toLowerCase()) {
         score++;
       }
     });
@@ -400,46 +392,87 @@ nextBtn.onclick = async () => {
     resultCard.style.display = "block";
     finalScore.textContent = `${score} / ${questions.length}`;
 
+    /* ================= SAVE FOR REVIEW ================= */
+    localStorage.setItem(
+      "userAnswers",
+      JSON.stringify(
+        questions.map(q => {
+          const selectedLetter = answers[q.id] || null;
+          return {
+            question: q.question,
+            options: {
+              A: q.option_a,
+              B: q.option_b,
+              C: q.option_c,
+              D: q.option_d
+            },
+            selected_option: selectedLetter,
+            selected_text: selectedLetter
+              ? q["option_" + selectedLetter.toLowerCase()]
+              : null,
+            correct_option: q.correct_option
+          };
+        })
+      )
+    );
+
+    /* ================= SAVE RESULT TO SUPABASE ================= */
     try {
-      const { data, error } = await supabaseClient
-        .from("cbt_results")
-        .insert([
-          {
-            user_id: user.id,
-            course_code: courseCode,
-            file_title: fileTitle,
-            score: score,
-            taken_at: new Date().toISOString()
-          }
-        ]);
-
-      if (error) {
-        alert(`Supabase error: ${error.message}`);
-        console.error("Supabase error object:", error);
-      } else {
-        console.log("Score saved successfully:", data);
-      }
+      const { data, error } = await supabaseClient.from("cbt_results").insert([
+        {
+          user_id: user.id,
+          course_code: courseCode,
+          file_title: fileTitle,
+          score: score,
+          taken_at: new Date().toISOString()
+        }
+      ]);
+      if (error) console.error("Supabase insert error:", error);
     } catch (err) {
-      alert(`Unexpected error saving score: ${err.message}`);
-      console.error("Unexpected error object:", err);
+      console.error("Unexpected error saving result:", err);
     }
-  }
-};
+  };
 
-goBackBtn.onclick = () => {
-  localStorage.removeItem("cbt_course");
-  window.location.href = "cbt-welcome.html";
-};
+  /* ================= BUTTONS ================= */
+  reviewBtn.onclick = () => window.location.href = "cbt-review.html";
+  dashboardBtn.onclick = () => {
+    localStorage.removeItem("cbt_course");
+    window.location.href = "dashboard.html";
+  };
+  goBackBtn.onclick = () => {
+    localStorage.removeItem("cbt_course");
+    window.location.href = "cbt-welcome.html";
+  };
 
-dashboardBtn.onclick = () => {
-  localStorage.removeItem("cbt_course");
-  window.location.href = "dashboard.html";
-};
-
-// Initial render
-render();
+  render();
 });
 </script>
 
 </body>
 </html>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

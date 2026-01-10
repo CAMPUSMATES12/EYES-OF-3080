@@ -58,6 +58,7 @@ header{
   padding:28px 26px 30px;
   box-shadow:0 15px 40px rgba(0,0,0,.1);
   position:relative;
+  transition:all .3s ease;
 }
 
 /* LOGO INSIDE CARD */
@@ -138,9 +139,30 @@ header{
   color:#6b7280;
 }
 
-/* ACTION */
-.start-btn{
-  margin-top:30px;
+/* DETAIL CARD */
+#courseDetailCard{
+  display:none;
+  background:#f0fdf4;
+  border-left:4px solid #22c55e;
+  padding:18px 20px;
+  margin-top:20px;
+  border-radius:12px;
+  text-align:center;
+}
+
+#courseDetailCard .card-logo{
+  margin-bottom:12px;
+}
+
+.detail-item{
+  margin:6px 0;
+  font-size:.95rem;
+  color:#14532d;
+  font-weight:600;
+}
+
+.start-btn, #backToCoursesBtn{
+  margin-top:15px;
   width:100%;
   border:none;
   background:linear-gradient(135deg,#2d5016,#22c55e);
@@ -150,13 +172,17 @@ header{
   border-radius:14px;
   cursor:pointer;
   font-weight:700;
-  display:none;
   transition:.25s;
 }
 
-.start-btn:hover{
+.start-btn:hover, #backToCoursesBtn:hover{
   opacity:.9;
   transform:translateY(-1px);
+}
+#backToCoursesBtn{
+  background:#e5e7eb;
+  color:#222;
+  margin-top:10px;
 }
 </style>
 </head>
@@ -174,28 +200,42 @@ header{
 
 <main class="container">
 
-  <div class="card">
-<div class="card-logo">
-  <img src="https://zvnovocoayqomdilidte.supabase.co/storage/v1/object/public/uploads/6a8f3e57-3d27-47f5-9b5e-22a7070fc442.jpeg">
-</div>
+  <!-- COURSES CARD -->
+  <div class="card" id="coursesCard">
+    <div class="card-logo">
+      <img src="https://zvnovocoayqomdilidte.supabase.co/storage/v1/object/public/uploads/6a8f3e57-3d27-47f5-9b5e-22a7070fc442.jpeg">
+    </div>
     <div class="welcome">
       <h2 id="welcomeText">Welcome </h2>
-<div class="instruction">
-  Select a course below to begin your Computer Based Test.
+    <div class="instruction">
+  Select a course below to start your Computer Based Test.
+Please stay calm while your details load.
+If there are no questions available for the selected course, check back later.
 </div>
       <p id="levelText">Loading your level…</p>
     </div>
+
 
     <h3 style="margin-bottom:15px">Select a Course</h3>
 
     <div class="course-list" id="courseList">
       <p>Loading courses…</p>
     </div>
+  </div>
 
-    <button class="start-btn" id="startBtn">
-      Start CBT →
-    </button>
-
+  <!-- COURSE DETAIL CARD -->
+  <div class="card" id="courseDetailCard" style="display:none;">
+    <div class="card-logo">
+      <img id="courseLogoDetail" src="https://zvnovocoayqomdilidte.supabase.co/storage/v1/object/public/uploads/6a8f3e57-3d27-47f5-9b5e-22a7070fc442.jpeg">
+    </div>
+    <h3 id="courseTitleDetail">Course Title</h3>
+    <p class="detail-item" id="courseCodeDetail">Course Code: N/A</p>
+    <h4 style="margin-top:12px;color:#2d5016">Select File Title</h4>
+    <div id="fileTitlesList" style="display:flex;flex-direction:column;gap:10px;margin-top:10px"></div>
+    <p class="detail-item" id="fileTitleDetail">File Title: N/A</p>
+    <p class="detail-item" id="questionsCount">Questions available: 0</p>
+    <button class="start-btn" id="startBtn">Start CBT →</button>
+    <button id="backToCoursesBtn">Back to Courses</button>
   </div>
 
 </main>
@@ -208,68 +248,168 @@ const supabaseClient = supabase.createClient(
 );
 
 let selectedCourse = null;
+let selectedFileTitle = null;
 
-/* INIT */
+/* ================= INIT ================= */
 (async ()=>{
-  const { data:{ session } } = await supabaseClient.auth.getSession();
-  if(!session){
-    alert("Please login first");
-    return;
-  }
+  try {
+    const { data:{ session }, error: sessionErr } = await supabaseClient.auth.getSession();
+    if(sessionErr) throw sessionErr;
+    if(!session) { alert("Please login first."); return; }
 
-  const userId = session.user.id;
+    const userId = session.user.id;
 
-  /* GET PROFILE */
-  const { data: profile } = await supabaseClient
-    .from("profiles")
-    .select("full_name, level")
-    .eq("id", userId)
-    .single();
+    /* GET PROFILE */
+    const { data: profile, error: profileErr } = await supabaseClient
+      .from("profiles")
+      .select("full_name, level")
+      .eq("id", userId)
+      .single();
 
-  document.getElementById("welcomeText").textContent =
-    `Welcome ${profile.full_name} `;
-  document.getElementById("levelText").textContent =
-    `Level ${profile.level} CBT Examination`;
+    if(profileErr || !profile) throw profileErr || new Error("Profile not found");
 
-  /* GET COURSES */
-  const { data: courses } = await supabaseClient
+    document.getElementById("welcomeText").textContent = `Welcome ${profile.full_name}`;
+    document.getElementById("levelText").textContent = `Level ${profile.level} CBT Practice`;
+
+    /* ================= GET COURSES ================= */
+try {
+  const { data: courses, error: coursesErr } = await supabaseClient
     .from("courses")
     .select("*")
     .eq("level", profile.level);
 
+  if (coursesErr) throw coursesErr;
+
   const list = document.getElementById("courseList");
   list.innerHTML = "";
 
-  courses.forEach(course=>{
+  courses.forEach(course => {
     const div = document.createElement("div");
     div.className = "course-card";
-    div.innerHTML = `
-      <h4>${course.course_code}</h4>
-      <span>${course.course_title}</span>
-    `;
+    div.innerHTML = `<h4>${course.course_code}</h4><span>${course.course_title}</span>`;
 
-    div.onclick = ()=>{
-      document.querySelectorAll(".course-card")
-        .forEach(c=>c.style.borderColor="#e5e7eb");
-
-      div.style.borderColor = "#22c55e";
+    div.onclick = async () => {
+      // Highlight selected course
+      document.querySelectorAll(".course-card").forEach(c => c.classList.remove("active"));
+      div.classList.add("active");
       selectedCourse = course;
-      document.getElementById("startBtn").style.display = "block";
+
+      try {
+        // Fetch all file titles for this course
+        const { data: files, error: filesErr } = await supabaseClient
+          .from("cbt_questions")
+          .select("file_title")
+          .eq("course_code", course.course_code)
+          .not("file_title", "is", null);
+
+        if (filesErr) throw filesErr;
+
+        const fileTitlesList = document.getElementById("fileTitlesList");
+        const fileTitleDetail = document.getElementById("fileTitleDetail");
+        const questionsCount = document.getElementById("questionsCount");
+        const startBtn = document.getElementById("startBtn");
+        const courseTitleDetail = document.getElementById("courseTitleDetail");
+        const courseCodeDetail = document.getElementById("courseCodeDetail");
+        const courseLogoDetail = document.getElementById("courseLogoDetail");
+
+        fileTitlesList.innerHTML = "";
+        startBtn.style.display = "none";
+
+        // ✅ Deduplicate file titles
+        const uniqueFiles = Array.from(new Set(
+          files.map(f => String(f.file_title).trim()).filter(Boolean)
+        ));
+
+        let firstFileTitle = null;
+
+        uniqueFiles.forEach(fileTitle => {
+          const btn = document.createElement("button");
+          btn.textContent = fileTitle;
+          btn.style.padding = "10px";
+          btn.style.borderRadius = "12px";
+          btn.style.border = "1px solid #e5e7eb";
+          btn.style.cursor = "pointer";
+          btn.style.background = "#fff";
+
+          btn.onclick = async () => {
+            selectedFileTitle = fileTitle;
+            fileTitleDetail.textContent = `File Title: ${selectedFileTitle}`;
+            Array.from(fileTitlesList.children).forEach(c => c.style.background = "#fff");
+            btn.style.background = "#ecfdf5";
+
+            // Get number of questions for selected file title
+            const { data: questions, error: qErr } = await supabaseClient
+              .from("cbt_questions")
+              .select("id")
+              .eq("course_code", course.course_code)
+              .eq("file_title", selectedFileTitle);
+
+            if (qErr) {
+              questionsCount.textContent = "Questions available: 0";
+              alert("Error loading questions: " + qErr.message);
+              return;
+            }
+
+            questionsCount.textContent = `Questions available: ${questions.length}`;
+            startBtn.style.display = "block";
+          };
+
+          fileTitlesList.appendChild(btn);
+
+          if (!firstFileTitle) firstFileTitle = fileTitle;
+        });
+
+        // Auto-click the first file title
+        if (firstFileTitle && fileTitlesList.children.length > 0) {
+          fileTitlesList.children[0].click();
+        }
+
+        // Update course detail card
+        courseTitleDetail.textContent = course.course_title;
+        courseCodeDetail.textContent = `Course Code: ${course.course_code}`;
+        courseLogoDetail.src = course.logo_url || 
+          "https://zvnovocoayqomdilidte.supabase.co/storage/v1/object/public/uploads/6a8f3e57-3d27-47f5-9b5e-22a7070fc442.jpeg";
+
+        // Show detail card
+        document.getElementById("coursesCard").style.display = "none";
+        document.getElementById("courseDetailCard").style.display = "block";
+
+      } catch (err) {
+        alert("Error fetching file titles or questions: " + err.message);
+        console.error(err);
+      }
     };
 
     list.appendChild(div);
   });
 
+} catch (err) {
+  alert("Error loading courses: " + err.message);
+  console.error(err);
+}
+
+    /* ================= START CBT ================= */
+    document.getElementById("startBtn").onclick = ()=>{
+      if(!selectedCourse || !selectedFileTitle) return;
+      const courseData = {
+        ...selectedCourse,
+        file_title: selectedFileTitle
+      };
+      localStorage.setItem("cbt_course", JSON.stringify(courseData));
+      window.location.href = "cbt-exam.html";
+    };
+
+    /* ================= BACK TO COURSES ================= */
+    document.getElementById("backToCoursesBtn").onclick = ()=>{
+      document.getElementById("courseDetailCard").style.display = "none";
+      document.getElementById("coursesCard").style.display = "block";
+    };
+
+  } catch(err) {
+    alert("Error during initialization: " + err.message);
+    console.error(err);
+  }
 })();
-
-/* START CBT */
-document.getElementById("startBtn").onclick = ()=>{
-  if(!selectedCourse) return;
-
-  // pass course info to CBT page
-  localStorage.setItem("cbt_course", JSON.stringify(selectedCourse));
-  window.location.href = "cbt-exam.html";
-};
 </script>
 
 </body>

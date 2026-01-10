@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dashboard | EYES OF 3080</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+
+<style>
+body{
+  font-family: 'Segoe UI', Tahoma, sans-serif;
+  background: #f0f3f8;
+  margin:0;
+  padding:0;
+}
+
+/* ================= HEADER ================= */
+header{
+  background: linear-gradient(135deg,#2d5016,#4a7c2a);
+  color:#fff;
+  padding: 15px 20px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  position: sticky;
+  top:0;
+  z-index: 1000;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+}
+
+.logo-wrap{
+  display:flex;
+  align-items:center;
+  gap:12px;
+  text-decoration:none;
+}
+
+.logo-img{
+  width:45px;
+  height:45px;
+  /* Removed circular border-radius */
+  border-radius:0;
+  border:2px solid #fff;
+  object-fit:cover;
+}
+
+.logo-text{
+  font-size:1.6rem;
+  font-weight:bold;
+  color:#fff;
+  letter-spacing:1px;
+}
+
+/* ================= CONTAINER ================= */
+.container{
+  max-width:1000px;
+  margin:40px auto;
+  padding:0 20px;
+}
+
+
+/* ================= CARD ================= */
+.card{
+  background: linear-gradient(135deg, #ffffff, #e6f2e6);
+  border-radius: 20px;
+  padding: 30px;
+  margin-bottom: 30px;
+  box-shadow: 0 12px 25px rgba(0,0,0,0.08);
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+.card:hover{
+  transform: translateY(-5px);
+  box-shadow: 0 18px 30px rgba(0,0,0,0.12);
+}
+
+.card h2{
+  color:#1b3a0f;
+  margin-bottom:20px;
+  font-size:1.8rem;
+  letter-spacing:0.5px;
+}
+
+/* TABLE */
+.courses-table{
+  width:100%;
+  border-collapse: collapse;
+}
+.courses-table th, .courses-table td{
+  padding:12px 15px;
+  border-bottom:1px solid #cde2cd;
+  text-align:left;
+}
+.courses-table th{
+  background:#d1f0d1;
+  color:#166534;
+  font-weight:600;
+}
+.courses-table tr:hover td{
+  background: #f0fdf4;
+  transition: background 0.2s;
+}
+
+/* LOGOUT BUTTON */
+.logout{
+  display:inline-block;
+  margin-top:20px;
+  padding:12px 20px;
+  background:#ef4444;
+  color:#fff;
+  border-radius:12px;
+  text-decoration:none;
+  font-weight:600;
+  box-shadow:0 5px 15px rgba(0,0,0,0.1);
+  transition: transform 0.2s;
+}
+.logout:hover{
+  transform: translateY(-3px);
+  box-shadow:0 8px 20px rgba(0,0,0,0.15);
+}
+</style>
+</head>
+
+<body>
+
+<header>
+  <a href="dashboard.html" class="logo-wrap">
+    <img src="https://zvnovocoayqomdilidte.supabase.co/storage/v1/object/public/uploads/6a8f3e57-3d27-47f5-9b5e-22a7070fc442.jpeg" class="logo-img">
+    <span class="logo-text">EYES OF 3080</span>
+  </a>
+  <div>
+    <i class="fa fa-user-circle fa-2x"></i>
+  </div>
+</header>
+
+<div class="container">
+  <div class="card">
+    <h2 id="welcomeText">Welcome, Student</h2>
+
+    <table class="courses-table" id="coursesTable">
+      <thead>
+        <tr>
+          <th>Course</th>
+          <th>Score</th>
+          <th>Date Taken</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr><td colspan="3" style="text-align:center;color:#888">Loading...</td></tr>
+      </tbody>
+    </table>
+
+    <a href="#" class="logout" id="logoutBtn"><i class="fa fa-sign-out-alt"></i> Logout</a>
+  </div>
+</div>
+
+<script>
+const supabaseClient = supabase.createClient(
+  "https://zvnovocoayqomdilidte.supabase.co",
+  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inp2bm92b2NvYXlxb21kaWxpZHRlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjQwMDM2OTgsImV4cCI6MjA3OTU3OTY5OH0.PcpwASQ3RBRoQVIglxKz-yM3iuYMZMtyQJBh8QNHad8"
+);
+
+async function loadDashboard(){
+  const { data:{ session } } = await supabaseClient.auth.getSession();
+  if(!session){
+    alert("Please login first");
+    window.location.href = "news.html";
+    return;
+  }
+  const user = session.user;
+
+  // Get user profile
+  const { data: profile } = await supabaseClient
+    .from("profiles")
+    .select("full_name")
+    .eq("id", user.id)
+    .single();
+
+  document.getElementById("welcomeText").textContent = `Welcome, ${profile?.full_name || "Student"}`;
+
+  // Get CBT results
+  const { data: results, error } = await supabaseClient
+    .from("cbt_results")
+    .select("course_code, score, taken_at")
+    .eq("user_id", user.id)
+    .order("taken_at",{ascending:false});
+
+  const tbody = document.querySelector("#coursesTable tbody");
+  tbody.innerHTML = "";
+
+  if(error){
+    tbody.innerHTML = `<tr><td colspan="3" style="text-align:center;color:red">Failed to load data</td></tr>`;
+    console.error(error);
+    return;
+  }
+
+  if(!results.length){
+    tbody.innerHTML = `<tr><td colspan="3" style="text-align:center;color:#888">No CBT taken yet</td></tr>`;
+    return;
+  }
+
+  results.forEach(r=>{
+    const tr = document.createElement("tr");
+    tr.innerHTML = `
+      <td>${r.course_code}</td>
+      <td>${r.score}</td>
+      <td>${new Date(r.taken_at).toLocaleString()}</td>
+    `;
+    tbody.appendChild(tr);
+  });
+}
+
+// Logout
+document.getElementById("logoutBtn").onclick = async ()=>{
+  await supabaseClient.auth.signOut();
+  window.location.href = "news.html";
+}
+
+loadDashboard();
+</script>
+
+</body>
+</html>

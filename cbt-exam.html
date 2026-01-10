@@ -21,32 +21,43 @@ body {
 }
 
 /* HEADER */
-header {
-  background: linear-gradient(135deg, #2d5016, #4a7c2a);
-  color: #fff;
-  padding: 16px 20px;
+header{
+  background: linear-gradient(135deg,#2d5016,#4a7c2a);
+  color:#fff;
+  padding: 15px 20px;
   display: flex;
   align-items: center;
+  justify-content: space-between;
+  position: sticky;
+  top:0;
+  z-index: 1000;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.2);
 }
 
-.logo-wrap {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  text-decoration: none;
+.logo-wrap{
+  display:flex;
+  align-items:center;
+  gap:12px;
+  text-decoration:none;
 }
 
-.logo-img {
-  width: 50px;
-  height: 50px;
-  border-radius: 0;
-  border: 2px solid #fff;
+.logo-img{
+  width:45px;
+  height:45px;
+  border-radius:0;
+  border:2px solid #fff;
+  object-fit:cover;
 }
 
-.logo-text {
-  font-size: 1.5rem;
-  font-weight: bold;
-  color: #fff;
+.logo-text{
+  font-size:1.6rem;
+  font-weight:bold;
+  color:#fff;
+  letter-spacing:1px;
+}
+
+.user-icon{
+  font-size:1.8rem;
 }
 
 /* MAIN */
@@ -183,10 +194,16 @@ header {
 <body>
 
 <header>
-  <a class="logo-wrap" href="dashboard.html">
+  <a href="news.html" class="logo-wrap">
     <img src="https://zvnovocoayqomdilidte.supabase.co/storage/v1/object/public/uploads/6a8f3e57-3d27-47f5-9b5e-22a7070fc442.jpeg" class="logo-img">
     <span class="logo-text">EYES OF 3080</span>
   </a>
+
+  <div>
+    <a href="dashboard.html" title="Profile">
+      <i class="fa fa-user-circle user-icon" style="font-size:1.8rem; color:#fff;"></i>
+    </a>
+  </div>
 </header>
 
 <main class="container">
@@ -425,4 +442,4 @@ render();
 </script>
 
 </body>
-</html></html>
+</html>

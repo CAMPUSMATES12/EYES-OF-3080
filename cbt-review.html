@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CBT Review | EYES OF 3080</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{
+  font-family: 'Segoe UI', Tahoma, sans-serif;
+  background:#f4f6f5;
+  color:#222;
+}
+
+/* HEADER */
+header{
+  background: linear-gradient(135deg,#2d5016,#4a7c2a);
+  color:#fff;
+  padding: 15px 20px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  position: sticky;
+  top:0;
+  z-index: 1000;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+}
+
+.logo-wrap{
+  display:flex;
+  align-items:center;
+  gap:12px;
+  text-decoration:none;
+}
+
+.logo-img{
+  width:45px;
+  height:45px;
+  border-radius:0;
+  border:2px solid #fff;
+  object-fit:cover;
+}
+
+.logo-text{
+  font-size:1.6rem;
+  font-weight:bold;
+  color:#fff;
+  letter-spacing:1px;
+}
+
+.user-icon{
+  font-size:1.8rem;
+}
+
+/* CONTAINER */
+.container{
+  max-width:900px;
+  margin:40px auto;
+  padding:0 20px;
+}
+
+/* CARD */
+.card{
+  background:#fff;
+  border-radius:20px;
+  padding:30px;
+  margin-bottom:30px;
+  box-shadow:0 12px 35px rgba(0,0,0,0.08);
+}
+
+h2{
+  color:#2d5016;
+  margin-bottom:15px;
+}
+
+.question-card{
+  border:1px solid #e5e7eb;
+  border-radius:14px;
+  padding:20px;
+  margin-bottom:20px;
+  background:#f9fdf9;
+}
+
+.question-text{
+  font-weight:600;
+  margin-bottom:12px;
+}
+
+.option{
+  padding:12px;
+  border-radius:12px;
+  margin-bottom:8px;
+  border:1px solid #d1e7d1;
+}
+
+.option.correct{
+  background:#d1fae5;
+  border-color:#22c55e;
+}
+
+.option.wrong{
+  background:#fee2e2;
+  border-color:#ef4444;
+}
+
+.option span{
+  font-weight:600;
+}
+
+/* SCORE */
+.score-card{
+  text-align:center;
+  background:#f0fdf4;
+  border-left:6px solid #22c55e;
+  padding:22px;
+  margin-bottom:25px;
+}
+
+.score-card h2{
+  margin-bottom:10px;
+  color:#166534;
+}
+
+.score{
+  font-size:2.6rem;
+  font-weight:800;
+  color:#22c55e;
+  margin:12px 0;
+}
+
+/* BUTTON */
+.dashboard-btn{
+  display:inline-block;
+  padding:14px 28px;
+  background: linear-gradient(135deg,#2d5016,#22c55e);
+  color:#fff;
+  text-decoration:none;
+  border-radius:16px;
+  font-weight:700;
+  text-align:center;
+  transition: 0.2s;
+}
+
+.dashboard-btn:hover{
+  opacity:0.9;
+  transform:translateY(-2px);
+}
+</style>
+</head>
+<body>
+
+<header>
+  <a href="news.html" class="logo-wrap">
+    <img src="https://zvnovocoayqomdilidte.supabase.co/storage/v1/object/public/uploads/6a8f3e57-3d27-47f5-9b5e-22a7070fc442.jpeg" class="logo-img">
+    <span class="logo-text">EYES OF 3080</span>
+  </a>
+
+  <div>
+    <a href="dashboard.html" title="Dashboard">
+      <i class="fa fa-user-circle user-icon" style="font-size:1.8rem; color:#fff;"></i>
+    </a>
+  </div>
+</header>
+
+<main class="container">
+  <div class="score-card">
+    <h2>CBT Completed</h2>
+    <p>Your Score</p>
+    <div class="score" id="finalScore">0 / 0</div>
+  </div>
+
+  <div id="reviewContainer"></div>
+
+  <a href="dashboard.html" class="dashboard-btn">Back to Dashboard →</a>
+</main>
+
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+  const saved = localStorage.getItem("userAnswers");
+  if (!saved) {
+    alert("No review data found.");
+    window.location.href = "dashboard.html";
+    return;
+  }
+
+  const review = JSON.parse(saved);
+  const reviewContainer = document.getElementById("reviewContainer");
+
+  // Calculate score
+  let score = 0;
+  review.forEach(q => {
+    if (q.selected_text && q.correct_option &&
+        q.selected_text.trim().toLowerCase() === q.correct_option.trim().toLowerCase()) {
+      score++;
+    }
+  });
+
+  document.getElementById("finalScore").textContent = `${score} / ${review.length}`;
+
+  // Render questions
+  review.forEach((q, idx) => {
+    const card = document.createElement("div");
+    card.className = "question-card";
+
+    const qText = document.createElement("div");
+    qText.className = "question-text";
+    qText.textContent = `Q${idx + 1}: ${q.question}`;
+    card.appendChild(qText);
+
+    Object.entries(q.options).forEach(([letter, text]) => {
+      const opt = document.createElement("div");
+      opt.className = "option";
+
+      // Highlight correct answer
+      if (text.trim().toLowerCase() === q.correct_option.trim().toLowerCase()) {
+        opt.classList.add("correct");
+      }
+
+      // Highlight wrong selection
+      if (letter === q.selected_option && text.trim().toLowerCase() !== q.correct_option.trim().toLowerCase()) {
+        opt.classList.add("wrong");
+      }
+
+      opt.innerHTML = `<span>${letter}.</span> ${text}`;
+      card.appendChild(opt);
+    });
+
+    reviewContainer.appendChild(card);
+  });
+});
+</script>
+</body>
+</html>

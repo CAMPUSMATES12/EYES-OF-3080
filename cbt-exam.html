@@ -37,9 +37,9 @@ header {
 }
 
 .logo-img {
-  width: 50px;       /* Make it slightly bigger */
-  height: 50px;      /* Keep it square */
-  border-radius: 0;  /* Remove rounding for square */
+  width: 50px;
+  height: 50px;
+  border-radius: 0;
   border: 2px solid #fff;
 }
 
@@ -198,7 +198,7 @@ header {
     <img src="https://zvnovocoayqomdilidte.supabase.co/storage/v1/object/public/uploads/6a8f3e57-3d27-47f5-9b5e-22a7070fc442.jpeg" width="60" alt="No Questions Icon" style="margin-bottom:12px;">
     <h3 style="color:#166534; margin-top:10px; font-weight:700;">No questions available</h3>
     <p style="color:#14532d; margin-top:6px;">
-      Questions for this course are not available yet.<br>
+      Questions for this course/file are not available yet.<br>
       Please check back later.
     </p>
     <a href="cbt_welcome.html" id="goBackBtn" class="btn btn-next" style="margin-top:15px; display:inline-block;">Go Back</a>
@@ -263,6 +263,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   const course = JSON.parse(storedCourse);
   const courseCode = course.course_code.trim().toUpperCase();
+  const fileTitle = course.file_title ? course.file_title.trim() : null;
 
   /* ================= AUTH ================= */
   const { data: { user } } = await supabaseClient.auth.getUser();
@@ -286,30 +287,13 @@ document.addEventListener("DOMContentLoaded", async () => {
   greeting.textContent = `Welcome, ${profile.full_name}`;
   courseTitle.textContent = courseCode;
 
-  /* ================= CHECK COURSE QUESTIONS ================= */
-  const { data: allCourseQuestions, error: allErr } = await supabaseClient
-    .from("cbt_questions")
-    .select("id")
-    .eq("course_code", courseCode);
-
-  if (allErr) {
-    alert("Error checking course questions");
-    console.error(allErr);
-    return;
-  }
-
-  if (!allCourseQuestions || allCourseQuestions.length === 0) {
-    examCard.style.display = "none";
-    noQuestionsCard.style.display = "block";
-    return;
-  }
-
-  /* ================= FETCH QUESTIONS FOR USER LEVEL ================= */
+  /* ================= FETCH QUESTIONS ONLY FOR SELECTED FILE ================= */
   const { data: questions, error: qErr } = await supabaseClient
     .from("cbt_questions")
     .select("id, question, option_a, option_b, option_c, option_d, correct_option")
     .eq("course_code", courseCode)
-    .eq("level", profile.level);
+    .eq("level", profile.level)
+    .eq("file_title", fileTitle);
 
   if (qErr) {
     alert("Error loading questions");
@@ -370,22 +354,16 @@ prevBtn.onclick = () => {
 };
 
 nextBtn.onclick = async () => {
-  // Ensure an option is selected
   if (!answers[questions[index].id]) {
     alert("Please select an option");
     return;
   }
 
-  // Move to next question
   if (index < questions.length - 1) {
     index++;
     render();
-  } 
-  // Submit CBT
-  else {
+  } else {
     let score = 0;
-
-    // Calculate score based on option text
     questions.forEach(q => {
       const selectedLetter = answers[q.id];
       if (!selectedLetter) return;
@@ -401,12 +379,10 @@ nextBtn.onclick = async () => {
       }
     });
 
-    // Show result
     examCard.style.display = "none";
     resultCard.style.display = "block";
     finalScore.textContent = `${score} / ${questions.length}`;
 
-    // Save result to Supabase
     try {
       const { data, error } = await supabaseClient
         .from("cbt_results")
@@ -414,21 +390,19 @@ nextBtn.onclick = async () => {
           {
             user_id: user.id,
             course_code: courseCode,
+            file_title: fileTitle,
             score: score,
             taken_at: new Date().toISOString()
           }
         ]);
 
       if (error) {
-        // Show exact Supabase error
         alert(`Supabase error: ${error.message}`);
         console.error("Supabase error object:", error);
       } else {
-        alert(`Score saved successfully! Your score: ${score} / ${questions.length}`);
         console.log("Score saved successfully:", data);
       }
     } catch (err) {
-      // Catch unexpected errors
       alert(`Unexpected error saving score: ${err.message}`);
       console.error("Unexpected error object:", err);
     }
@@ -437,7 +411,7 @@ nextBtn.onclick = async () => {
 
 goBackBtn.onclick = () => {
   localStorage.removeItem("cbt_course");
-  window.location.href = "cbt_welcome.html";
+  window.location.href = "cbt-welcome.html";
 };
 
 dashboardBtn.onclick = () => {
@@ -448,8 +422,7 @@ dashboardBtn.onclick = () => {
 // Initial render
 render();
 });
-
 </script>
 
 </body>
-</html>
+</html></html>

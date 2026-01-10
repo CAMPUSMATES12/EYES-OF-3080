@@ -187,12 +187,15 @@ header{
 <body>
 
 <header>
-  <a href="dashboard.html" class="logo-wrap">
+  <a href="news.html" class="logo-wrap">
     <img src="https://zvnovocoayqomdilidte.supabase.co/storage/v1/object/public/uploads/6a8f3e57-3d27-47f5-9b5e-22a7070fc442.jpeg" class="logo-img">
     <span class="logo-text">EYES OF 3080</span>
   </a>
+
   <div>
-    <i class="fa fa-user-circle user-icon"></i>
+    <a href="dashboard.html" title="Profile">
+      <i class="fa fa-user-circle user-icon" style="font-size:1.8rem; color:#fff;"></i>
+    </a>
   </div>
 </header>
 
@@ -312,7 +315,7 @@ async function loadResults(userId) {
 // Logout
 document.getElementById("logoutBtn").onclick = async () => {
   await supabaseClient.auth.signOut();
-  window.location.href = "news.html";
+  window.location.href = "index.html";
 }
 
 // Call dashboard loader
@@ -320,5 +323,4 @@ loadDashboard();
 </script>
 
 </body>
-</html>
 </html>

@@ -1,0 +1,455 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CBT Exam | EYES OF 3080</title>
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<style>
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: Segoe UI, Tahoma, sans-serif;
+  background: #f4f6f5;
+}
+
+/* HEADER */
+header {
+  background: linear-gradient(135deg, #2d5016, #4a7c2a);
+  color: #fff;
+  padding: 16px 20px;
+  display: flex;
+  align-items: center;
+}
+
+.logo-wrap {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  text-decoration: none;
+}
+
+.logo-img {
+  width: 50px;       /* Make it slightly bigger */
+  height: 50px;      /* Keep it square */
+  border-radius: 0;  /* Remove rounding for square */
+  border: 2px solid #fff;
+}
+
+.logo-text {
+  font-size: 1.5rem;
+  font-weight: bold;
+  color: #fff;
+}
+
+/* MAIN */
+.container {
+  max-width: 900px;
+  margin: 35px auto;
+  padding: 0 20px;
+}
+
+.card {
+  background: #fff;
+  border-radius: 18px;
+  padding: 26px;
+  box-shadow: 0 12px 35px rgba(0, 0, 0, 0.08);
+  margin-bottom: 20px;
+}
+
+.greeting {
+  font-size: 1.4rem;
+  color: #2d5016;
+  font-weight: 600;
+  margin-bottom: 15px;
+}
+
+/* CBT */
+.cbt-header {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 18px;
+}
+
+.course-title {
+  font-weight: 700;
+  color: #2d5016;
+}
+
+.question-text {
+  margin: 20px 0;
+  font-size: 1.05rem;
+}
+
+/* OPTIONS */
+.options {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.option {
+  border: 1px solid #e5e7eb;
+  border-radius: 14px;
+  padding: 14px;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.option:hover {
+  background: #f0fdf4;
+}
+
+.option.selected {
+  background: #ecfdf5;
+  border-color: #22c55e;
+}
+
+/* CONTROLS */
+.controls {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 26px;
+}
+
+.btn {
+  border: none;
+  padding: 13px 26px;
+  border-radius: 14px;
+  cursor: pointer;
+  font-weight: 700;
+}
+
+.btn-next {
+  background: linear-gradient(135deg, #2d5016, #22c55e);
+  color: #fff;
+}
+
+/* NO QUESTIONS */
+.notice-card {
+  display: none;
+  text-align: center;
+  background: #f0fdf4;
+  border-left: 6px solid #22c55e;
+  padding: 20px;
+}
+
+.notice-icon {
+  font-size: 3.2rem;
+  color: #22c55e;
+  margin-bottom: 12px;
+}
+
+/* RESULT */
+.result-card {
+  display: none;
+  text-align: center;
+  background: #f0fdf4;
+  border-left: 6px solid #22c55e;
+}
+
+.result-card h2 {
+  color: #166534;
+  margin-bottom: 10px;
+}
+
+.score {
+  font-size: 2.6rem;
+  font-weight: 800;
+  color: #22c55e;
+  margin: 12px 0;
+}
+
+.dashboard-btn {
+  margin-top: 22px;
+  display: inline-block;
+  padding: 14px 28px;
+  background: linear-gradient(135deg, #2d5016, #22c55e);
+  color: #fff;
+  text-decoration: none;
+  border-radius: 16px;
+  font-weight: 700;
+}
+</style>
+</head>
+
+<body>
+
+<header>
+  <a class="logo-wrap" href="dashboard.html">
+    <img src="https://zvnovocoayqomdilidte.supabase.co/storage/v1/object/public/uploads/6a8f3e57-3d27-47f5-9b5e-22a7070fc442.jpeg" class="logo-img">
+    <span class="logo-text">EYES OF 3080</span>
+  </a>
+</header>
+
+<main class="container">
+
+  <div class="greeting" id="greeting">Welcome!</div>
+
+  <!-- NO QUESTIONS -->
+  <div class="card notice-card" id="noQuestionsCard">
+    <img src="https://zvnovocoayqomdilidte.supabase.co/storage/v1/object/public/uploads/6a8f3e57-3d27-47f5-9b5e-22a7070fc442.jpeg" width="60" alt="No Questions Icon" style="margin-bottom:12px;">
+    <h3 style="color:#166534; margin-top:10px; font-weight:700;">No questions available</h3>
+    <p style="color:#14532d; margin-top:6px;">
+      Questions for this course are not available yet.<br>
+      Please check back later.
+    </p>
+    <a href="cbt_welcome.html" id="goBackBtn" class="btn btn-next" style="margin-top:15px; display:inline-block;">Go Back</a>
+  </div>
+
+  <!-- EXAM -->
+  <div class="card" id="examCard">
+    <div class="cbt-header">
+      <div class="course-title" id="courseTitle"></div>
+      <div id="progress"></div>
+    </div>
+
+    <div class="question-text" id="questionText"></div>
+    <div class="options" id="options"></div>
+
+    <div class="controls">
+      <button class="btn" id="prevBtn">Previous</button>
+      <button class="btn btn-next" id="nextBtn">Next</button>
+    </div>
+  </div>
+
+  <!-- RESULT -->
+  <div class="card result-card" id="resultCard">
+    <h2>CBT Completed </h2>
+    <p>Your Score</p>
+    <div class="score" id="finalScore"></div>
+    <a href="dashboard.html" class="dashboard-btn" id="dashboardBtn">Go to Dashboard →</a>
+  </div>
+
+</main>
+
+<script>
+document.addEventListener("DOMContentLoaded", async () => {
+
+  const supabaseClient = supabase.createClient(
+    "https://zvnovocoayqomdilidte.supabase.co",
+    "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inp2bm92b2NvYXlxb21kaWxpZHRlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjQwMDM2OTgsImV4cCI6MjA3OTU3OTY5OH0.PcpwASQ3RBRoQVIglxKz-yM3iuYMZMtyQJBh8QNHad8"
+  );
+
+  /* ================= ELEMENTS ================= */
+  const greeting = document.getElementById("greeting");
+  const courseTitle = document.getElementById("courseTitle");
+  const progress = document.getElementById("progress");
+  const questionText = document.getElementById("questionText");
+  const optionsDiv = document.getElementById("options");
+  const examCard = document.getElementById("examCard");
+  const noQuestionsCard = document.getElementById("noQuestionsCard");
+  const resultCard = document.getElementById("resultCard");
+  const finalScore = document.getElementById("finalScore");
+  const prevBtn = document.getElementById("prevBtn");
+  const nextBtn = document.getElementById("nextBtn");
+  const dashboardBtn = document.getElementById("dashboardBtn");
+  const goBackBtn = document.getElementById("goBackBtn");
+
+  /* ================= GET COURSE ================= */
+  const storedCourse = localStorage.getItem("cbt_course");
+  if (!storedCourse) {
+    alert("No course selected");
+    window.location.href = "cbt-welcome.html";
+    return;
+  }
+
+  const course = JSON.parse(storedCourse);
+  const courseCode = course.course_code.trim().toUpperCase();
+
+  /* ================= AUTH ================= */
+  const { data: { user } } = await supabaseClient.auth.getUser();
+  if (!user) {
+    window.location.href = "login.html";
+    return;
+  }
+
+  /* ================= PROFILE ================= */
+  const { data: profile, error: profileErr } = await supabaseClient
+    .from("profiles")
+    .select("full_name, level")
+    .eq("id", user.id)
+    .single();
+
+  if (profileErr || !profile) {
+    alert("Profile not found");
+    return;
+  }
+
+  greeting.textContent = `Welcome, ${profile.full_name}`;
+  courseTitle.textContent = courseCode;
+
+  /* ================= CHECK COURSE QUESTIONS ================= */
+  const { data: allCourseQuestions, error: allErr } = await supabaseClient
+    .from("cbt_questions")
+    .select("id")
+    .eq("course_code", courseCode);
+
+  if (allErr) {
+    alert("Error checking course questions");
+    console.error(allErr);
+    return;
+  }
+
+  if (!allCourseQuestions || allCourseQuestions.length === 0) {
+    examCard.style.display = "none";
+    noQuestionsCard.style.display = "block";
+    return;
+  }
+
+  /* ================= FETCH QUESTIONS FOR USER LEVEL ================= */
+  const { data: questions, error: qErr } = await supabaseClient
+    .from("cbt_questions")
+    .select("id, question, option_a, option_b, option_c, option_d, correct_option")
+    .eq("course_code", courseCode)
+    .eq("level", profile.level);
+
+  if (qErr) {
+    alert("Error loading questions");
+    console.error(qErr);
+    return;
+  }
+
+  if (!questions || questions.length === 0) {
+    examCard.style.display = "none";
+    noQuestionsCard.style.display = "block";
+    return;
+  }
+
+  let index = 0;
+  let answers = {};
+
+  /* ================= RENDER ================= */
+function render() {
+  const q = questions[index];
+
+  progress.textContent = `Question ${index + 1} of ${questions.length}`;
+  questionText.textContent = q.question;
+  optionsDiv.innerHTML = "";
+
+  ["A", "B", "C", "D"].forEach(letter => {
+    const opt = document.createElement("div");
+    opt.className = "option";
+
+    const optionText = q["option_" + letter.toLowerCase()] || "";
+    opt.textContent = `${letter}. ${optionText}`;
+
+    if (answers[q.id] === letter) {
+      opt.classList.add("selected");
+    }
+
+    opt.onclick = () => {
+      document.querySelectorAll(".option")
+        .forEach(o => o.classList.remove("selected"));
+
+      opt.classList.add("selected");
+      answers[q.id] = letter;
+    };
+
+    optionsDiv.appendChild(opt);
+  });
+
+  prevBtn.style.display = index === 0 ? "none" : "inline-block";
+  nextBtn.textContent = index === questions.length - 1 ? "Submit" : "Next";
+}
+
+
+/* ================= CONTROLS ================= */
+prevBtn.onclick = () => {
+  if (index > 0) {
+    index--;
+    render();
+  }
+};
+
+nextBtn.onclick = async () => {
+  // Ensure an option is selected
+  if (!answers[questions[index].id]) {
+    alert("Please select an option");
+    return;
+  }
+
+  // Move to next question
+  if (index < questions.length - 1) {
+    index++;
+    render();
+  } 
+  // Submit CBT
+  else {
+    let score = 0;
+
+    // Calculate score based on option text
+    questions.forEach(q => {
+      const selectedLetter = answers[q.id];
+      if (!selectedLetter) return;
+
+      const selectedText = String(
+        q["option_" + selectedLetter.toLowerCase()] || ""
+      ).trim().toLowerCase();
+
+      const correctText = String(q.correct_option || "").trim().toLowerCase();
+
+      if (selectedText === correctText) {
+        score++;
+      }
+    });
+
+    // Show result
+    examCard.style.display = "none";
+    resultCard.style.display = "block";
+    finalScore.textContent = `${score} / ${questions.length}`;
+
+    // Save result to Supabase
+    try {
+      const { data, error } = await supabaseClient
+        .from("cbt_results")
+        .insert([
+          {
+            user_id: user.id,
+            course_code: courseCode,
+            score: score,
+            taken_at: new Date().toISOString()
+          }
+        ]);
+
+      if (error) {
+        // Show exact Supabase error
+        alert(`Supabase error: ${error.message}`);
+        console.error("Supabase error object:", error);
+      } else {
+        alert(`Score saved successfully! Your score: ${score} / ${questions.length}`);
+        console.log("Score saved successfully:", data);
+      }
+    } catch (err) {
+      // Catch unexpected errors
+      alert(`Unexpected error saving score: ${err.message}`);
+      console.error("Unexpected error object:", err);
+    }
+  }
+};
+
+goBackBtn.onclick = () => {
+  localStorage.removeItem("cbt_course");
+  window.location.href = "cbt_welcome.html";
+};
+
+dashboardBtn.onclick = () => {
+  localStorage.removeItem("cbt_course");
+  window.location.href = "dashboard.html";
+};
+
+// Initial render
+render();
+});
+
+</script>
+
+</body>
+</html>

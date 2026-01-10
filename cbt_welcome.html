@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CBT Welcome | EYES OF 3080</title>
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{
+  font-family:Segoe UI, Tahoma, sans-serif;
+  background:#f4f6f5;
+  color:#222;
+}
+
+/* ================= HEADER ================= */
+header{
+  background:linear-gradient(135deg,#2d5016,#4a7c2a);
+  color:#fff;
+}
+.header-container{
+  max-width:1200px;
+  margin:auto;
+  padding:15px 20px;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+}
+.logo-wrap{
+  display:flex;
+  align-items:center;
+  gap:10px;
+  text-decoration:none;
+}
+.logo-img{
+  width:36px;
+  height:36px;
+}
+.logo-text{
+  font-size:1.4rem;
+  font-weight:bold;
+  color:#fff;
+}
+
+/* ================= MAIN ================= */
+.container{
+  max-width:900px;
+  margin:30px auto;
+  padding:0 20px;
+}
+
+/* CARD */
+.card{
+  background:#fff;
+  border-radius:18px;
+  padding:28px 26px 30px;
+  box-shadow:0 15px 40px rgba(0,0,0,.1);
+  position:relative;
+}
+
+/* LOGO INSIDE CARD */
+.card-logo{
+  display:flex;
+  justify-content:center;
+  margin-bottom:15px;
+}
+.card-logo img{
+  width:60px;
+  height:60px;
+  border-radius:50%;
+  border:3px solid #ecfdf5;
+  background:#fff;
+}
+
+/* WELCOME */
+.welcome{
+  text-align:center;
+  margin-bottom:28px;
+}
+.welcome h2{
+  color:#2d5016;
+  margin-bottom:6px;
+  font-size:1.4rem;
+}
+.welcome p{
+  color:#6b7280;
+  font-size:.95rem;
+}
+
+/* INSTRUCTION */
+.instruction{
+  background:#f0fdf4;
+  border-left:4px solid #22c55e;
+  padding:12px 14px;
+  border-radius:10px;
+  font-size:.9rem;
+  color:#14532d;
+  margin-bottom:25px;
+}
+
+/* COURSES */
+.course-list{
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(240px,1fr));
+  gap:18px;
+}
+
+.course-card{
+  border:1.5px solid #e5e7eb;
+  border-radius:16px;
+  padding:18px;
+  cursor:pointer;
+  transition:.25s ease;
+  background:#fff;
+}
+
+.course-card:hover{
+  background:#f0fdf4;
+  border-color:#22c55e;
+  transform:translateY(-2px);
+}
+
+.course-card.active{
+  border-color:#22c55e;
+  background:#ecfdf5;
+  box-shadow:0 8px 20px rgba(34,197,94,.25);
+}
+
+.course-card h4{
+  color:#2d5016;
+  margin-bottom:6px;
+  font-size:1.05rem;
+}
+.course-card span{
+  font-size:.85rem;
+  color:#6b7280;
+}
+
+/* ACTION */
+.start-btn{
+  margin-top:30px;
+  width:100%;
+  border:none;
+  background:linear-gradient(135deg,#2d5016,#22c55e);
+  color:#fff;
+  padding:15px;
+  font-size:1.05rem;
+  border-radius:14px;
+  cursor:pointer;
+  font-weight:700;
+  display:none;
+  transition:.25s;
+}
+
+.start-btn:hover{
+  opacity:.9;
+  transform:translateY(-1px);
+}
+</style>
+</head>
+
+<body>
+
+<header>
+  <div class="header-container">
+    <a href="index.html" class="logo-wrap">
+      <img src="https://zvnovocoayqomdilidte.supabase.co/storage/v1/object/public/uploads/6a8f3e57-3d27-47f5-9b5e-22a7070fc442.jpeg" class="logo-img">
+      <span class="logo-text">EYES OF 3080</span>
+    </a>
+  </div>
+</header>
+
+<main class="container">
+
+  <div class="card">
+<div class="card-logo">
+  <img src="https://zvnovocoayqomdilidte.supabase.co/storage/v1/object/public/uploads/6a8f3e57-3d27-47f5-9b5e-22a7070fc442.jpeg">
+</div>
+    <div class="welcome">
+      <h2 id="welcomeText">Welcome </h2>
+<div class="instruction">
+  Select a course below to begin your Computer Based Test.
+</div>
+      <p id="levelText">Loading your level…</p>
+    </div>
+
+    <h3 style="margin-bottom:15px">Select a Course</h3>
+
+    <div class="course-list" id="courseList">
+      <p>Loading courses…</p>
+    </div>
+
+    <button class="start-btn" id="startBtn">
+      Start CBT →
+    </button>
+
+  </div>
+
+</main>
+
+<script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+<script>
+const supabaseClient = supabase.createClient(
+  "https://zvnovocoayqomdilidte.supabase.co",
+  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inp2bm92b2NvYXlxb21kaWxpZHRlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjQwMDM2OTgsImV4cCI6MjA3OTU3OTY5OH0.PcpwASQ3RBRoQVIglxKz-yM3iuYMZMtyQJBh8QNHad8"
+);
+
+let selectedCourse = null;
+
+/* INIT */
+(async ()=>{
+  const { data:{ session } } = await supabaseClient.auth.getSession();
+  if(!session){
+    alert("Please login first");
+    return;
+  }
+
+  const userId = session.user.id;
+
+  /* GET PROFILE */
+  const { data: profile } = await supabaseClient
+    .from("profiles")
+    .select("full_name, level")
+    .eq("id", userId)
+    .single();
+
+  document.getElementById("welcomeText").textContent =
+    `Welcome ${profile.full_name} `;
+  document.getElementById("levelText").textContent =
+    `Level ${profile.level} CBT Examination`;
+
+  /* GET COURSES */
+  const { data: courses } = await supabaseClient
+    .from("courses")
+    .select("*")
+    .eq("level", profile.level);
+
+  const list = document.getElementById("courseList");
+  list.innerHTML = "";
+
+  courses.forEach(course=>{
+    const div = document.createElement("div");
+    div.className = "course-card";
+    div.innerHTML = `
+      <h4>${course.course_code}</h4>
+      <span>${course.course_title}</span>
+    `;
+
+    div.onclick = ()=>{
+      document.querySelectorAll(".course-card")
+        .forEach(c=>c.style.borderColor="#e5e7eb");
+
+      div.style.borderColor = "#22c55e";
+      selectedCourse = course;
+      document.getElementById("startBtn").style.display = "block";
+    };
+
+    list.appendChild(div);
+  });
+
+})();
+
+/* START CBT */
+document.getElementById("startBtn").onclick = ()=>{
+  if(!selectedCourse) return;
+
+  // pass course info to CBT page
+  localStorage.setItem("cbt_course", JSON.stringify(selectedCourse));
+  window.location.href = "cbt-exam.html";
+};
+</script>
+
+</body>
+</html>

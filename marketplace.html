@@ -5,15 +5,10 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Marketplace | EYES OF 3080</title>
 
-<link
-  rel="stylesheet"
-  href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
-/>
-
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
 
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
-
 body{
   font-family:Segoe UI,Tahoma,sans-serif;
   background:#f4f6f5;
@@ -28,355 +23,251 @@ header{
   top:0;
   z-index:1000;
 }
-
 .header-container{
   max-width:1200px;
   margin:auto;
-  padding:15px 20px;
+  padding:14px 20px;
   display:flex;
   justify-content:space-between;
   align-items:center;
 }
-
 .logo-wrap{
   display:flex;
   align-items:center;
   gap:10px;
   text-decoration:none;
 }
+.logo-img{width:36px;height:36px}
+.logo-text{font-size:1.4rem;font-weight:bold;color:#fff}
 
-.logo-img{
-  width:38px;
-  height:38px;
-  object-fit:contain;
-}
-
-.logo-text{
-  font-size:1.5rem;
-  font-weight:bold;
-  color:#fff;
-}
-
-/* Hamburger */
-.hamburger{
-  border:none;
-  background:none;
-  cursor:pointer;
-  display:flex;
-  flex-direction:column;
-  gap:5px;
-}
-.hamburger span{
-  width:28px;
-  height:3px;
-  background:#fff;
-  border-radius:3px;
-  transition:.3s;
-}
-.hamburger.active span:nth-child(1){
-  transform:rotate(45deg) translate(6px,6px)
-}
-.hamburger.active span:nth-child(2){
-  opacity:0
-}
-.hamburger.active span:nth-child(3){
-  transform:rotate(-45deg) translate(6px,-6px)
-}
-
-/* ================= HEADER ACTIONS ================= */
+/* HEADER ACTIONS */
 .header-actions{
   display:flex;
   align-items:center;
   gap:18px;
 }
-
-/* ================= NOTIFICATION ICON ================= */
-.notification-btn{
+.cart-icon{
   position:relative;
-  color:#fff;
-  text-decoration:none;
-  display:flex;
-  align-items:center;
+  cursor:pointer;
 }
-
-.notification-btn i{
-  font-size:1.45rem;
-}
-
-/* ================= BADGE ================= */
-.notification-btn .badge{
+.cart-icon span{
   position:absolute;
   top:-6px;
   right:-8px;
-  background:#e63946;
+  background:#22c55e;
   color:#fff;
   font-size:.7rem;
-  font-weight:700;
-  padding:3px 6px;
+  padding:2px 6px;
   border-radius:50%;
-  min-width:18px;
-  height:18px;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  line-height:1;
 }
-
-/* ================= SIDEBAR ================= */
-.sidebar{
-  position:fixed;
-  top:0;
-  right:-300px;
-  width:300px;
-  height:100vh;
-  background:#2d5016;
-  transition:.3s;
-  z-index:2000;
-}
-.sidebar.active{right:0}
-
-.sidebar-header{
-  display:flex;
-  justify-content:space-between;
-  align-items:center;
-  padding:20px;
-  color:#fff;
-  border-bottom:1px solid rgba(255,255,255,.2);
-}
-
-.close-btn{
-  background:none;
-  border:none;
-  color:#fff;
-  font-size:2rem;
+.menu-btn{
+  font-size:1.4rem;
   cursor:pointer;
 }
 
-.nav-menu{
-  list-style:none;
-}
-.nav-menu a{
-  display:block;
-  padding:15px 20px;
-  color:#fff;
-  text-decoration:none;
-}
-.nav-menu a:hover{
-  background:rgba(255,255,255,.1);
-}
-
-/* Overlay */
-.overlay{
+/* ================= SIDE MENU ================= */
+.side-menu{
   position:fixed;
-  inset:0;
-  background:rgba(0,0,0,.5);
-  display:none;
-  z-index:1500;
-}
-.overlay.active{display:block}
-
-/* ================= MAIN ================= */
-.container{
-  max-width:900px;
-  margin:80px auto;
-  padding:0 20px;
-  text-align:center;
-}
-
-.coming-card{
+  top:0;
+  right:-260px;
+  width:240px;
+  height:100%;
   background:#fff;
-  padding:60px 30px;
-  border-radius:18px;
-  box-shadow:0 10px 25px rgba(0,0,0,.1);
+  box-shadow:-5px 0 20px rgba(0,0,0,.1);
+  padding:20px;
+  transition:.3s;
+  z-index:2000;
 }
-
-.coming-icon{
-  font-size:3rem;
+.side-menu.show{right:0}
+.side-menu h3{
+  color:#2d5016;
   margin-bottom:15px;
 }
-
-.coming-card h1{
-  color:#2d5016;
-  margin-bottom:10px;
-}
-
-.coming-card p{
-  color:#666;
-  font-size:1rem;
-  line-height:1.6;
-  margin-bottom:25px;
-}
-
-.badge{
-  display:inline-block;
-  padding:10px 18px;
-  background:#e0eadf;
+.side-menu a{
+  display:block;
+  padding:12px 0;
   color:#2d5016;
   font-weight:600;
-  border-radius:25px;
+  text-decoration:none;
+  border-bottom:1px solid #eee;
 }
 
-/* ================= FOOTER ================= */
-footer{
+/* ================= CONTAINER ================= */
+.container{
+  max-width:1200px;
+  margin:30px auto;
+  padding:0 20px;
+}
+
+/* ================= GRID ================= */
+.grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fill,minmax(250px,1fr));
+  gap:20px;
+}
+
+/* ================= CARD ================= */
+.card{
+  background:#fff;
+  border-radius:16px;
+  box-shadow:0 10px 30px rgba(0,0,0,.08);
+  overflow:hidden;
+}
+.card img{
+  width:100%;
+  height:170px;
+  object-fit:cover;
+}
+.card-body{
+  padding:16px;
+}
+.card-body h3{
+  color:#2d5016;
+  margin-bottom:6px;
+}
+.price{
+  color:#22c55e;
+  font-weight:700;
+  margin-bottom:6px;
+}
+.card-body p{
+  font-size:.9rem;
+  color:#555;
+}
+.card-body a{
+  display:block;
+  text-align:center;
+  margin-top:10px;
+  padding:10px;
   background:#2d5016;
   color:#fff;
-  text-align:center;
-  padding:25px;
-  margin-top:80px;
+  border-radius:10px;
+  text-decoration:none;
+  font-weight:600;
 }
 </style>
 </head>
 
 <body>
 
+<!-- HEADER -->
 <header>
   <div class="header-container">
-
     <a href="index.html" class="logo-wrap">
       <img src="https://zvnovocoayqomdilidte.supabase.co/storage/v1/object/public/uploads/6a8f3e57-3d27-47f5-9b5e-22a7070fc442.jpeg" class="logo-img">
       <span class="logo-text">EYES OF 3080</span>
     </a>
 
-    <div class="header-actions">
-      <a href="notifications.html" class="notification-btn">
-        <i class="fa-regular fa-bell"></i>
-        <span class="badge" id="notifCount">0</span>
-      </a>
-
-      <button class="hamburger" id="hamburger">
-        <span></span><span></span><span></span>
-      </button>
+  <div class="header-actions">
+     <div class="cart-icon" onclick="goToCart(event)">
+        <i class="fa fa-shopping-cart"></i>
+        <span id="cartCount">0</span>
+      </div>
+     <div class="menu-btn" onclick="toggleMenu(event)">
+        <i class="fa fa-bars"></i>
+      </div>
     </div>
-
   </div>
 </header>
 
-
-<nav class="sidebar" id="sidebar">
-  <div class="sidebar-header">
-    <h3>Menu</h3>
-    <button class="close-btn" id="closeBtn">&times;</button>
-  </div>
- <ul class="nav-menu">
-    <li><a href="news.html">Home</a></li>
-    <li><a href="pdf.html">PDFs</a></li>
-    <li><a href="cbt_welcome.html">CBT</a></li>
-    <li><a href="marketplace.html">Marketplace</a></li>
-    <li><a href="profile.html">Profile</a></li>
-   </ul>
-</nav>
-
-<div class="overlay" id="overlay"></div>
-
-<div class="container">
-  <div class="coming-card">
-    <div class="coming-icon">🛒</div>
-    <h1>Marketplace Coming Soon</h1>
-    <p>
-      We’re building a student-focused marketplace where you’ll be able to buy,
-      sell, and access academic resources with ease.
-    </p>
-    <span class="badge">Launching Soon 🚀</span>
-  </div>
+<!-- SIDE MENU -->
+<div class="side-menu" id="sideMenu">
+  <h3>Menu</h3>
+  <a href="news.html">Home</a>
+  <a href="marketplace.html">Marketplace</a>
+  <a href="cart.html">Cart</a>
+  <a href="orders.html">My Orders</a>
 </div>
 
+<!-- MARKETPLACE -->
+<main class="container">
+  <h2>Available Products</h2>
+  <br>
 
+  <div class="grid" id="productGrid"></div>
+</main>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
-const hamburger=document.getElementById("hamburger");
-const sidebar=document.getElementById("sidebar");
-const overlay=document.getElementById("overlay");
-const closeBtn=document.getElementById("closeBtn");
+/* ================= SUPABASE ================= */
+const supabaseClient = supabase.createClient(
+  "https://zvnovocoayqomdilidte.supabase.co",
+  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inp2bm92b2NvYXlxb21kaWxpZHRlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjQwMDM2OTgsImV4cCI6MjA3OTU3OTY5OH0.PcpwASQ3RBRoQVIglxKz-yM3iuYMZMtyQJBh8QNHad8"
+);
 
-function toggleMenu(){
-  hamburger.classList.toggle("active");
-  sidebar.classList.toggle("active");
-  overlay.classList.toggle("active");
+/* ================= MENU ================= */
+function toggleMenu(e) {
+  e.stopPropagation();
+  document.getElementById("sideMenu").classList.toggle("show");
 }
 
-hamburger.addEventListener("click",toggleMenu);
-closeBtn.addEventListener("click",toggleMenu);
-overlay.addEventListener("click",toggleMenu);
+/* ================= CART ================= */
+function goToCart(e) {
+  e.stopPropagation();
+  window.location.href = "cart.html";
+}
 
-document.addEventListener("DOMContentLoaded", async () => {
 
-  const supabaseClient = supabase.createClient(
-    "https://zvnovocoayqomdilidte.supabase.co",
-    "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inp2bm92b2NvYXlxb21kaWxpZHRlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjQwMDM2OTgsImV4cCI6MjA3OTU3OTY5OH0.PcpwASQ3RBRoQVIglxKz-yM3iuYMZMtyQJBh8QNHad8"
-  );
+/* ================= LOAD PRODUCTS ================= */
+async function loadProducts() {
+  const grid = document.getElementById("productGrid");
+  grid.innerHTML = "Loading...";
 
-  let currentUser = null;
-  let lastSeen = "1970-01-01";
+  const { data, error } = await supabaseClient
+    .from("products")
+    .select("*")          // fetch all products
+    .order("created_at", { ascending: false }); // order by newest first
 
-  /* ================= AUTH ================= */
-  const { data:{ session } } = await supabaseClient.auth.getSession();
-  if (!session?.user) return;
-
-  currentUser = session.user;
-
-  /* ================= GET LAST SEEN ================= */
-  const { data: profile } = await supabaseClient
-    .from("profiles")
-    .select("last_notification_seen_at")
-    .eq("id", currentUser.id)
-    .maybeSingle();
-
-  lastSeen = profile?.last_notification_seen_at || "1970-01-01";
-
-  /* ================= UPDATE BADGE ================= */
-  async function updateBadge() {
-    const badge = document.getElementById("notifCount");
-    if (!badge) return;
-
-    const { data, error } = await supabaseClient
-      .from("notifications")
-      .select("created_at");
-
-    if (error) return console.error(error);
-
-    const unread = data.filter(n =>
-      new Date(n.created_at) > new Date(lastSeen)
-    ).length;
-
-    if (unread === 0) {
-      badge.style.display = "none";
-    } else {
-      badge.textContent = unread;
-      badge.style.display = "inline-flex";
-    }
+  if (error) {
+    console.error(error);
+    grid.innerHTML = "<p>Failed to load products.</p>";
+    return;
   }
 
-  /* ================= MARK AS SEEN WHEN BELL CLICKED ================= */
-  const bell = document.querySelector(".notification-btn");
+  grid.innerHTML = "";
 
-  if (bell) {
-    bell.addEventListener("click", async () => {
-      const now = new Date().toISOString();
-      lastSeen = now;
-
-      await supabaseClient
-        .from("profiles")
-        .upsert(
-          { id: currentUser.id, last_notification_seen_at: now },
-          { onConflict: "id" }
-        );
-    });
+  if (!data || data.length === 0) {
+    grid.innerHTML = "<p>No products available yet.</p>";
+    return;
   }
 
-  /* ================= REALTIME ================= */
-  supabaseClient
-    .channel("notif-badge")
-    .on(
-      "postgres_changes",
-      { event:"INSERT", schema:"public", table:"notifications" },
-      async () => updateBadge()
-    )
-    .subscribe();
+  data.forEach(p => {
+    const imageUrl = p.images || "";
 
-  /* ================= START ================= */
-  updateBadge();
+    grid.innerHTML += `
+      <div class="card">
+        <img src="${imageUrl}">
+        <div class="card-body">
+          <h3>${p.name}</h3>
+          <div class="price">₦${p.price}</div>
+          <p>${p.description || ""}</p>
+          <a href="product.html?id=${p.id}">View Product</a>
+        </div>
+      </div>
+    `;
+  });
+}
 
+/* ================= CART COUNT ================= */
+function updateCartCount() {
+  const cart = JSON.parse(localStorage.getItem("cart") || "[]");
+  const total = cart.reduce((sum, i) => sum + (i.quantity || 1), 0);
+  document.getElementById("cartCount").textContent = total;
+}
+
+/* ================= INIT ================= */
+document.addEventListener("DOMContentLoaded", () => {
+  document.addEventListener("click", () => {
+    document.getElementById("sideMenu").classList.remove("show");
+  });
+
+  document.getElementById("sideMenu").addEventListener("click", e => {
+    e.stopPropagation();
+  });
+
+  loadProducts();
+  updateCartCount();
 });
 </script>
-
 </body>
 </html>

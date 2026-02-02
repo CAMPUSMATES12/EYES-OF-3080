@@ -1,0 +1,382 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Your Downloads | EYES OF 3080</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+
+  <style>
+    body {
+      font-family: Segoe UI, Tahoma, sans-serif;
+      background: #f4f6f5;
+      margin: 0;
+      color: #222;
+    }
+
+    /* ================= HEADER ================= */
+header{
+  background:linear-gradient(135deg,#2d5016,#4a7c2a);
+  color:#fff;
+  position:sticky;
+  top:0;
+  z-index:1000;
+}
+
+.header-container{
+  max-width:1200px;
+  margin:auto;
+  padding:15px 20px;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+}
+
+.logo-wrap{
+  display:flex;
+  align-items:center;
+  gap:10px;
+  text-decoration:none;
+}
+
+.logo-img{
+  width:38px;
+  height:38px;
+  object-fit:contain;
+}
+
+.logo-text{
+  font-size:1.5rem;
+  font-weight:bold;
+  color:#fff;
+}
+
+/* Hamburger */
+.hamburger{
+  border:none;
+  background:none;
+  cursor:pointer;
+  display:flex;
+  flex-direction:column;
+  gap:5px;
+}
+.hamburger span{
+  width:28px;
+  height:3px;
+  background:#fff;
+  border-radius:3px;
+  transition:.3s;
+}
+.hamburger.active span:nth-child(1){
+  transform:rotate(45deg) translate(6px,6px)
+}
+.hamburger.active span:nth-child(2){
+  opacity:0
+}
+.hamburger.active span:nth-child(3){
+  transform:rotate(-45deg) translate(6px,-6px)
+}
+
+/* ================= HEADER ACTIONS ================= */
+.header-actions{
+  display:flex;
+  align-items:center;
+  gap:18px;
+}
+
+
+/* ================= SIDEBAR ================= */
+.sidebar{
+  position:fixed;
+  top:0;
+  right:-300px;
+  width:300px;
+  height:100vh;
+  background:#2d5016;
+  transition:.3s;
+  z-index:2000;
+}
+.sidebar.active{right:0}
+
+.sidebar-header{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  padding:20px;
+  color:#fff;
+  border-bottom:1px solid rgba(255,255,255,.2);
+}
+
+.close-btn{
+  background:none;
+  border:none;
+  color:#fff;
+  font-size:2rem;
+  cursor:pointer;
+}
+
+.nav-menu{
+  list-style:none;
+}
+.nav-menu a{
+  display:block;
+  padding:15px 20px;
+  color:#fff;
+  text-decoration:none;
+}
+.nav-menu a:hover{
+  background:rgba(255,255,255,.1);
+}
+
+/* Overlay */
+.overlay{
+  position:fixed;
+  inset:0;
+  background:rgba(0,0,0,.5);
+  display:none;
+  z-index:1500;
+}
+.overlay.active{display:block}
+
+    .container {
+      max-width: 900px;
+      margin: 30px auto;
+      padding: 0 20px;
+    }
+
+    .download-card {
+      background: #fff;
+      border-radius: 18px;
+      padding: 20px;
+      box-shadow: 0 12px 30px rgba(0,0,0,.1);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 16px;
+      gap: 16px;
+    }
+
+    .download-info h4 {
+      margin: 0 0 6px;
+      color: #14532d;
+      font-size: 1rem;
+    }
+
+    .download-info p {
+      font-size: .85rem;
+      color: #555;
+      margin: 0;
+    }
+
+    .download-card a {
+      text-decoration: none;
+      background: #22c55e;
+      color: #fff;
+      padding: 10px 14px;
+      border-radius: 12px;
+      font-weight: 600;
+      font-size: .85rem;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .empty {
+      background: #fff;
+      padding: 30px;
+      border-radius: 18px;
+      text-align: center;
+      box-shadow: 0 10px 30px rgba(0,0,0,.08);
+    }
+
+    .error {
+      background: #fff1f2;
+      border: 1px solid #fecaca;
+      color: #991b1b;
+      padding: 18px;
+      border-radius: 16px;
+      font-size: .9rem;
+      line-height: 1.5;
+      white-space: pre-wrap;
+    }
+  </style>
+</head>
+
+<body>
+
+<header>
+  <div class="header-container">
+
+    <a href="index.html" class="logo-wrap">
+      <img src="https://zvnovocoayqomdilidte.supabase.co/storage/v1/object/public/uploads/6a8f3e57-3d27-47f5-9b5e-22a7070fc442.jpeg" class="logo-img">
+      <span class="logo-text">EYES OF 3080</span>
+    </a>
+
+      <button class="hamburger" id="hamburger">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+
+  </div>
+</header>
+
+<nav class="sidebar" id="sidebar">
+  <div class="sidebar-header">
+    <h3>Menu</h3>
+    <button class="close-btn" id="closeBtn">&times;</button>
+  </div>
+  <ul class="nav-menu">
+    <li><a href="news.html">Home</a></li>
+    <li><a href="pdf.html">PDFs</a></li>
+      <li><a href="downloads.html">Downloads</a></li>
+    <li><a href="cbt.html">CBT</a></li>
+    <li><a href="marketplace.html">Marketplace</a></li>
+   <li><a href="profile.html">Profile</a></li>
+  </ul>
+</nav>
+
+<div class="overlay" id="overlay"></div>
+
+<div class="container" id="downloadsContainer">
+  <div class="empty">Loading downloads…</div>
+</div>
+
+<script>
+const supabaseClient = supabase.createClient(
+  "https://zvnovocoayqomdilidte.supabase.co",
+  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inp2bm92b2NvYXlxb21kaWxpZHRlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjQwMDM2OTgsImV4cCI6MjA3OTU3OTY5OH0.PcpwASQ3RBRoQVIglxKz-yM3iuYMZMtyQJBh8QNHad8"
+);
+
+/* ===== HAMBURGER MENU ===== */
+  const hamburger = document.getElementById("hamburger");
+  const sidebar   = document.getElementById("sidebar");
+  const overlay   = document.getElementById("overlay");
+  const closeBtn  = document.getElementById("closeBtn");
+
+  if(!hamburger || !sidebar || !overlay || !closeBtn){
+    console.error("❌ Hamburger elements missing");
+  } else {
+    function toggleMenu(){
+      console.log("Hamburger toggled"); // test
+      hamburger.classList.toggle("active");
+      sidebar.classList.toggle("active");
+      overlay.classList.toggle("active");
+    }
+
+    hamburger.addEventListener("click", toggleMenu);
+    closeBtn.addEventListener("click", toggleMenu);
+    overlay.addEventListener("click", toggleMenu);
+
+    document.querySelectorAll(".nav-menu a").forEach(link => {
+      link.addEventListener("click", toggleMenu);
+    });
+
+    console.log("✅ Hamburger initialized");
+  }
+
+/* ================= LOAD DOWNLOADS ================= */
+async function loadDownloads(){
+  const container = document.getElementById("downloadsContainer");
+
+  try {
+    /* 🔐 AUTH CHECK */
+    const { data: authData, error: authError } = await supabaseClient.auth.getUser();
+
+    if(authError){
+      console.error("Auth error:", authError);
+      container.innerHTML = `
+        <div class="error">
+AUTH ERROR:
+${authError.message}
+        </div>`;
+      return;
+    }
+
+    if(!authData.user){
+      container.innerHTML = `
+        <div class="empty">
+          <h3>Not logged in</h3>
+          <p>Please login to view your downloads.</p>
+        </div>`;
+      return;
+    }
+
+    const user = authData.user;
+
+    /* 📦 FETCH DOWNLOADS */
+    const { data, error } = await supabaseClient
+      .from("downloads")
+      .select(`
+        downloaded_at,
+        course_files (
+          course_code,
+          title,
+          file_url
+        )
+      `)
+      .eq("user_id", user.id)
+      .order("downloaded_at", { ascending:false });
+
+    if(error){
+      console.error("Supabase query error:", error);
+      container.innerHTML = `
+        <div class="error">
+SUPABASE QUERY ERROR:
+${error.message}
+
+DETAILS:
+${JSON.stringify(error, null, 2)}
+        </div>`;
+      return;
+    }
+
+    if(!data || data.length === 0){
+      container.innerHTML = `
+        <div class="empty">
+          <h3>No downloads yet</h3>
+          <p>Files you download will appear here.</p>
+        </div>`;
+      return;
+    }
+
+    /* ✅ RENDER DOWNLOAD CARDS */
+    container.innerHTML = "";
+    data.forEach(row => {
+      if(!row.course_files){
+        console.warn("Missing course_files relation:", row);
+        return;
+      }
+
+      container.innerHTML += `
+        <div class="download-card">
+          <div class="download-info">
+            <h4>${row.course_files.course_code} — ${row.course_files.title}</h4>
+            <p>Downloaded on ${new Date(row.downloaded_at).toLocaleString()}</p>
+          </div>
+          <a href="${row.course_files.file_url}" download>
+            <i class="fa fa-download"></i> Download
+          </a>
+        </div>
+      `;
+    });
+
+  } catch (jsError) {
+    console.error("JavaScript error:", jsError);
+    container.innerHTML = `
+      <div class="error">
+JAVASCRIPT ERROR:
+${jsError.message}
+
+STACK:
+${jsError.stack}
+      </div>`;
+  }
+}
+
+loadDownloads();
+</script>
+
+</body>
+</html>

@@ -317,17 +317,19 @@ async function loadFiles() {
       </div>
     `;
 
-    // Append card first
     box.appendChild(card);
 
-    // Add event listeners properly
+    // Add event listeners
     const copyBtn = card.querySelector(".copy");
     const downloadBtn = card.querySelector(".download");
 
     copyBtn.addEventListener("click", () => copyLink(f.file_url));
-    downloadBtn.addEventListener("click", () => downloadPDF(f.file_url, `${f.title.replace(/\s+/g,'_')}.pdf`, downloadBtn));
+    downloadBtn.addEventListener("click", () =>
+      downloadPDF(f.file_url, `${f.title.replace(/\s+/g,'_')}.pdf`, downloadBtn, f.id)
+    );
   });
 }
+
 
 /* ================= COPY LINK ================= */
 function copyLink(url) {
@@ -337,12 +339,13 @@ function copyLink(url) {
 }
 
 /* ================= DOWNLOAD PDF ================= */
-async function downloadPDF(url, fileName, btn) {
+async function downloadPDF(url, fileName, btn, fileId) {
   try {
     const originalText = btn.textContent;
     btn.textContent = "Downloading...";
     btn.disabled = true;
 
+    // 1️⃣ Download file locally
     const response = await fetch(url);
     if (!response.ok) throw new Error("Failed to fetch PDF");
 
@@ -355,11 +358,29 @@ async function downloadPDF(url, fileName, btn) {
     document.body.appendChild(a);
     a.click();
     a.remove();
-
     URL.revokeObjectURL(blobUrl);
 
     btn.textContent = originalText;
     btn.disabled = false;
+
+    // 2️⃣ Record the download in Supabase
+    const { data: authData } = await supabase.auth.getUser();
+    if (!authData.user) return;
+
+    const userId = authData.user.id;
+
+    const { error } = await supabase
+      .from("downloads")
+      .insert([{
+        user_id: userId,
+        file_id: fileId,          // the real file ID from course_files table
+        file_title: fileName,
+        downloaded_at: new Date()
+      }]);
+
+    if (error) console.error("Error recording download:", error);
+    else console.log("Download recorded successfully!");
+
   } catch (err) {
     console.error("Download failed:", err);
     alert("Failed to download file");
@@ -367,6 +388,7 @@ async function downloadPDF(url, fileName, btn) {
     btn.disabled = false;
   }
 }
+
 
 
 

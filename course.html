@@ -281,22 +281,23 @@ async function loadCourse(){
 }
 
 /* ================= LOAD FILES ================= */
-async function loadFiles(){
+async function loadFiles() {
   const { data, error } = await supabase
     .from("course_files")
     .select("*")
     .eq("course_code", courseCode)
     .order("created_at", { ascending: false });
 
-  if(error){
-    console.error(error);
-    return;
-  }
-
   const box = document.getElementById("filesContainer");
   box.innerHTML = "";
 
-  if(!data || data.length === 0){
+  if (error) {
+    console.error("Error loading files:", error);
+    box.innerHTML = `<p style="color:red;">Error loading files: ${error.message}</p>`;
+    return;
+  }
+
+  if (!data || data.length === 0) {
     box.innerHTML = "<p>No files uploaded for this course yet.</p>";
     return;
   }
@@ -304,22 +305,55 @@ async function loadFiles(){
   data.forEach(f => {
     const date = new Date(f.created_at).toLocaleString();
 
-    box.innerHTML += `
-      <div class="file-card">
-        <div class="file-title">${f.title}</div>
-        <div class="file-date">${date}</div>
-
-        <div class="file-actions">
-          <button class="btn copy" onclick="copyLink('${f.file_url}')">
-            Copy Link
-          </button>
-          <a class="btn download" href="${f.file_url}" target="_blank">
-            Download
-          </a>
-        </div>
+    // File card with download button that forces download
+    const card = document.createElement("div");
+    card.className = "file-card";
+    card.innerHTML = `
+      <div class="file-title">${f.title}</div>
+      <div class="file-date">${date}</div>
+      <div class="file-actions">
+        <button class="btn copy" onclick="copyLink('${f.file_url}')">
+          Copy Link
+        </button>
+        <button class="btn download" onclick="downloadPDF('${f.file_url}', '${f.title}.pdf')">
+          Download
+        </button>
       </div>
     `;
+    box.appendChild(card);
   });
+}
+
+/* ================= COPY LINK ================= */
+function copyLink(url) {
+  navigator.clipboard.writeText(url)
+    .then(() => alert("Link copied to clipboard!"))
+    .catch(err => console.error("Failed to copy link:", err));
+}
+
+/* ================= DOWNLOAD PDF ================= */
+async function downloadPDF(url, fileName) {
+  try {
+    // Fetch the PDF as a blob
+    const response = await fetch(url);
+    if (!response.ok) throw new Error("Failed to fetch PDF");
+
+    const blob = await response.blob();
+    const blobUrl = URL.createObjectURL(blob);
+
+    // Trigger download
+    const a = document.createElement("a");
+    a.href = blobUrl;
+    a.download = fileName;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+
+    URL.revokeObjectURL(blobUrl);
+  } catch (err) {
+    console.error("Download failed:", err);
+    alert("Failed to download file");
+  }
 }
 
 

@@ -306,22 +306,26 @@ async function loadFiles() {
   data.forEach(f => {
     const date = new Date(f.created_at).toLocaleString();
 
-    // File card with download button that forces download
     const card = document.createElement("div");
     card.className = "file-card";
     card.innerHTML = `
       <div class="file-title">${f.title}</div>
       <div class="file-date">${date}</div>
       <div class="file-actions">
-        <button class="btn copy" onclick="copyLink('${f.file_url}')">
-          Copy Link
-        </button>
-        <button class="btn download" onclick="downloadPDF('${f.file_url}', '${f.title}.pdf')">
-          Download
-        </button>
+        <button class="btn copy">Copy Link</button>
+        <button class="btn download">Download</button>
       </div>
     `;
+
+    // Append card first
     box.appendChild(card);
+
+    // Add event listeners properly
+    const copyBtn = card.querySelector(".copy");
+    const downloadBtn = card.querySelector(".download");
+
+    copyBtn.addEventListener("click", () => copyLink(f.file_url));
+    downloadBtn.addEventListener("click", () => downloadPDF(f.file_url, `${f.title.replace(/\s+/g,'_')}.pdf`, downloadBtn));
   });
 }
 
@@ -333,16 +337,18 @@ function copyLink(url) {
 }
 
 /* ================= DOWNLOAD PDF ================= */
-async function downloadPDF(url, fileName) {
+async function downloadPDF(url, fileName, btn) {
   try {
-    // Fetch the PDF as a blob
+    const originalText = btn.textContent;
+    btn.textContent = "Downloading...";
+    btn.disabled = true;
+
     const response = await fetch(url);
     if (!response.ok) throw new Error("Failed to fetch PDF");
 
     const blob = await response.blob();
     const blobUrl = URL.createObjectURL(blob);
 
-    // Trigger download
     const a = document.createElement("a");
     a.href = blobUrl;
     a.download = fileName;
@@ -351,11 +357,17 @@ async function downloadPDF(url, fileName) {
     a.remove();
 
     URL.revokeObjectURL(blobUrl);
+
+    btn.textContent = originalText;
+    btn.disabled = false;
   } catch (err) {
     console.error("Download failed:", err);
     alert("Failed to download file");
+    btn.textContent = "Download";
+    btn.disabled = false;
   }
 }
+
 
 
   /* ================= COPY LINK ================= */

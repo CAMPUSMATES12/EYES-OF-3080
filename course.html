@@ -339,52 +339,43 @@ function copyLink(url) {
 }
 
 /* ================= DOWNLOAD PDF ================= */
-async function downloadPDF(url, fileName, btn, fileId) {
+async function downloadPDF(fileUrl, fileName, btn, fileId) {
   try {
-    const originalText = btn.textContent;
-    btn.textContent = "Downloading...";
+    const originalText = btn.innerHTML;
+    btn.innerHTML = `<span class="material-icons">download</span> Downloading...`;
     btn.disabled = true;
 
-    // 1️⃣ Download file locally
-    const response = await fetch(url);
-    if (!response.ok) throw new Error("Failed to fetch PDF");
+    // Auth
+    const { data: authData } = await supabase.auth.getUser();
+    if (!authData.user) throw new Error("Login required to download files");
 
-    const blob = await response.blob();
-    const blobUrl = URL.createObjectURL(blob);
+    const userId = authData.user.id;
 
+    // Record download
+    const { error } = await supabase.from("downloads").insert([{
+      user_id: userId,
+      file_id: fileId,
+      file_title: fileName,
+      downloaded_at: new Date()
+    }]);
+
+    if (error) throw error;
+
+    // Trigger browser download
     const a = document.createElement("a");
-    a.href = blobUrl;
+    a.href = fileUrl;
     a.download = fileName;
     document.body.appendChild(a);
     a.click();
     a.remove();
-    URL.revokeObjectURL(blobUrl);
 
-    btn.textContent = originalText;
+    btn.innerHTML = originalText;
     btn.disabled = false;
-
-    // 2️⃣ Record the download in Supabase
-    const { data: authData } = await supabase.auth.getUser();
-    if (!authData.user) return;
-
-    const userId = authData.user.id;
-
-    const { error } = await supabase
-      .from("downloads")
-      .insert([{
-        user_id: userId,
-        file_id: fileId,          // the real file ID from course_files table
-        file_title: fileName,
-        downloaded_at: new Date()
-      }]);
-
-    if (error) console.error("Error recording download:", error);
-    else console.log("Download recorded successfully!");
 
   } catch (err) {
     console.error("Download failed:", err);
-    alert("Failed to download file");
-    btn.textContent = "Download";
+    alert(err.message);
+    btn.innerHTML = `<span class="material-icons">download</span> Download`;
     btn.disabled = false;
   }
 }
